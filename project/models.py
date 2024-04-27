@@ -85,6 +85,7 @@ class Project(Base):
         pass
 
 class Project_documents(Base):
+    __tablename__ = "project_documents"
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(30))
     filename: Mapped[str] = mapped_column(String(30))
@@ -141,28 +142,28 @@ class Team(Base):
     def get_all_members(self):
         pass
     
-class Team_member(Base):
-    __tablename__ = "team_members"
-
-class Director_subordinates(Base):
-    __tablename__ = "direcor_subordinates"
-
-class Team_member_role(Base):
-    __tablename__ = "team_member_roles"
-
-class Task(Base):
-    __tablename__ = "tasks"
-
-class Task_status(Base):
-    __tablename__ = "task_statuses"
-class Task_executor(Base):
-    __tablename__ = "task_executors"
-    
-class Task_document(Base):
-    __tablename__ = "task_documents"
-    
-class Task_report(Base):
-    __tablename__ = "task_reports"
-
-class Task_message(Base):
-    __tablename__ = "task_messages"
+# class Team_member(Base):
+#     __tablename__ = "team_members"
+#
+# class Director_subordinates(Base):
+#     __tablename__ = "direcor_subordinates"
+#
+# class Team_member_role(Base):
+#     __tablename__ = "team_member_roles"
+#
+# class Task(Base):
+#     __tablename__ = "tasks"
+#
+# class Task_status(Base):
+#     __tablename__ = "task_statuses"
+# class Task_executor(Base):
+#     __tablename__ = "task_executors"
+#
+# class Task_document(Base):
+#     __tablename__ = "task_documents"
+#
+# class Task_report(Base):
+#     __tablename__ = "task_reports"
+#
+# class Task_message(Base):
+#     __tablename__ = "task_messages"

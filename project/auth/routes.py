@@ -6,10 +6,6 @@ from project import db
 from project.main import bp
 
 
-@bp.route('/register', methods=['GET', 'POST'])
-def reqister():
-    pass
-
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():

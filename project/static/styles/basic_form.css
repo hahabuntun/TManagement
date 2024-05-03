@@ -62,3 +62,5 @@ button {
     margin: 0 auto;
     margin-top: 1%;
 }
+
+.nav-link { color: #343a40; } /* Dark gray text for links */

@@ -1,0 +1,24 @@
+.navbar {
+    background-color: #343a40; /* Dark gray navbar */
+    color: white;
+}
+
+.sidebar {
+    background-color: #f8f9fa; /* Light gray sidebar */
+}
+
+.nav-link {
+    color: #343a40;
+}
+
+/* Dark gray text for links */
+.nav-link:hover {
+    color: #007bff;
+}
+
+/* Blue on hover */
+.custom-card {
+    border: 1px solid #ccc;
+    padding: 15px;
+    background-color: #e9ecef; /* Light gray card background */
+}

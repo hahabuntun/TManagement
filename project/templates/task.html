@@ -1,183 +1,80 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>All Projects - IT Project Management</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Management System</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
-<style>
-     body { 
-            font-family: sans-serif; 
-        }
-        .navbar { 
-            background-color: #343a40; /* Dark gray navbar */
-            color: white; 
-        }
-        .sidebar { 
-            background-color: #f8f9fa; /* Light gray sidebar */
-        }
-        .nav-link { color: #343a40; } /* Dark gray text for links */
-        .nav-link:hover { color: #007bff; } /* Blue on hover */ 
-        .custom-card { 
-            border: 1px solid #ccc; 
-            padding: 15px; 
-            background-color: #e9ecef; /* Light gray card background */
-        }
-        .message {
-            margin-bottom: 10px;
-            padding: 8px;
-            border-radius: 5px;
-        }
-
-        .message.received {
-            background-color: #f0f0f0;
-        }
-
-        .message.sent {
-            background-color: #007bff;
-            color: white;
-        }
-        .sender-icon {
-            margin-right: 10px; /* Add some space between the icon and the message */
-            font-size: 1.2em;  /* Adjust the size as needed */
-            color: gray;       /* Change the color if desired */
-        }
-</style>
 <body>
+    <div class="container">
+        <h1>Task Management System</h1>
 
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="#">IT Project Management</a>
-        <ul class="navbar-nav ml-auto">
-            <li class="nav-item"><a class="nav-link" href="#">Logout</a></li>
-            <li class="nav-item"><a class="nav-link" href="#">Projects</a></li>
-        </ul>
-    </nav>
-
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-3 col-lg-2 bg-light d-none d-md-block sidebar">
-                <div class="sidebar-sticky">
-                    <ul class="nav flex-column">
-                        для админа
-                        <li class="nav-item"><a class="nav-link" href="#">All Projects</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Active Projects</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Completed Projects</a></li>
-                        <hr>
-                        для работника
-                        <li class="nav-item"><a class="nav-link" href="#">Projects</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Задачи(мои)</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Задачи(поставлены мной)</a></li>
-                    </ul>
-                </div>
+        <!-- Task Details Section -->
+        <div class="card">
+            <div class="card-header">
+                Task Details
             </div>
+            <div class="card-body">
+                <!-- Task Title -->
+                <h5 class="card-title">Task Title</h5>
 
-            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+                <!-- Task Description -->
+                <p class="card-text">Task Description</p>
 
-                <div class="custom-list row mt-4">
-                    <div class="custom-card col-md-6">
-                        <table>
-                            
-                            <tr>
-                                <td><h3>Данные по задаче</h3></td>
-                            </tr>
-                            <tr>
-                                <td>id: 1</td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    Задача верхнего уровня: <a href="">0</a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Постановка: Создать чат</td>
-                            </tr>
-                            <tr>
-                                <td><a href="">Документы задачи</a></td>
-                            </tr>
-                            <tr>
-                                <td><a href="">Постановщик: alex@mail.ru</a></td>
-                            </tr>
-                            <tr>
-                                <td>Ответственный: andrei@mail.ru</td>
-                            </tr>
-                            <tr>
-                                <td>Статус: выполняется</td>
-                            </tr>
-                        </table>
-                        
-                        
-                        
+                <!-- Comments Section -->
+                <h6>Comments:</h6>
+                <ul class="list-group">
+                    <li class="list-group-item">Comment 1</li>
+                    <li class="list-group-item">Comment 2</li>
+                    <!-- Add more comments dynamically using JavaScript -->
+                </ul>
+
+                <!-- Add Comment Form -->
+                <form>
+                    <div class="form-group">
+                        <label for="comment">Add Comment:</label>
+                        <textarea class="form-control" id="comment" rows="3"></textarea>
                     </div>
-                    <div class="custom-card col-md-6">
-                        <h3>Чат</h3>
-                        <div class="chat-container">
-                            <div class="message-list">
-                                <div class="message received">
-                                    <span class="sender-icon">✏️</span>
-                                    <p>Привет! Как дела?</p>
-                                </div>
-                                <div class="message sent">
-                                    <span class="sender-icon">✏️</span>
-                                    <p>Привет! У меня всё отлично, спасибо! А у тебя?</p>
-                                </div>
-                                <div class="message received">
-                                    <span class="sender-icon">✏️</span>
-                                    <p>Тоже хорошо! Чем занимаешься?</p>
-                                </div> 
-                            </div>
-                            <div class="input-area">
-                                <input type="text" id="message-input" placeholder="Введите сообщение...">
-                                <button id="send-button">Отправить</button>
-                            </div>
-                        </div>
+                    <button type="submit" class="btn btn-primary">Submit Comment</button>
+                </form>
+
+                <!-- Attach Files Section -->
+                <h6>Attached Files:</h6>
+                <ul class="list-group">
+                    <li class="list-group-item">File 1</li>
+                    <li class="list-group-item">File 2</li>
+                    <!-- Add more files dynamically -->
+                </ul>
+
+                <!-- Add File Button -->
+                <button type="button" class="btn btn-secondary">Attach File</button>
+
+                <!-- Subtasks Section -->
+                <h6>Subtasks:</h6>
+                <ul class="list-group">
+                    <li class="list-group-item">Subtask 1</li>
+                    <li class="list-group-item">Subtask 2</li>
+                    <!-- Add more subtasks dynamically -->
+                </ul>
+
+                <!-- Create Subtask Form -->
+                <form>
+                    <div class="form-group">
+                        <label for="subtask">Create Subtask:</label>
+                        <input type="text" class="form-control" id="subtask">
                     </div>
-                    <div class="custom-card col-md-6">
-                        <h3>Исполнители</h3>
-                        <ul>
-                            <li>andrei@gmail.com</li>
-                            <li>andrei@gmail.com</li>
-                            <li>andrei@gmail.com</li>
-                            <li>andrei@gmail.com</li>
-                        </ul>
-                        </table>
-                    </div>
-                    <div class="custom-card col-md-6">
-                        <h3>Подзадачи</h3>
-                        <table>
-                            <thead>
-                                <th>Название</th>
-                                <th>ID подзадачи</th>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>создать дизайн чата</td>
-                                    <td>2</td>
-                                </tr>
-                                <tr>
-                                    <td>создать обработчики на сервере</td>
-                                    <td>3</td>
-                                </tr>
-                                <tr>
-                                    <td>протестировать</td>
-                                    <td>4</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    
-                </div>
-            </main> 
+                    <button type="submit" class="btn btn-primary">Create Subtask</button>
+                </form>
+
+                <!-- Change Status Button -->
+                <button type="button" class="btn btn-warning">Change Status</button>
+            </div>
         </div>
     </div>
 
-    <div id="newProjectModal" class="modal">
-        <!-- ... (modal content remains the same) ... -->
-    </div>
-
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script>
-        // ... (JavaScript for modal and other interactions) ... 
-    </script>
 </body>
 </html>

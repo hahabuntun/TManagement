@@ -1,0 +1,70 @@
+table {
+    width: 90%;
+    border-collapse: collapse;
+    margin: 2% auto;
+    }
+
+    th, td {
+        border: 1px solid #ddd;
+        padding: 5px;
+        text-align: center;
+    }
+
+    th {
+        background-color: #f2f2f2;
+    }
+
+
+    .filter-container, .add-container, .edit-container, .remove-container{
+    margin-top: 20px;
+    margin-left: 5%;
+    text-align: left;
+    }
+
+    .dataInput {
+        padding: 5px;
+        width: 200px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    #searchButton {
+        padding: 5px 10px;
+        margin-left: 10px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    #editButton {
+        padding: 5px 10px;
+        margin-left: 10px;
+        background-color: orange;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    #removeButton {
+        padding: 5px 10px;
+        margin-left: 10px;
+        background-color: red;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    
+    #addButton {
+        padding: 5px 10px;
+        margin-left: 10px;
+        background-color: green;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    .redBtn{
+        background-color: red;
+    }

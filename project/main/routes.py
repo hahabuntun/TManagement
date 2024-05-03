@@ -4,5 +4,5 @@ from werkzeug.utils import secure_filename
 from project.main import bp
 
 @bp.route('/')
-def hello_world():
-    return 'Hello World!'
+def all_projects():
+    return render_template("projects.html")

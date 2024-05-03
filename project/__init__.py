@@ -18,14 +18,14 @@ def create_app(config_class=Config):
 
     db.init_app(app)
     migrate.init_app(app, db)
-    login_manager.init_app(app)
+    #login_manager.init_app(app)
 
     # Загрузка blueprints
-    from project.errors import bp as errors_bp
-    app.register_blueprint(errors_bp)
+    # from project.errors import bp as errors_bp
+    # app.register_blueprint(errors_bp)
 
-    from project.auth import bp as auth_bp
-    app.register_blueprint(auth_bp, url_prefix='/auth')
+    # from project.auth import bp as auth_bp
+    # app.register_blueprint(auth_bp, url_prefix='/auth')
 
     from project.main import bp as main_bp
     app.register_blueprint(main_bp)

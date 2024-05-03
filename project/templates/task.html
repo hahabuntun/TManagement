@@ -7,74 +7,104 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Task Management System</h1>
+<div class="container">
+    <h1>Task Management System</h1>
 
-        <!-- Task Details Section -->
-        <div class="card">
-            <div class="card-header">
-                Task Details
-            </div>
-            <div class="card-body">
-                <!-- Task Title -->
-                <h5 class="card-title">Task Title</h5>
+    <!-- Task Details Section -->
+    <div class="card">
+        <div class="card-header">
+            Task Details
+        </div>
+        <div class="card-body">
+            <!-- Task Title -->
+            <h5 class="card-title">Task Title</h5>
 
-                <!-- Task Description -->
-                <p class="card-text">Task Description</p>
+            <!-- Task Description -->
+            <p class="card-text">Task Description</p>
 
-                <!-- Comments Section -->
-                <h6>Comments:</h6>
-                <ul class="list-group">
-                    <li class="list-group-item">Comment 1</li>
-                    <li class="list-group-item">Comment 2</li>
-                    <!-- Add more comments dynamically using JavaScript -->
-                </ul>
+            <!-- Comments Section -->
+            <h6>Comments:</h6>
+            <ul class="list-group">
+                <li class="list-group-item">Comment 1</li>
+                <li class="list-group-item">Comment 2</li>
+                <!-- Add more comments dynamically using JavaScript -->
+            </ul>
 
-                <!-- Add Comment Form -->
-                <form>
-                    <div class="form-group">
-                        <label for="comment">Add Comment:</label>
-                        <textarea class="form-control" id="comment" rows="3"></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Submit Comment</button>
-                </form>
+            <!-- Add Comment Form -->
+            <form>
+                <div class="form-group">
+                    <label for="comment">Add Comment:</label>
+                    <textarea class="form-control" id="comment" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit Comment</button>
+            </form>
 
-                <!-- Attach Files Section -->
-                <h6>Attached Files:</h6>
-                <ul class="list-group">
-                    <li class="list-group-item">File 1</li>
-                    <li class="list-group-item">File 2</li>
-                    <!-- Add more files dynamically -->
-                </ul>
+            <!-- Attach Files Section -->
+            <h6>Attached Files:</h6>
+            <ul class="list-group">
+                <li class="list-group-item">File 1</li>
+                <li class="list-group-item">File 2</li>
+                <!-- Add more files dynamically -->
+            </ul>
 
-                <!-- Add File Button -->
-                <button type="button" class="btn btn-secondary">Attach File</button>
+            <!-- Add File Button -->
+            <button type="button" class="btn btn-secondary">Attach File</button>
 
-                <!-- Subtasks Section -->
-                <h6>Subtasks:</h6>
-                <ul class="list-group">
-                    <li class="list-group-item">Subtask 1</li>
-                    <li class="list-group-item">Subtask 2</li>
-                    <!-- Add more subtasks dynamically -->
-                </ul>
+            <!-- Subtasks Section -->
+            <h6>Subtasks:</h6>
+            <ul class="list-group">
+                <li class="list-group-item">Subtask 1</li>
+                <li class="list-group-item">Subtask 2</li>
+                <!-- Add more subtasks dynamically -->
+            </ul>
 
-                <!-- Create Subtask Form -->
-                <form>
-                    <div class="form-group">
-                        <label for="subtask">Create Subtask:</label>
-                        <input type="text" class="form-control" id="subtask">
-                    </div>
-                    <button type="submit" class="btn btn-primary">Create Subtask</button>
-                </form>
+            <!-- Create Subtask Form -->
+            <form>
+                <div class="form-group">
+                    <label for="subtask">Create Subtask:</label>
+                    <input type="text" class="form-control" id="subtask">
+                </div>
+                <button type="submit" class="btn btn-primary">Create Subtask</button>
+            </form>
 
-                <!-- Change Status Button -->
-                <button type="button" class="btn btn-warning">Change Status</button>
-            </div>
+            <!-- Report Section -->
+            <h6>Task Report:</h6>
+            <p id="task-report" class="card-text">No report added yet.</p>
+
+            <!-- Add Report Form -->
+            <form id="report-form">
+                <div class="form-group">
+                    <label for="report">Add Task Report:</label>
+                    <textarea class="form-control" id="report" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit Report</button>
+            </form>
+
+
+            <!-- Change Status Button -->
+            <button type="button" class="btn btn-warning">Change Status</button>
         </div>
     </div>
+</div>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    // Функция для добавления отчёта по задаче
+    function addTaskReport() {
+        const reportText = document.getElementById('report').value;
+        if (reportText.trim() !== '') {
+            document.getElementById('task-report').innerText = reportText;
+            document.getElementById('report-form').reset();
+        }
+    }
+
+    document.getElementById('report-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        addTaskReport();
+    });
+</script>
+
 </body>
 </html>

@@ -22,6 +22,19 @@
             <!-- Task Description -->
             <p class="card-text">Task Description</p>
 
+            <!-- Task Assignment Section -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    Task Assignment
+                </div>
+                <div class="card-body">
+                    <p><strong>Assigned To:</strong> John Doe</p>
+                    <p><strong>Assigned By:</strong> Jane Smith</p>
+                    <p><strong>Responsible Person:</strong> Emily Johnson</p>
+                </div>
+            </div>
+
+
             <!-- Comments Section -->
             <h6>Comments:</h6>
             <ul class="list-group">
@@ -90,21 +103,6 @@
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<script>
-    // Функция для добавления отчёта по задаче
-    function addTaskReport() {
-        const reportText = document.getElementById('report').value;
-        if (reportText.trim() !== '') {
-            document.getElementById('task-report').innerText = reportText;
-            document.getElementById('report-form').reset();
-        }
-    }
-
-    document.getElementById('report-form').addEventListener('submit', function(event) {
-        event.preventDefault();
-        addTaskReport();
-    });
-</script>
 
 </body>
 </html>

@@ -76,6 +76,7 @@ class Task(Base):
     task_status_id = db.Column(db.Integer, db.ForeignKey("task_statuses.id"))
     parent_task_id = db.Column(db.Integer, db.ForeignKey("tasks.id"))
     main_executor_id = db.Column(db.Integer, db.ForeignKey("team_members.id"))
+    team_id = db.Column(db.Integer, db.ForeignKey("teams.id"))
     id = db.Column(db.Integer, primary_key=True)
 
 class TaskStatus(Base):

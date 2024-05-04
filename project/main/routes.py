@@ -50,18 +50,7 @@ def all_projects():
     return render_template("project/projects.html", context=data)
 
 
-@bp.route('/project/<int:project_id>')
-def project(project_id: int):
-    query = text("""
-        select * 
-        from teams 
-        where teams.project_id = {}
-    """.format(project_id))
-    teams = db.session.execute(query).fetchall()
-
-    return render_template("team/teams_in_project.html", teams=teams)
-
-
+# Документы проекта
 @bp.route('/project_docs/<int:project_id>')
 def project_docs(project_id: int):
     # Полнотекстовый поиск документов не сделан
@@ -77,15 +66,73 @@ def project_docs(project_id: int):
     return render_template("project/project_documents.html", documents=documents)
 
 
+# Удалить проект
 @bp.route("/drop_project/<int:project_id>", methods=["GET", "POST"])
 def drop_project(project_id: int):
     # Реализовать
     pass
 
+
+# Добавить проект
 @bp.route("/add_project", methods=["GET", "POST"])
 def add_project():
     # Реализовать
     pass
 
 
+# Команды проекта
+@bp.route('/project_teams/<int:project_id>')
+def project_teams(project_id: int):
+    query = text("""
+        select * 
+        from teams 
+        where teams.project_id = {}
+    """.format(project_id))
+    teams = db.session.execute(query).fetchall()
 
+    return render_template("team/teams_in_project.html", teams=teams)
+
+
+# Добавить сотрудника в команду
+@bp.route("/add_member_in_team/<int:team_id>", methods=["GET", "POST"])
+def add_member_in_team(team_id: int):
+    # Надо использовать форму
+    return render_template("team/add_member_in_team.html")
+
+
+# документы команды
+@bp.route("/team_documents/<int:team_id>", methods=["GET", "POST"])
+def team_documents(team_id: int):
+    query = text("""
+            select * 
+            from team_documents
+            where team_id = {}
+        """.format(team_id))
+    return render_template("team/team_documents.html")
+
+
+# удалить команду
+@bp.route("/drop_team/<int:team_id>", methods=["GET", "POST"])
+def drop_team(team_id: int):
+    pass
+
+
+# задачи команды
+@bp.route("/team_tasks/<int:team_id>", methods=["GET", "POST"])
+def team_tasks(team_id):
+    query = text("""
+                select * 
+                from tasks
+                where team_id = {}
+            """.format(team_id))
+    return render_template("team/team_tasks.html")
+
+
+@bp.route("/add_task", methods=["GET", "POST"])
+def add_task():
+    return render_template("task/task.html")
+
+
+@bp.route("/task/<int:task_id>", methods=["GET", "POST"])
+def task(task_id: int):
+    return render_template("task/task.html")

@@ -100,10 +100,6 @@ def add_member_in_team(team_id: int):
     return render_template("team/add_member_in_team.html")
 
 
-@bp.route("/team_tasks", methods=["GET", "POST"])
-def team_tasks():
-    return render_template("team/team.html")
-
 
 # документы команды
 @bp.route("/team_documents/<int:team_id>", methods=["GET", "POST"])
@@ -120,3 +116,9 @@ def team_documents(team_id: int):
 @bp.route("/drop_team/<int:team_id>", methods=["GET", "POST"])
 def drop_team(team_id: int):
     pass
+
+
+# задачи команды
+@bp.route("/team_tasks", methods=["GET", "POST"])
+def team_tasks():
+    return render_template("team/team.html")

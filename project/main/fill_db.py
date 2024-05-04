@@ -7,8 +7,7 @@ import os
 
 random.seed(10)
 
-
-#ниче не работает
+# ниче не работает
 
 it_positions = [
     "Backend-разработчик",
@@ -21,14 +20,14 @@ it_positions = [
     "Machine Learning Engineer",
     "DevOps Engineer",
     "QA Engineer",
-    "UX-дизайнер", 
+    "UX-дизайнер",
     "UI-дизайнер",
-    "Product Designer", 
-    "Project Manager", 
+    "Product Designer",
+    "Project Manager",
     "Product Manager",
-    "Scrum Master", 
-    "Digital Marketing Manager", 
-    "Content Marketing Manager", 
+    "Scrum Master",
+    "Digital Marketing Manager",
+    "Content Marketing Manager",
     "Sales Manager",
     "Business Analyst",
     "System Analyst",
@@ -39,8 +38,8 @@ it_positions = [
     "System Administrator",
     "Network Engineer",
     "Database Administrator",
-    "Technical Writer" 
-    ]
+    "Technical Writer"
+]
 
 
 def build():
@@ -53,16 +52,18 @@ def build():
     fill_team_members()
     # pass
 
+
 def fill_project_status():
     finished = ProjectStatus(name="завершен")
     in_work = ProjectStatus(name="выполняется")
     canceled = ProjectStatus(name="отменен")
     in_creation = ProjectStatus(name="на этапе создания")
-    # db.session.add(finished)
-    # db.session.add(in_work)
-    # db.session.add(canceled)
-    # db.session.add(in_creation)
+    db.session.add(finished)
+    db.session.add(in_work)
+    db.session.add(canceled)
+    db.session.add(in_creation)
     db.session.commit()
+
 
 def fill_worker_positions():
     work_positions = []
@@ -71,10 +72,12 @@ def fill_worker_positions():
         db.session.add(work_position)
     db.session.commit()
 
+
 def fill_workers(num):
     first_names = ["Андрей", "Иван", "Мария", "Елена", "Дмитрий", "Ольга", "Алексей", "Анна"]
     last_names = ["Иванов", "Петров", "Сидоров", "Смирнов", "Кузнецов", "Попов", "Васильев", "Соколова"]
-    third_names = ["Александрович", "Алексеевна", "Викторович", "Викторовна", "Владимирович", "Владимировна", "Сергеевич", "Сергеевна"]
+    third_names = ["Александрович", "Алексеевна", "Викторович", "Викторовна", "Владимирович", "Владимировна",
+                   "Сергеевич", "Сергеевна"]
 
     for _ in range(num):
         first_name = random.choice(first_names)
@@ -90,19 +93,22 @@ def fill_workers(num):
             third_name=third_name,
             email=email,
             password_hash=generate_password_hash("password"),  # Use a more secure password in real applications
-            worker_position_id = position_d.id
+            worker_position_id=position_d.id
         )
         db.session.add(new_worker)
 
     db.session.commit()
+
+
 def fill_projects():
     project_names = ["интернет магазин", "сайт визитка", "проводник", "система оплаты проезда"]
     project_manager = db.session.query(Worker).join(
         WorkerPosition,
-        Worker.worker_position_id == WorkerPosition.id).filter(WorkerPosition.name=="Project Manager").first()
+        Worker.worker_position_id == WorkerPosition.id).filter(WorkerPosition.name == "Project Manager").first()
     project_statuses = ProjectStatus.query.all()
     print(random.choice(project_statuses).id, "+++", len(project_statuses))
-    projects = [Project(title=project_names[i], manager_id=project_manager.id, project_status_id=random.choice(project_statuses).id) for i in range(4) ]
+    projects = [Project(title=project_names[i], manager_id=project_manager.id,
+                        project_status_id=random.choice(project_statuses).id) for i in range(4)]
     for project in projects:
         db.session.add(project)
     db.session.commit()
@@ -114,19 +120,22 @@ def get_absolute_path(relative_path):
     absolute_path = os.path.join(base_path, relative_path)
     return absolute_path
 
+
 def fill_project_documents():
     projects = Project.query.all()
     names = ["TZ", "Сотрудники", "Основные ттх", "план на проекта"]
     paths = [
-            get_absolute_path("../../documents/project_documents/1.pdf"),
-            get_absolute_path("../../documents/project_documents/2.pdf"),
-            get_absolute_path("../../documents/project_documents/3.pdf"),
-            get_absolute_path("../../documents/project_documents/design.txt")
-            ]
-    documents = [ProjectDocuments(name=names[i], filepath=paths[i], project_id=project.id) for i in range(4) for project in projects]
+        get_absolute_path("../../documents/project_documents/1.pdf"),
+        get_absolute_path("../../documents/project_documents/2.pdf"),
+        get_absolute_path("../../documents/project_documents/3.pdf"),
+        get_absolute_path("../../documents/project_documents/design.txt")
+    ]
+    documents = [ProjectDocuments(name=names[i], filepath=paths[i], project_id=project.id) for i in range(4) for project
+                 in projects]
     for document in documents:
         db.session.add(document)
     db.session.commit()
+
 
 def fill_teams():
     projects = Project.query.all()
@@ -140,11 +149,11 @@ def fill_teams():
 def fill_team_members():
     workers = db.session.query(Worker).join(
         WorkerPosition,
-        Worker.worker_position_id == WorkerPosition.id).filter(WorkerPosition.name!="Project Manager").all()
-    
+        Worker.worker_position_id == WorkerPosition.id).filter(WorkerPosition.name != "Project Manager").all()
+
     projects = Project.query.all()
     for project in projects:
-        teams = Team.query.filter(Team.project_id==project.id).all()
+        teams = Team.query.filter(Team.project_id == project.id).all()
         for team in teams:
             for i in range(random.randint(1, 4)):
                 rand_worker = workers[random.randint(0, len(workers) - 1)]
@@ -156,8 +165,10 @@ def fill_team_members():
 def fill_director_subordinate():
     pass
 
+
 def fill_task_statuses():
     pass
+
 
 def fill_tasks():
     pass
@@ -166,10 +177,14 @@ def fill_tasks():
 def fill_task_executors():
     pass
 
+
 def fill_task_reports():
     pass
+
+
 def fill_task_messages():
     pass
+
 
 def fill_task_documents():
     pass

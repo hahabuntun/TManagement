@@ -50,8 +50,8 @@ def all_projects():
     return render_template("project/projects.html", context=data)
 
 
-@bp.route('/project/<int:project_id>')
-def project(project_id: int):
+@bp.route('/project_teams/<int:project_id>')
+def project_teams(project_id: int):
     query = text("""
         select * 
         from teams 
@@ -82,10 +82,30 @@ def drop_project(project_id: int):
     # Реализовать
     pass
 
+
 @bp.route("/add_project", methods=["GET", "POST"])
 def add_project():
     # Реализовать
     pass
 
 
+@bp.route("/add_member_in_team/<int:team_id>", methods=["GET", "POST"])
+def add_member_in_team(team_id: int):
+    # Надо использовать форму
+    return render_template("team/add_member_in_team.html")
 
+
+@bp.route("/team_tasks", methods=["GET", "POST"])
+def team_tasks():
+
+    return render_template("team/team.html")
+
+
+@bp.route("/team_documents/<int:team_id>", methods=["GET", "POST"])
+def team_documents(team_id: int):
+    query = text("""
+            select * 
+            from team_documents
+            where team_id = {}
+        """.format(team_id))
+    return render_template("team/team_documents.html")

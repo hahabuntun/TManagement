@@ -49,6 +49,13 @@ class TeamMember(Base):
     worker_id = db.Column(db.Integer, db.ForeignKey("workers.id"))
     team_id = db.Column(db.Integer, db.ForeignKey("teams.id"))
 
+class TeamDocuments(Base):
+    __tablename__ = "team_documents"
+    name = db.Column(db.String(30))
+    filepath = db.Column(db.String(255))
+    date_created = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
+    team_id = db.Column(db.Integer, db.ForeignKey("team.id"))
+
 class DirectorSubordinates(Base):
     __tablename__ = "direcor_subordinates"
     producer_id = db.Column(db.Integer, db.ForeignKey("team_members.id"))

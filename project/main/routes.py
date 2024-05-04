@@ -50,19 +50,6 @@ def all_projects():
     return render_template("project/projects.html", context=data)
 
 
-# Команды проекта
-@bp.route('/project_teams/<int:project_id>')
-def project_teams(project_id: int):
-    query = text("""
-        select * 
-        from teams 
-        where teams.project_id = {}
-    """.format(project_id))
-    teams = db.session.execute(query).fetchall()
-
-    return render_template("team/teams_in_project.html", teams=teams)
-
-
 # Документы проекта
 @bp.route('/project_docs/<int:project_id>')
 def project_docs(project_id: int):
@@ -91,6 +78,19 @@ def drop_project(project_id: int):
 def add_project():
     # Реализовать
     pass
+
+
+# Команды проекта
+@bp.route('/project_teams/<int:project_id>')
+def project_teams(project_id: int):
+    query = text("""
+        select * 
+        from teams 
+        where teams.project_id = {}
+    """.format(project_id))
+    teams = db.session.execute(query).fetchall()
+
+    return render_template("team/teams_in_project.html", teams=teams)
 
 
 # Добавить сотрудника в команду

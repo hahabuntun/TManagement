@@ -109,3 +109,8 @@ def team_documents(team_id: int):
             where team_id = {}
         """.format(team_id))
     return render_template("team/team_documents.html")
+
+
+@bp.route("/drop_team/<int:team_id>", methods=["GET", "POST"])
+def drop_team(team_id: int):
+    pass

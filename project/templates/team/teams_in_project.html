@@ -7,9 +7,9 @@
             <div class="custom-card col-md-6">
                 <h3><a href="">{{ team.name }}</a></h3>
                 <p>Created: {{ team.date_created }}</p>
-                <button class="btn btn-success">Add docs</button>
-                <button class="btn btn-success">Add members</button>
-                <button href="#" class="btn btn-danger">Drop team</button>
+                <button class="btn btn-success"><a href="/team_documents/{{ team.id }}">Add docs</a></button>
+                <button class="btn btn-success"><a href="/add_member_in_team/{{ team.id }}">Add members</a></button>
+                <button href="#" class="btn btn-danger"><a href="/drop_team/{{ team.id }}">Drop team</a></button>
             </div>
         {% endfor %}
     </div>

@@ -47,7 +47,7 @@ def all_projects():
                      "status": project.status, "manager": project.manager_email, "num_teams": num_teams[0],
                      "num_employees": num_employees[0]})
 
-    return render_template("projects.html", context=data)
+    return render_template("project/projects.html", context=data)
 
 
 @bp.route('/project/<int:project_id>')
@@ -59,7 +59,7 @@ def project(project_id: int):
     """.format(project_id))
     teams = db.session.execute(query).fetchall()
 
-    return render_template("project.html", teams=teams)
+    return render_template("project/project.html", teams=teams)
 
 
 @bp.route('/project_docs/<int:project_id>')
@@ -74,5 +74,7 @@ def project_docs(project_id: int):
     """.format(project_id))
 
     documents = db.session.execute(query).fetchall()
-    return render_template("project_documents.html", documents=documents)
+    return render_template("project/project_documents.html", documents=documents)
+
+
 

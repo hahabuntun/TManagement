@@ -36,32 +36,18 @@
 
         <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
 
+
+
             <div class="custom-list row mt-4">
-                <div class="custom-card col-md-6">
-                    <h3><a href="">Team 1</a></h3>
-                    <p>Created: 2023-08-15</p>
-                    <p>num employees: 4</p>
+                {% for team in teams %}
+                    <div class="custom-card col-md-6">
+                    <h3><a href="">{{ team.name }}</a></h3>
+                    <p>Created: {{ team.date_created }}</p>
                     <button class="btn btn-success">Add docs</button>
                     <button class="btn btn-success">Add members</button>
                     <button href="#" class="btn btn-danger">Drop team</button>
                 </div>
-                <!-- Add more project cards here -->
-                <div class="custom-card col-md-6">
-                    <h3><a href="">Team 1</a></h3>
-                    <p>Created: 2023-08-15</p>
-                    <p>num employees: 4</p>
-                    <button class="btn btn-success">Add docs</button>
-                    <button class="btn btn-success">Add members</button>
-                    <button href="#" class="btn btn-danger">Drop team</button>
-                </div>
-                <div class="custom-card col-md-6">
-                    <h3><a href="">Team 1</a></h3>
-                    <p>Created: 2023-08-15</p>
-                    <p>num employees: 4</p>
-                    <button class="btn btn-success">Add docs</button>
-                    <button class="btn btn-success">Add members</button>
-                    <button href="#" class="btn btn-danger">Drop team</button>
-                </div>
+                {% endfor %}
             </div>
         </main>
     </div>

@@ -1,162 +1,142 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
+{% block content %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Добавление сотрудника</title>
-
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="../static/styles/basic_form.css">
-    <link rel="stylesheet" href="../static/styles/basic_list.css">
-    <link rel="stylesheet" href="../static/styles/modal.css">
-</head>
-
-<body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="#">IT Project Management</a>
-        <ul class="navbar-nav ml-auto">
-            <li class="nav-item"><a class="nav-link" href="#">Logout</a></li>
-            <li class="nav-item"><a class="nav-link" href="#">Projects</a></li>
-        </ul>
-    </nav>
-
-
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-3 col-lg-2 bg-light d-none d-md-block sidebar">
-                <div class="sidebar-sticky">
-                    <ul class="nav flex-column">
-                        для админа
-                        <li class="nav-item"><a class="nav-link" href="#">All Projects</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Active Projects</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Completed Projects</a></li>
-                        <hr>
-                        для работника
-                        <li class="nav-item"><a class="nav-link" href="#">Projects</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Задачи(мои)</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Задачи(поставлены мной)</a></li>
-                    </ul>
-                </div>
-            </div>
-            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
-                <br>
-                <hr>
-                Добавить документ
-                <div class="add-container">
-                    <form id="addForm">
-                        <input name="name" type="text" class="dataInput" id="documentNameAdd"
-                            placeholder="Название документа">
-                        <input name="file" type="file" class="dataInput" id="documentAdd"
-                            placeholder="Email создателя">
-                        <button type="submit">Загрузить</button>
-                    </form>
-                </div>
-
-                Найти документ
-                <div class="filter-container">
-                    <form id="filterForm">
-                        <input name="name" type="text" class="dataInput" id="documentSearch"
-                            placeholder="Название документа">
-                        <input name="email" type="text" class="dataInput" id="emailSearch"
-                            placeholder="Email создателя">
-                        <input name="start_date" type="text" class="dataInput" id="srartDateSearch"
-                            placeholder="От какой даты">
-                        <input name="start_date" type="text" class="dataInput" id="srartDateSearch"
-                            placeholder="До какой даты">
-                        <button type="submit" id="searchButton">Поиск</button>
-                    </form>
-                </div>
-
-                <div class="document-list" id="documentListContainer">
-                    <div id="documentTableContainer">
-                        <table class="document-table" id="documentTable">
-                            <thead>
-                                <tr>
-                                    <th>Название</th>
-                                    <th>Загрузчик</th>
-                                    <th>Дата загрузки</th>
-                                    <th>Удалить</th>
-                                    <th>Скачать</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>постановка задачи</td>
-                                    <td>Александр</td>
-                                    <td>24 12 2009</td>
-                                    <td><button class="btn btn-danger">Удалить</button></td>
-                                    <td><a href="">Скачать</a></td>
-                                </tr>
-                                <tr>
-                                    <td>постановка задачи</td>
-                                    <td>Александр</td>
-                                    <td>24 12 2009</td>
-                                    <td><button class="btn btn-danger">Удалить</button></td>
-                                    <td><a href="">Скачать</a></td>
-                                </tr>
-                                <tr>
-                                    <td>постановка задачи</td>
-                                    <td>Александр</td>
-                                    <td>24 12 2009</td>
-                                    <td><button class="btn btn-danger">Удалить</button></td>
-                                    <td><a href="">Скачать</a></td>
-                                </tr>
-                                <tr>
-                                    <td>постановка задачи</td>
-                                    <td>Александр</td>
-                                    <td>24 12 2009</td>
-                                    <td><button class="btn btn-danger">Удалить</button></td>
-                                    <td><a href="">Скачать</a></td>
-                                </tr>
-                                <tr>
-                                    <td>постановка задачи</td>
-                                    <td>Александр</td>
-                                    <td>24 12 2009</td>
-                                    <td><button class="btn btn-danger">Удалить</button></td>
-                                    <td><a href="">Скачать</a></td>
-                                </tr>
-                                <tr>
-                                    <td>постановка задачи</td>
-                                    <td>Александр</td>
-                                    <td>24 12 2009</td>
-                                    <td><button class="btn btn-danger">Удалить</button></td>
-                                    <td><a href="">Скачать</a></td>
-                                </tr>
-                                <tr>
-                                    <td>постановка задачи</td>
-                                    <td>Александр</td>
-                                    <td>24 12 2009</td>
-                                    <td><button class="btn btn-danger">Удалить</button></td>
-                                    <td><a href="">Скачать</a></td>
-                                </tr>
-                                <tr>
-                                    <td>постановка задачи</td>
-                                    <td>Александр</td>
-                                    <td>24 12 2009</td>
-                                    <td><button class="btn btn-danger">Удалить</button></td>
-                                    <td><a href="">Скачать</a></td>
-                                </tr>
-                                <tr>
-                                    <td>постановка задачи</td>
-                                    <td>Александр</td>
-                                    <td>24 12 2009</td>
-                                    <td><button class="btn btn-danger">Удалить</button></td>
-                                    <td><a href="">Скачать</a></td>
-                                </tr>
-                                <tr>
-                                    <td>постановка задачи</td>
-                                    <td>Александр</td>
-                                    <td>24 12 2009</td>
-                                    <td><button class="btn btn-danger">Удалить</button></td>
-                                    <td><a href="">Скачать</a></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </main>
+    <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+        <br>
+        <hr>
+        Добавить документ
+        <div class="add-container">
+            <form id="addForm">
+                <input name="name" type="text" class="dataInput" id="documentNameAdd"
+                       placeholder="Название документа">
+                <input name="file" type="file" class="dataInput" id="documentAdd"
+                       placeholder="Email создателя">
+                <button type="submit">Загрузить</button>
+            </form>
         </div>
-    </div>
-</body>
-</html>
+
+        Найти документ
+        <div class="filter-container">
+            <form id="filterForm">
+                <input name="name" type="text" class="dataInput" id="documentSearch"
+                       placeholder="Название документа">
+                <input name="email" type="text" class="dataInput" id="emailSearch"
+                       placeholder="Email создателя">
+                <input name="start_date" type="text" class="dataInput" id="srartDateSearch"
+                       placeholder="От какой даты">
+                <input name="start_date" type="text" class="dataInput" id="srartDateSearch"
+                       placeholder="До какой даты">
+                <button type="submit" id="searchButton">Поиск</button>
+            </form>
+        </div>
+
+        <div class="document-list" id="documentListContainer">
+            <div id="documentTableContainer">
+                <table class="document-table" id="documentTable">
+                    <thead>
+                    <tr>
+                        <th>Название</th>
+                        <th>Загрузчик</th>
+                        <th>Дата загрузки</th>
+                        <th>Удалить</th>
+                        <th>Скачать</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>постановка задачи</td>
+                        <td>Александр</td>
+                        <td>24 12 2009</td>
+                        <td>
+                            <button class="btn btn-danger">Удалить</button>
+                        </td>
+                        <td><a href="">Скачать</a></td>
+                    </tr>
+                    <tr>
+                        <td>постановка задачи</td>
+                        <td>Александр</td>
+                        <td>24 12 2009</td>
+                        <td>
+                            <button class="btn btn-danger">Удалить</button>
+                        </td>
+                        <td><a href="">Скачать</a></td>
+                    </tr>
+                    <tr>
+                        <td>постановка задачи</td>
+                        <td>Александр</td>
+                        <td>24 12 2009</td>
+                        <td>
+                            <button class="btn btn-danger">Удалить</button>
+                        </td>
+                        <td><a href="">Скачать</a></td>
+                    </tr>
+                    <tr>
+                        <td>постановка задачи</td>
+                        <td>Александр</td>
+                        <td>24 12 2009</td>
+                        <td>
+                            <button class="btn btn-danger">Удалить</button>
+                        </td>
+                        <td><a href="">Скачать</a></td>
+                    </tr>
+                    <tr>
+                        <td>постановка задачи</td>
+                        <td>Александр</td>
+                        <td>24 12 2009</td>
+                        <td>
+                            <button class="btn btn-danger">Удалить</button>
+                        </td>
+                        <td><a href="">Скачать</a></td>
+                    </tr>
+                    <tr>
+                        <td>постановка задачи</td>
+                        <td>Александр</td>
+                        <td>24 12 2009</td>
+                        <td>
+                            <button class="btn btn-danger">Удалить</button>
+                        </td>
+                        <td><a href="">Скачать</a></td>
+                    </tr>
+                    <tr>
+                        <td>постановка задачи</td>
+                        <td>Александр</td>
+                        <td>24 12 2009</td>
+                        <td>
+                            <button class="btn btn-danger">Удалить</button>
+                        </td>
+                        <td><a href="">Скачать</a></td>
+                    </tr>
+                    <tr>
+                        <td>постановка задачи</td>
+                        <td>Александр</td>
+                        <td>24 12 2009</td>
+                        <td>
+                            <button class="btn btn-danger">Удалить</button>
+                        </td>
+                        <td><a href="">Скачать</a></td>
+                    </tr>
+                    <tr>
+                        <td>постановка задачи</td>
+                        <td>Александр</td>
+                        <td>24 12 2009</td>
+                        <td>
+                            <button class="btn btn-danger">Удалить</button>
+                        </td>
+                        <td><a href="">Скачать</a></td>
+                    </tr>
+                    <tr>
+                        <td>постановка задачи</td>
+                        <td>Александр</td>
+                        <td>24 12 2009</td>
+                        <td>
+                            <button class="btn btn-danger">Удалить</button>
+                        </td>
+                        <td><a href="">Скачать</a></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+{% endblock %}

@@ -42,7 +42,8 @@ def all_projects():
     for project in projects:
         num_teams = db.session.execute(query2, {"project_id": project.id}).fetchone()
         num_employees = db.session.execute(query3, {"project_id": project.id}).fetchone()
-        data.append({"project_id": project.id, "title": project.title, "date_created": project.date_created.strftime("%Y-%m-%d"),
+        data.append({"project_id": project.id, "title": project.title,
+                     "date_created": project.date_created.strftime("%Y-%m-%d"),
                      "status": project.status, "manager": project.manager_email, "num_teams": num_teams[0],
                      "num_employees": num_employees[0]})
 
@@ -60,8 +61,12 @@ def project(project_id: int):
 
     return render_template("project.html", teams=teams)
 
+
 @bp.route('/project_docs/<int:project_id>')
 def project_docs(project_id: int):
+    # Полнотекстовый поиск документов не сделан
+    # Загрузка документов не сделана
+
     query = text("""
         select * 
         from project_documents
@@ -70,3 +75,4 @@ def project_docs(project_id: int):
 
     documents = db.session.execute(query).fetchall()
     return render_template("project_documents.html", documents=documents)
+

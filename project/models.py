@@ -29,7 +29,6 @@ class Project(Base):
 class ProjectDocuments(Base):
     __tablename__ = "project_documents"
     name = db.Column(db.String(30))
-    filename = db.Column(db.String(30))
     filepath = db.Column(db.String(255))
     date_created = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
     project_id = db.Column(db.Integer, db.ForeignKey("projects.id"))
@@ -48,7 +47,6 @@ class TeamMember(Base):
     __tablename__ = "team_members"
     date_added = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
     worker_id = db.Column(db.Integer, db.ForeignKey("workers.id"))
-    role_id = db.Column(db.Integer, db.ForeignKey("team_member_roles.id"))
     team_id = db.Column(db.Integer, db.ForeignKey("teams.id"))
 
 class DirectorSubordinates(Base):

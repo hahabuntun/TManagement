@@ -17,6 +17,8 @@
     </ul>
 </nav>
 
+
+
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-3 col-lg-2 bg-light d-none d-md-block sidebar">
@@ -36,64 +38,22 @@
         </div>
 
         <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
-
+            
             <div class="custom-list row mt-4">
+                {% for project in context %}
                 <div class="custom-card col-md-6">
-                    <h3>Project Alpha</h3>
-                    <p>Created: 2023-08-15</p>
-                    <p>Teams: 2</p>
-                    <p>Status: finished</p>
-                    <p>Employees: 15</p>
-                    <p>Manager: John Doe</p>
+                    <h3>Название: {{project.title}}</h3>
+                    <p>Дата создания: {{project.date_created}}</p>
+                    <p>Teams: {{project.num_teams}}</p>
+                    <p>Status: {{project.status}}</p>
+                    <p>Employees: {{project.num_employees}}</p>
+                    <p>Manager: {{project.manager}}</p>
                     <a href="#" class="btn btn-primary">View Project</a>
                     <button class="btn btn-success">Add docs</button>
                     <button class="btn btn-danger">Drop Project</button>
                 </div>
-                <!-- Add more project cards here -->
-                <div class="custom-card col-md-6">
-                    <h3>Project Alpha</h3>
-                    <p>Created: 2023-08-15</p>
-                    <p>Teams: 2</p>
-                    <p>Status: finished</p>
-                    <p>Employees: 15</p>
-                    <p>Manager: John Doe</p>
-                    <a href="#" class="btn btn-primary">View Project</a>
-                    <button class="btn btn-success">Add docs</button>
-                    <button class="btn btn-danger">Drop Project</button>
-                </div>
-                <div class="custom-card col-md-6">
-                    <h3>Project Alpha</h3>
-                    <p>Created: 2023-08-15</p>
-                    <p>Teams: 2</p>
-                    <p>Status: finished</p>
-                    <p>Employees: 15</p>
-                    <p>Manager: John Doe</p>
-                    <a href="#" class="btn btn-primary">View Project</a>
-                    <button class="btn btn-success">Add docs</button>
-                    <button class="btn btn-danger">Drop Project</button>
-                </div>
-                <div class="custom-card col-md-6">
-                    <h3>Project Alpha</h3>
-                    <p>Created: 2023-08-15</p>
-                    <p>Teams: 2</p>
-                    <p>Status: finished</p>
-                    <p>Employees: 15</p>
-                    <p>Manager: John Doe</p>
-                    <a href="#" class="btn btn-primary">View Project</a>
-                    <button class="btn btn-success">Add docs</button>
-                    <button class="btn btn-danger">Drop Project</button>
-                </div>
-                <div class="custom-card col-md-6">
-                    <h3>Project Alpha</h3>
-                    <p>Created: 2023-08-15</p>
-                    <p>Teams: 2</p>
-                    <p>Status: finished</p>
-                    <p>Employees: 15</p>
-                    <p>Manager: John Doe</p>
-                    <a href="#" class="btn btn-primary">View Project</a>
-                    <button class="btn btn-success">Add docs</button>
-                    <button class="btn btn-danger">Drop Project</button>
-                </div>
+                {%  endfor %}
+                
             </div>
         </main>
     </div>

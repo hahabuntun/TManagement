@@ -130,4 +130,9 @@ def team_tasks(team_id):
 
 @bp.route("/add_task", methods=["GET", "POST"])
 def add_task():
-    return render_template("task/tasks_deadline_filter.html")
+    return render_template("task/task.html")
+
+
+@bp.route("/task/<int:task_id>", methods=["GET", "POST"])
+def task(task_id: int):
+    return render_template("task/task.html")

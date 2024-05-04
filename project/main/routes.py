@@ -59,7 +59,7 @@ def project(project_id: int):
     """.format(project_id))
     teams = db.session.execute(query).fetchall()
 
-    return render_template("project/project.html", teams=teams)
+    return render_template("team/teams_in_project.html", teams=teams)
 
 
 @bp.route('/project_docs/<int:project_id>')
@@ -75,6 +75,17 @@ def project_docs(project_id: int):
 
     documents = db.session.execute(query).fetchall()
     return render_template("project/project_documents.html", documents=documents)
+
+
+@bp.route("/drop_project/<int:project_id>", methods=["GET", "POST"])
+def drop_project(project_id: int):
+    # Реализовать
+    pass
+
+@bp.route("/add_project", methods=["GET", "POST"])
+def add_project():
+    # Реализовать
+    pass
 
 
 

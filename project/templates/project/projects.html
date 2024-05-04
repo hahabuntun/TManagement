@@ -15,7 +15,7 @@
                 <p>Manager: {{ project.manager }}</p>
                 <a href="/project_teams/{{ project.project_id }}" class="btn btn-primary">View Project</a>
                 <button class="btn btn-success"><a href="/project_docs/{{ project.project_id }}">Add docs</a></button>
-                <button class="btn btn-danger">Drop Project</button>
+                <button class="btn btn-danger"><a href="/drop_project/{{ project.project_id }}">Drop Project</a></button>
             </div>
         {% endfor %}
 

@@ -100,7 +100,6 @@ def add_member_in_team(team_id: int):
     return render_template("team/add_member_in_team.html")
 
 
-
 # документы команды
 @bp.route("/team_documents/<int:team_id>", methods=["GET", "POST"])
 def team_documents(team_id: int):
@@ -127,3 +126,8 @@ def team_tasks(team_id):
                 where team_id = {}
             """.format(team_id))
     return render_template("team/team_tasks.html")
+
+
+@bp.route("/add_task", methods=["GET", "POST"])
+def add_task():
+    return render_template("task/tasks_deadline_filter.html")

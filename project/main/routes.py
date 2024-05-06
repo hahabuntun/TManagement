@@ -117,9 +117,6 @@ def drop_team(team_id: int):
     tasks = db.session.query(Task).filter_by(team_id=team_id).all()
     team_members = db.session.query(TeamMember).filter_by(team_id=team_id).all()
     team = db.session.query(Team).get(team_id)
-    print(tasks)
-    print(team_members)
-    print(team)
     if team:
         for member in team_members:
             db.session.delete(member)

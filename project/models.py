@@ -1,11 +1,9 @@
 from project import db
 from datetime import datetime
 
-
 class Base(db.Model):
     __abstract__ = True
     id = db.Column(db.Integer, primary_key=True)
-
 
 class Worker(Base):
     __tablename__ = "workers"
@@ -16,11 +14,9 @@ class Worker(Base):
     password_hash = db.Column(db.String(256))
     worker_position_id = db.Column(db.Integer, db.ForeignKey("worker_positions.id"))
 
-
 class WorkerPosition(Base):
     __tablename__ = "worker_positions"
     name = db.Column(db.String(30))
-
 
 class Project(Base):
     __tablename__ = "projects"
@@ -30,7 +26,6 @@ class Project(Base):
     manager_id = db.Column(db.Integer, db.ForeignKey("workers.id"))
     project_status_id = db.Column(db.Integer, db.ForeignKey("project_statuses.id"))
 
-
 class ProjectDocuments(Base):
     __tablename__ = "project_documents"
     name = db.Column(db.String(30))
@@ -38,11 +33,9 @@ class ProjectDocuments(Base):
     date_created = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
     project_id = db.Column(db.Integer, db.ForeignKey("projects.id"))
 
-
 class ProjectStatus(Base):
     __tablename__ = "project_statuses"
     name = db.Column(db.String(30))
-
 
 class Team(Base):
     __tablename__ = "teams"
@@ -50,13 +43,11 @@ class Team(Base):
     date_created = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
     project_id = db.Column(db.Integer, db.ForeignKey("projects.id"))
 
-
 class TeamMember(Base):
     __tablename__ = "team_members"
     date_added = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
     worker_id = db.Column(db.Integer, db.ForeignKey("workers.id"))
     team_id = db.Column(db.Integer, db.ForeignKey("teams.id"))
-
 
 class TeamDocuments(Base):
     __tablename__ = "team_documents"
@@ -65,19 +56,16 @@ class TeamDocuments(Base):
     date_created = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
     team_id = db.Column(db.Integer, db.ForeignKey("team.id"))
 
-
 class DirectorSubordinates(Base):
     __tablename__ = "direcor_subordinates"
     producer_id = db.Column(db.Integer, db.ForeignKey("team_members.id"))
     subordinate_id = db.Column(db.Integer, db.ForeignKey("team_members.id"))
     id = db.Column(db.Integer, primary_key=True)
 
-
 class TeamMemberRole(Base):
     __tablename__ = "team_member_roles"
     name = db.Column(db.String(30))
     id = db.Column(db.Integer, primary_key=True)
-
 
 class Task(Base):
     __tablename__ = "tasks"
@@ -91,12 +79,10 @@ class Task(Base):
     team_id = db.Column(db.Integer, db.ForeignKey("teams.id"))
     id = db.Column(db.Integer, primary_key=True)
 
-
 class TaskStatus(Base):
     __tablename__ = "task_statuses"
     name = db.Column(db.String(30))
     id = db.Column(db.Integer, primary_key=True)
-
 
 class TaskExecutor(Base):
     __tablename__ = "task_executors"
@@ -104,7 +90,6 @@ class TaskExecutor(Base):
     task_id = db.Column(db.Integer, db.ForeignKey("tasks.id"))
     executor_id = db.Column(db.Integer, db.ForeignKey("team_members.id"))
     id = db.Column(db.Integer, primary_key=True)
-
 
 class TaskDocument(Base):
     __tablename__ = "task_documents"
@@ -115,7 +100,6 @@ class TaskDocument(Base):
     sender_id = db.Column(db.Integer, db.ForeignKey("team_members.id"))
     id = db.Column(db.Integer, primary_key=True)
 
-
 class TaskReport(Base):
     __tablename__ = "task_reports"
     text = db.Column(db.String(4096))
@@ -123,7 +107,6 @@ class TaskReport(Base):
     sender_id = db.Column(db.Integer, db.ForeignKey("team_members.id"))
     task_id = db.Column(db.Integer, db.ForeignKey("tasks.id"))
     id = db.Column(db.Integer, primary_key=True)
-
 
 class TaskMessage(Base):
     __tablename__ = "task_messages"

@@ -9,6 +9,69 @@ from sqlalchemy import text
 import datetime
 
 
+def delete_task(task_id):
+    task = db.session.query(Task).get(task_id)
+    task_docs = db.session.query(TaskDocument).filter(TaskDocument.task_id == task_id).all()
+    task_executor = db.session.query(TaskExecutor).filter(TaskExecutor.task_id == task_id).all()
+    task_messages = db.session.query(TaskMessage).filter(TaskMessage.task_id == task_id).all()
+    task_reports = db.session.query(TaskReport).filter(TaskReport.task_id == task_id).all()
+
+    if task:
+        for doc in task_docs:
+            db.session.delete(doc)
+        db.session.delete(task_executor)
+        for message in task_messages:
+            db.session.delete(message)
+        for report in task_reports:
+            db.session.delete(report)
+        db.session.commit()
+
+        db.session.delete(task)
+        db.session.commit()
+        return True
+    else:
+        return False
+
+
+def delete_team(team_id):
+    team = db.session.query(Team).get(team_id)
+    team_members = db.session.query(TeamMember).filter_by(team_id=team_id).all()
+    tasks = db.session.query(Task).filter_by(team_id=team_id).all()
+
+    if team:
+        for member in team_members:
+            db.session.delete(member)
+        for task in tasks:
+            if not delete_task(task.id):
+                print(task.id)
+                return False
+        db.session.commit()
+        db.session.delete(team)
+        db.session.commit()
+        return True
+    else:
+        return False
+
+
+def delete_project(project_id):
+    project = db.session.query(Project).get(project_id)
+    project_docs = db.session.query(ProjectDocuments).filter_by(project_id=project_id).all()
+    teams_in_project = db.session.query(Team).filter_by(project_id=project_id).all()
+    if project:
+        for doc in project_docs:
+            db.session.delete(doc)
+        for team in teams_in_project:
+            if not delete_team(team.id):
+                print(team.id)
+                return False
+        db.session.commit()
+        db.session.delete(project)
+        db.session.commit()
+        return True
+    else:
+        return False
+
+
 @bp.route('/projects')
 def all_projects():
     # fetches project, its manager, its status
@@ -69,8 +132,9 @@ def project_docs(project_id: int):
 # Удалить проект
 @bp.route("/drop_project/<int:project_id>", methods=["GET", "POST"])
 def drop_project(project_id: int):
-    # Реализовать
-    pass
+    if not delete_project(project_id):
+        abort(404)
+    return redirect("/projects")
 
 
 # Добавить проект
@@ -114,7 +178,9 @@ def team_documents(team_id: int):
 # удалить команду
 @bp.route("/drop_team/<int:team_id>", methods=["GET", "POST"])
 def drop_team(team_id: int):
-    pass
+    if not delete_team(team_id):
+        abort(404)
+    return redirect("/projects")
 
 
 # задачи команды
@@ -136,3 +202,10 @@ def add_task():
 @bp.route("/task/<int:task_id>", methods=["GET", "POST"])
 def task(task_id: int):
     return render_template("task/task.html")
+
+
+@bp.route("/drop_task/<int:task_id>", methods=["GET", "POST"])
+def drop_task(task_id: int):
+    if not delete_task(task_id):
+        abort(404)
+    return redirect("/projects")

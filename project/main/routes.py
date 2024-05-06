@@ -57,9 +57,6 @@ def delete_project(project_id):
     project = db.session.query(Project).get(project_id)
     project_docs = db.session.query(ProjectDocuments).filter_by(project_id=project_id).all()
     teams_in_project = db.session.query(Team).filter_by(project_id=project_id).all()
-    print(project)
-    print(project_docs)
-    print(teams_in_project)
     if project:
         for doc in project_docs:
             db.session.delete(doc)

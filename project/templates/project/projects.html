@@ -3,6 +3,28 @@
 
 
 <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+    Добавить проект
+    <div class="add-container">
+        <form id="addForm" action="/projects" method="POST" enctype="multipart/form-data">
+            <input name="title" type="text" class="dataInput" id="projectTitleAdd" placeholder="Название проекта">
+    
+            <!-- Manager Select Box -->
+            <select name="manager" class="dataInput" id="projectManagerAdd">
+                {% for manager in managers %}
+                <option value="{{manager.id}}">{{manager.email}}</option>
+                {% endfor %}
+            </select>
+    
+            <!-- Project Status Select Box -->
+            <select name="status" class="dataInput" id="projectStatusAdd">
+                {% for status in statuses%}
+                <option value="{{status.id}}">{{status.name}}</option>
+                {% endfor %}
+            </select>
+            <button type="submit">Добавить</button>
+        </form>
+    </div>
+
 
     <div class="custom-list row mt-4">
         {% for project in context %}
@@ -13,9 +35,9 @@
                 <p>Status: {{ project.status }}</p>
                 <p>Employees: {{ project.num_employees }}</p>
                 <p>Manager: {{ project.manager }}</p>
-                <a href="/project_teams/{{ project.project_id }}" class="btn btn-primary">View Project</a>
-                <button class="btn btn-success"><a href="/project_docs/{{ project.project_id }}">Add docs</a></button>
-                <button class="btn btn-danger"><a href="/drop_project/{{ project.project_id }}">Drop Project</a></button>
+                <a href="{{ url_for('main.project_teams', project_id=project.project_id) }}" class="btn btn-primary">View Project</a>
+                <button class="btn btn-success"><a href="{{ url_for('main.project_docs', project_id=project.project_id) }}">Add docs</a></button>
+                <button class="btn btn-danger"><a href="{{ url_for('main.drop_project', project_id=project.project_id) }}">Drop Project</a></button>
             </div>
         {% endfor %}
 

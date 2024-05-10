@@ -7,7 +7,7 @@
     <hr>
     Добавить документ
     <div class="add-container">
-        <form id="addForm">
+        <form id="addForm" action="{{url_for('project_docs', project_id=project_id)}}" method="POST" enctype="multipart/form-data">
             <input name="name" type="text" class="dataInput" id="documentNameAdd"
                    placeholder="Название документа">
             <input name="file" type="file" class="dataInput" id="documentAdd"
@@ -21,8 +21,6 @@
         <form id="filterForm">
             <input name="name" type="text" class="dataInput" id="documentSearch"
                    placeholder="Название документа">
-            <input name="email" type="text" class="dataInput" id="emailSearch"
-                   placeholder="Email создателя">
             <input name="start_date" type="text" class="dataInput" id="srartDateSearch"
                    placeholder="От какой даты">
             <input name="start_date" type="text" class="dataInput" id="srartDateSearch"
@@ -48,7 +46,7 @@
                         <td>{{ doc.name }}</td>
                         <td>{{ doc.date_created }}</td>
                         <td>
-                            <button class="btn btn-danger">Удалить</button>
+                            <button class="btn btn-danger"><a href="{{ url_for('drop_project_doc', project_id=project_id, document_id=document.id) }}">Удалить</a></button>
                         </td>
                         <td><a href="">Скачать</a></td>
                     </tr>

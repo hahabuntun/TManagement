@@ -1,3 +1,16 @@
 venv
 .idea
 config.py
+__pycache__
+./config.py
+
+.idea/
+.vscode/
+.venv*/
+venv*/
+__pycache__/
+dist/
+.coverage*
+htmlcov/
+.tox/
+docs/_build/

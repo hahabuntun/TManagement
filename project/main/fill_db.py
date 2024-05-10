@@ -47,7 +47,7 @@ def build():
     fill_worker_positions()
     fill_workers(40)
     fill_projects()
-    fill_project_documents()
+    #fill_project_documents()
     fill_teams()
     fill_team_members()
     # pass
@@ -66,7 +66,6 @@ def fill_project_status():
 
 
 def fill_worker_positions():
-    work_positions = []
     for position in it_positions:
         work_position = WorkerPosition(name=position)
         db.session.add(work_position)
@@ -124,13 +123,13 @@ def get_absolute_path(relative_path):
 def fill_project_documents():
     projects = Project.query.all()
     names = ["TZ", "Сотрудники", "Основные ттх", "план на проекта"]
-    paths = [
-        get_absolute_path("../../documents/project_documents/1.pdf"),
-        get_absolute_path("../../documents/project_documents/2.pdf"),
-        get_absolute_path("../../documents/project_documents/3.pdf"),
-        get_absolute_path("../../documents/project_documents/design.txt")
+    filenames = [
+        "1.pdf",
+        "2.pdf",
+        "3.pdf",
+        "design.txt"
     ]
-    documents = [ProjectDocuments(name=names[i], filepath=paths[i], project_id=project.id) for i in range(4) for project
+    documents = [ProjectDocuments(name=names[i], filename=filenames[i], project_id=project.id) for i in range(4) for project
                  in projects]
     for document in documents:
         db.session.add(document)

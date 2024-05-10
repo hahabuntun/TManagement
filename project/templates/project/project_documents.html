@@ -7,7 +7,7 @@
     <hr>
     Добавить документ
     <div class="add-container">
-        <form id="addForm" action="{{url_for('project_docs', project_id=project_id)}}" method="POST" enctype="multipart/form-data">
+        <form id="addForm" action="{{url_for('main.project_docs', project_id=project_id)}}" method="POST" enctype="multipart/form-data">
             <input name="name" type="text" class="dataInput" id="documentNameAdd"
                    placeholder="Название документа">
             <input name="file" type="file" class="dataInput" id="documentAdd"
@@ -21,9 +21,9 @@
         <form id="filterForm">
             <input name="name" type="text" class="dataInput" id="documentSearch"
                    placeholder="Название документа">
-            <input name="start_date" type="text" class="dataInput" id="srartDateSearch"
+            <input name="start_date" type="date" class="dataInput" id="srartDateSearch"
                    placeholder="От какой даты">
-            <input name="start_date" type="text" class="dataInput" id="srartDateSearch"
+            <input name="end_date" type="date" class="dataInput" id="endDateSearch"
                    placeholder="До какой даты">
             <button type="submit" id="searchButton">Поиск</button>
         </form>
@@ -46,9 +46,9 @@
                         <td>{{ doc.name }}</td>
                         <td>{{ doc.date_created }}</td>
                         <td>
-                            <button class="btn btn-danger"><a href="{{ url_for('drop_project_doc', project_id=project_id, document_id=document.id) }}">Удалить</a></button>
+                            <button class="btn btn-danger"><a href="{{ url_for('main.drop_project_doc', project_id=project_id, document_id=doc.id) }}">Удалить</a></button>
                         </td>
-                        <td><a href="">Скачать</a></td>
+                        <td><a href="{{ url_for('main.download_project_doc', project_id=project_id, document_id=doc.id) }}">Скачать</a></td>
                     </tr>
                 {% endfor %}
                 </tbody>
@@ -57,4 +57,42 @@
     </div>
 </main>
 
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('filterForm');
+    console.log(form);
+    form.addEventListener('submit', (event) => {
+        event.preventDefault();
+
+        const name = document.getElementById('documentSearch').value;
+        const startDate = document.getElementById('srartDateSearch').value; // Fix the ID typo
+        const endDate = document.getElementById('endDateSearch').value; // Assuming you add an ID
+
+        const queryString = new URLSearchParams({
+    name: name,
+    start_date: startDate,
+    end_date: endDate
+}).toString();
+
+// Send GET request using Fetch API
+// fetch(`{{url_for('main.project_docs', project_id=project_id)}}?${queryString}`, {methdod: 'GET'})
+//     .then(response => response.json())  // Assuming your endpoint returns JSON
+//     .then(data => {
+//         console.log(data);
+//     })
+//     .catch(error => {
+//         console.log(error);
+//     });
+    const url = `{{url_for('main.project_docs', project_id=project_id)}}?${queryString}`;
+
+    // Redirect to the URL
+    window.location.href = url;
+    });
+    });
+    
+</script>
 {% endblock %}

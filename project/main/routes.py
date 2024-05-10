@@ -46,18 +46,21 @@ def project_docs(project_id: int):
         file = request.files['file']
         document_name = request.form["name"]
         ProjectDAO.add_project_document(project_id, file, document_name)
-        return redirect(f'/project_docs/{project_id}')
-
-    documents = ProjectDAO.get_project_docs(project_id)
-    return render_template("project/project_documents.html", documents=documents, project_id=project_id)
+        args = []
+        documents = ProjectDAO.get_project_docs(project_id, args)
+        return render_template("project/project_documents.html", documents=documents, project_id=project_id)
+    else:
+        args = request.args
+        print(args)
+        documents = ProjectDAO.get_project_docs(project_id, args)
+        return render_template("project/project_documents.html", documents=documents, project_id=project_id)
 
 
 
 @bp.get('/projects/<int:project_id>/documents/<int:document_id>')
 def download_project_doc(project_id, document_id):
     document = ProjectDAO.get_project_doc(document_id)
-    send_from_directory(os.getcwd() + "\\documents\\project_documents", document.filename, as_attachment=True)
-    return redirect(url_for('main.project_docs', project_id=project_id))
+    return send_from_directory(os.getcwd() + "\\documents\\project_documents", document.filename, as_attachment=True)
 
 @bp.get('/projects/<int:project_id>/documents/<int:document_id>/drop')
 def drop_project_doc(project_id, document_id):
@@ -66,7 +69,7 @@ def drop_project_doc(project_id, document_id):
 
 
 # Команды проекта
-@bp.route('/project_teams/<int:project_id>')
+@bp.route('/projects/<int:project_id>/teams')
 def project_teams(project_id: int):
     teams = TeamDAO.get_project_teams(project_id)
     return render_template("team/teams_in_project.html", teams=teams)

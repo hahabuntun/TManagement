@@ -16,6 +16,15 @@ def make_project_filename(filename):
         filename = make_project_filename(filename)
     return filename
 
+def make_team_filename(filename):
+    check_existing = TeamDocuments.query.filter_by(filename=filename).all()
+    if len(check_existing) != 0:
+        base, ext = os.path.splitext(filename)
+        filename = base + "(1)" + ext
+        filename = make_team_filename(filename)
+    return filename
+
+
 class ProjectDAO:
 
     @classmethod
@@ -171,9 +180,10 @@ class TeamDAO:
         pass
 
     @classmethod
-    def add_team(cls):
-        """adds team to a project"""
-        pass
+    def add_team(cls, project_id, team_name):
+        new_team = Team(name=team_name, project_id=project_id)
+        db.session.add(new_team)
+        db.session.commit()
     
     @classmethod
     def get_project_teams(cls, project_id):
@@ -213,13 +223,76 @@ class TeamDAO:
             return False
         
     @classmethod
-    def add_team_document(cls):
+    def add_team_document(cls, team_id, file, document_name):
         """adds document to a team"""
-        pass
+        if file:
+            filename = file.filename
+            project_documents_path = os.getcwd() + "\\documents\\team_documents"
+            filename = make_team_filename(filename)
+            file.save(os.path.join(project_documents_path, filename))
+            new_file = TeamDocuments(name=document_name,
+                                        filename=filename,
+                                        team_id=team_id)
+            db.session.add(new_file)
+            db.session.commit()
+
+    @classmethod
+    def get_team_documents(cls, team_id, query_params):
+        """returns the documents of a team"""
+        print(query_params)
+        utc = pytz.timezone('UTC')
+        # Define the UTC+3 timezone
+        utc_plus_3 = pytz.FixedOffset(180)
+        if len(query_params) != 0:
+            if query_params["start_date"] != "":
+                s_date = query_params["start_date"].split("-")
+                date_start_utc = utc.localize(datetime(int(s_date[0]), int(s_date[1]), int(s_date[2])))
+            else:
+                date_start_utc = utc.localize(datetime(2023, 1, 1))
+            if query_params["end_date"] != "":
+                e_date = query_params["end_date"].split("-")
+                date_end_utc = utc.localize(datetime(int(e_date[0]), int(e_date[1]), int(e_date[2])))
+            else:
+                date_end_utc = utc.localize(datetime(3000, 1, 1))
+            date_start = date_start_utc.astimezone(utc_plus_3)
+            date_end = date_end_utc.astimezone(utc_plus_3)
+        if len(query_params) == 0:
+            query = text("""
+                    select * 
+                    from team_documents
+                    where team_id = {}
+                """.format(team_id))
+        elif query_params["name"] == "":
+            query = text("""
+                    select * 
+                    from team_documents
+                    where team_id = {0}
+                    and date_created >= '{1}'
+                    and date_created <= '{2}'
+                """.format(team_id, date_start, date_end))
+        elif query_params["name"] != "":
+            query = text("""
+                    select * 
+                    from team_documents
+                    where team_id = {0}
+                    and name = '{1}'
+                    and date_created >= '{2}'
+                    and date_created <= '{3}'
+                """.format(team_id, query_params["name"], date_start, date_end))
+        query_res = db.session.execute(query).fetchall()
+        documents = []
+        for document in query_res:
+            documents.append({"name":document.name, "date_created": document.date_created, "id": document.id})
+        return documents
     
     @classmethod
+    def get_team_document(cls, team_doc_id):
+        document = TeamDocuments.query.filter_by(id=team_doc_id).first()
+        return document
+
+    @classmethod
     def delete_team_document(cls, document_id):
-        document = db.session.query(ProjectDocuments).get(document_id)
+        document = db.session.query(TeamDocuments).get(document_id)
         db.session.delete(document)
         db.session.commit()
 

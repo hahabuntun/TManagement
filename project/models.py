@@ -52,7 +52,7 @@ class TeamMember(Base):
 class TeamDocuments(Base):
     __tablename__ = "team_documents"
     name = db.Column(db.String(30))
-    filepath = db.Column(db.String(255))
+    filename = db.Column(db.String(255))
     date_created = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
     team_id = db.Column(db.Integer, db.ForeignKey("teams.id"))
 

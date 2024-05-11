@@ -113,12 +113,20 @@ def drop_team_doc(project_id, team_id, document_id):
     return redirect(url_for('main.team_docs', project_id=project_id, team_id=team_id))
 
 # Добавить сотрудника в команду
-@bp.route("/add_member_in_team/<int:team_id>", methods=["GET", "POST"])
-def add_member_in_team(team_id: int):
-    # Надо использовать форму
-    return render_template("team/add_member_in_team.html")
-
-
+@bp.route("/projects/<int:project_id>/teams/<int:team_id>/members", methods=["GET", "POST"])
+def team_members(project_id, team_id):
+    if request.method == "POST":
+        args = []
+        
+        TeamDAO.add_team_member(team_id, request.form)
+        members = TeamDAO.get_team_members(team_id)
+        return render_template("team/add_member_in_team.html", members=members, project_id=project_id, team_id=team_id)
+    else:
+        args = request.args
+        new_member = TeamDAO.get_worker(team_id, args)
+        print(new_member)
+        members = TeamDAO.get_team_members(team_id)
+        return render_template("team/add_member_in_team.html", members=members, project_id=project_id, team_id=team_id, new_member=new_member)
 
 # задачи команды
 @bp.route("/team_tasks/<int:team_id>", methods=["GET", "POST"])

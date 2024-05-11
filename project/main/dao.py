@@ -297,10 +297,69 @@ class TeamDAO:
         db.session.commit()
 
     @classmethod
-    def add_team_member(cls):
+    def add_team_member(cls, team_id, form):
         """adds member to a team"""
-        pass
+        put_tasks = []
+        take_tasks = []
+        for key in form.keys():
+            if key == "worker_id":
+                worker_id = form["worker_id"]
+            if key[0] == "p" and form[key] == "on":
+                put_tasks.append(int(key[1:]))
+            elif key[0] == "t" and form[key] == "on":
+                take_tasks.append(int(key[1:]))
+        new_team_member = TeamMember(worker_id=worker_id, team_id=team_id)
+        db.session.add(new_team_member)
+        db.session.commit()
+        for put_task_permission in put_tasks:
+            db.session.add(DirectorSubordinates(producer_id=worker_id, subordinate_id=put_task_permission))
+        for take_task_permission in take_tasks:
+            db.session.add(DirectorSubordinates(producer_id=take_task_permission, subordinate_id=worker_id))
+        db.session.commit()
 
+
+        
+    
+    @classmethod
+    def get_team_members(cls, team_id):
+        query = text("""
+            select team_members.id as id, workers.email as email,
+            worker_positions.name as role
+            from team_members
+            join workers on team_members.worker_id = workers.id
+            join worker_positions on workers.worker_position_id=worker_positions.id
+            where team_members.team_id={}
+        """.format(team_id))
+        members = db.session.execute(query).fetchall()
+        return members
+    
+    @classmethod
+    def get_worker(cls, team_id, args):
+        
+        if len(args) == 0:
+            return None
+        else:
+            query = text("""
+            select * from team_members
+            join workers
+            on team_members.worker_id = workers.id
+            where team_members.team_id = {}
+            and workers.email='{}'
+            """.format(team_id, args["email"]))
+            members = db.session.execute(query).fetchall()
+            if len(members) != 0:
+                return None
+            
+            query2 = text("""
+            select workers.id as worker_id, workers.name as name,
+            workers.second_name as second_name, workers.third_name as third_name,
+            workers.email as email, worker_positions.name as role
+            from workers join
+            worker_positions on workers.worker_position_id=worker_positions.id
+            where workers.email='{}'
+            """.format(args["email"]))
+            worker = db.session.execute(query2).fetchone()
+            return worker
 
 
 

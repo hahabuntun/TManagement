@@ -18,7 +18,7 @@
                 <h3><a href="/team_tasks/{{ team.id }}">{{ team.name }}</a></h3>
                 <p>Created: {{ team.date_created }}</p>
                 <button class="btn btn-success"><a href="{{ url_for('main.team_docs', project_id=project_id, team_id=team.id) }}">Add docs</a></button>
-                <button class="btn btn-success"><a href="/add_member_in_team/{{ team.id }}">Add members</a></button>
+                <button class="btn btn-success"><a href="{{url_for('main.team_members', project_id=project_id, team_id=team.id)}}">Add members</a></button>
                 <button class="btn btn-danger"><a href="{{ url_for('main.drop_team', project_id=project_id, team_id=team.id) }}">Drop team</a></button>
             </div>
         {% endfor %}

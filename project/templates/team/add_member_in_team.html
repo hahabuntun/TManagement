@@ -2,85 +2,50 @@
 {% block content %}
 
     <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+        Найти сотрудника
+        <div class="filter-container">
+            <form id="filterForm">
+                <input name="email" type="text" class="dataInput" id="emailSearch" placeholder="Email">
+                <button type="submit" id="searchButton">Поиск</button>
+            </form>
+        </div>
         <div class="team-list" id="employeeListContainer">
             <div id="teamTableContainer">
-                <p>Выбранный сотрудник: Иванов Иван Иванович, пасспорт 3123131312</p>
-                <form>
-                    <button type="submit">Добавить</button>
-                    <hr>
+                {% if new_member %}
+                Новый сотрудник:
+                <ul>
+                    <li>{{ new_member.name }} {{ new_member.second_name }} {{ new_member.third_name }}</li>
+                    <li>{{new_member.email}}</li>
+                    <li>Роль: {{new_member.role}}</li>
+                </ul>
+                {% endif %}
+                <form method="POST" action="{{url_for('main.team_members', project_id=project_id, team_id=team_id)}}">
                     Разрешения сотрудника
+                    {% if new_member %}
+                    <input type="hidden" name="worker_id" value="{{ new_member.worker_id }}">
+                    {% endif %}
                     <table class="team-table" id="teamTable">
                         <thead>
                         <tr>
                             <th>Email</th>
-                            <th>Роли в команде</th>
+                            <th>Роль</th>
                             <th>Ставить задачи</th>
                             <th>Получать задачи</th>
                         </tr>
                         </thead>
                         <tbody>
+                        {% for member in members %}
                         <tr>
-                            <td>john.doe@example.com</td>
-                            <td>Project Manager, Developer</td>
-                            <td><input name="member1_put" type="checkbox" checked></td>
-                            <td><input name="member1_rec" type="checkbox" checked></td>
+                            <td>{{ member.email }}</td>
+                            <td>{{ member.role }}</td>
+                            <td><input name="p{{member.id}}" type="checkbox" checked></td>
+                            <td><input name="t{{member.id}}" type="checkbox" checked></td>
                         </tr>
-                        <tr>
-                            <td>jane.smith@example.com</td>
-                            <td>Designer, Tester</td>
-                            <td><input name="member1_put" type="checkbox" checked></td>
-                            <td><input name="member1_rec" type="checkbox" checked></td>
-                        </tr>
-                        <tr>
-                            <td>peter.jones@example.com</td>
-                            <td>Analyst, Consultant</td>
-                            <td><input name="member1_put" type="checkbox" checked></td>
-                            <td><input name="member1_rec" type="checkbox" checked></td>
-                        </tr>
-                        <tr>
-                            <td>alice.brown@example.com</td>
-                            <td>Developer</td>
-                            <td><input name="member1_put" type="checkbox" checked></td>
-                            <td><input name="member1_rec" type="checkbox" checked></td>
-                        </tr>
-                        <tr>
-                            <td>michael.davis@example.com</td>
-                            <td>Project Manager</td>
-                            <td><input name="member1_put" type="checkbox" checked></td>
-                            <td><input name="member1_rec" type="checkbox" checked></td>
-                        </tr>
-                        <tr>
-                            <td>emily.wilson@example.com</td>
-                            <td>Tester</td>
-                            <td><input name="member1_put" type="checkbox" checked></td>
-                            <td><input name="member1_rec" type="checkbox" checked></td>
-                        </tr>
-                        <tr>
-                            <td>david.garcia@example.com</td>
-                            <td>Analyst, Developer</td>
-                            <td><input name="member1_put" type="checkbox" checked></td>
-                            <td><input name="member1_rec" type="checkbox" checked></td>
-                        </tr>
-                        <tr>
-                            <td>linda.rodriguez@example.com</td>
-                            <td>Consultant</td>
-                            <td><input name="member1_put" type="checkbox" checked></td>
-                            <td><input name="member1_rec" type="checkbox" checked></td>
-                        </tr>
-                        <tr>
-                            <td>anthony.williams@example.com</td>
-                            <td>Designer</td>
-                            <td><input name="member1_put" type="checkbox" checked></td>
-                            <td><input name="member1_rec" type="checkbox" checked></td>
-                        </tr>
-                        <tr>
-                            <td>mary.miller@example.com</td>
-                            <td>Project Manager, Analyst</td>
-                            <td><input name="member1_put" type="checkbox" checked></td>
-                            <td><input name="member1_rec" type="checkbox" checked></td>
-                        </tr>
+                        {% endfor %}
                         </tbody>
                     </table>
+                    <button type="submit">Добавить</button>
+                    <hr>
                 </form>
 
             </div>
@@ -88,118 +53,7 @@
 
         <br>
         <hr>
-        Найти сотрудника
-        <div class="filter-container">
-            <form id="filterForm">
-                <input name="passport" type="text" class="dataInput" id="passportSearch" placeholder="Пасспорт">
-                <input name="name" type="text" class="dataInput" id="nameSearch" placeholder="Имя">
-                <input name="second_name" type="text" class="dataInput" id="surnameSearch" placeholder="Фамилия">
-                <input name="third_name" type="text" class="dataInput" id="fatherNameSearch" placeholder="Отчество">
-                <input name="email" type="text" class="dataInput" id="emailSearch" placeholder="Email">
-                <input name="phone" type="text" class="dataInput" id="phoneSearch" placeholder="Телефон">
-                <input name="type" type="text" class="dataInput" id="typeSearch" placeholder="Тип">
-                <button type="submit" id="searchButton">Поиск</button>
-            </form>
-        </div>
-        Доступные сотрудники
-        <div class="employee-list" id="employeeListContainer">
-            <div id="employeeTableContainer">
-                <table class="employee-table" id="employeeTable">
-                    <thead>
-                    <tr>
-                        <th width="15%">Passport</th>
-                        <th width="15%">Email</th>
-                        <th width="15%">Имя</th>
-                        <th width="15%">Фамилия</th>
-                        <th width="15%">Отчество</th>
-                        <th width="25%">Тип</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td>1234567890</td>
-                        <td>john.doe@example.com</td>
-                        <td>John</td>
-                        <td>Doe</td>
-                        <td>A.</td>
-                        <td>Admin</td>
-                    </tr>
-                    <tr>
-                        <td>0987654321</td>
-                        <td>jane.smith@example.com</td>
-                        <td>Jane</td>
-                        <td>Smith</td>
-                        <td>B.</td>
-                        <td>User</td>
-                    </tr>
-                    <tr>
-                        <td>1357924680</td>
-                        <td>peter.jones@example.com</td>
-                        <td>Peter</td>
-                        <td>Jones</td>
-                        <td>C.</td>
-                        <td>Manager</td>
-                    </tr>
-                    <tr>
-                        <td>2468013579</td>
-                        <td>alice.brown@example.com</td>
-                        <td>Alice</td>
-                        <td>Brown</td>
-                        <td>D.</td>
-                        <td>Developer</td>
-                    </tr>
-                    <tr>
-                        <td>9871236540</td>
-                        <td>michael.davis@example.com</td>
-                        <td>Michael</td>
-                        <td>Davis</td>
-                        <td>E.</td>
-                        <td>Analyst</td>
-                    </tr>
-                    <tr>
-                        <td>3692581470</td>
-                        <td>emily.wilson@example.com</td>
-                        <td>Emily</td>
-                        <td>Wilson</td>
-                        <td>F.</td>
-                        <td>Designer</td>
-                    </tr>
-                    <tr>
-                        <td>7418529630</td>
-                        <td>david.garcia@example.com</td>
-                        <td>David</td>
-                        <td>Garcia</td>
-                        <td>G.</td>
-                        <td>Tester</td>
-                    </tr>
-                    <tr>
-                        <td>0123654789</td>
-                        <td>linda.rodriguez@example.com</td>
-                        <td>Linda</td>
-                        <td>Rodriguez</td>
-                        <td>H.</td>
-                        <td>Consultant</td>
-                    </tr>
-                    <tr>
-                        <td>9638527410</td>
-                        <td>anthony.williams@example.com</td>
-                        <td>Anthony</td>
-                        <td>Williams</td>
-                        <td>I.</td>
-                        <td>Supervisor</td>
-                    </tr>
-                    <tr>
-                        <td>5274189630</td>
-                        <td>mary.miller@example.com</td>
-                        <td>Mary</td>
-                        <td>Miller</td>
-                        <td>J.</td>
-                        <td>Coordinator</td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        
     </main>
 
 {% endblock %}

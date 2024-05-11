@@ -186,11 +186,6 @@ def drop_team(team_id: int):
 # задачи команды
 @bp.route("/team_tasks/<int:team_id>", methods=["GET", "POST"])
 def team_tasks(team_id):
-    query = text("""
-                select * 
-                from tasks
-                where team_id = {}
-            """.format(team_id))
     return render_template("team/team_tasks.html")
 
 

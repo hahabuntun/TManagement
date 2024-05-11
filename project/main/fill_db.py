@@ -1,10 +1,12 @@
 from project import db
 from werkzeug.security import generate_password_hash
 from project.models import *
+from faker import Faker
 
 import random
 import os
 
+fake = Faker('ru_RU')
 random.seed(10)
 
 # ниче не работает
@@ -50,6 +52,12 @@ def build():
     # fill_project_documents()
     fill_teams()
     fill_team_members()
+    generate_task_statuses()
+    generate_tasks()
+    generate_task_executors()
+    generate_task_reports()
+    generate_task_messages()
+
     # pass
 
 
@@ -166,25 +174,76 @@ def fill_director_subordinate():
     pass
 
 
-def fill_task_statuses():
-    pass
+def generate_task_statuses():
+    statuses = ['Ожидают выполнения', 'Выполняются', "Завершены"]
+    for st in statuses:
+        status = TaskStatus(
+            name=st
+        )
+        db.session.add(status)
+        db.session.commit()
 
 
-def fill_tasks():
-    pass
+def generate_tasks(count=20):
+    team_member_ids = [member.id for member in db.session.query(TeamMember).all()]
+    task_status_ids = [status.id for status in db.session.query(TaskStatus).all()]
+    team_ids = [team.id for team in db.session.query(Team).all()]
+
+    for _ in range(count):
+        tasks = [task.id for task in db.session.query(Task).all()]
+        task = Task(
+            name=fake.sentence(nb_words=3),
+            date_created=fake.date_time_between(start_date="-30d", end_date="now"),
+            producer_id=random.choice(team_member_ids),
+            stauts_changed_date=fake.date_time_between(start_date="-30d", end_date="now"),
+            task_status_id=random.choice(task_status_ids),
+            parent_task_id=random.choice(tasks) if random.random() < 0.3 else None,
+            main_executor_id=random.choice(team_member_ids),
+            team_id=random.choice(team_ids)
+        )
+        db.session.add(task)
+        db.session.commit()
 
 
-def fill_task_executors():
-    pass
+def generate_task_executors(count=30):
+    task_ids = [task.id for task in db.session.query(Task).all()]
+    team_member_ids = [member.id for member in db.session.query(TeamMember).all()]
+
+    for _ in range(count):
+        executor = TaskExecutor(
+            date_added=fake.date_time_between(start_date="-20d", end_date="now"),
+            task_id=random.choice(task_ids),
+            executor_id=random.choice(team_member_ids)
+        )
+        db.session.add(executor)
+        db.session.commit()
 
 
-def fill_task_reports():
-    pass
+def generate_task_reports(count=40):
+    sender_ids = [member.id for member in db.session.query(TeamMember).all()]
+    task_ids = [task.id for task in db.session.query(Task).all()]
+
+    for _ in range(count):
+        report = TaskReport(
+            text=fake.text(max_nb_chars=200),
+            upload_date=fake.date_time_between(start_date="-10d", end_date="now"),
+            sender_id=random.choice(sender_ids),
+            task_id=random.choice(task_ids)
+        )
+        db.session.add(report)
+        db.session.commit()
 
 
-def fill_task_messages():
-    pass
+def generate_task_messages(count=50):
+    sender_ids = [member.id for member in db.session.query(TeamMember).all()]
+    task_ids = [task.id for task in db.session.query(Task).all()]
 
-
-def fill_task_documents():
-    pass
+    for _ in range(count):
+        message = TaskMessage(
+            text=fake.text(max_nb_chars=20),
+            upload_date=fake.date_time_between(start_date="-5d", end_date="now"),
+            sender_id=random.choice(sender_ids),
+            task_id=random.choice(task_ids)
+        )
+        db.session.add(message)
+        db.session.commit()

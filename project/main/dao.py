@@ -355,6 +355,12 @@ class TeamDAO:
             worker = db.session.execute(query2).fetchone()
             return worker
 
+    @classmethod
+    def get_team_tasks(cls, team_id):
+        if team_id != 0:
+            team_tasks = db.session.query(Task).filter_by(team_id=team_id).join(TaskStatus).all()
+            return team_tasks
+
 
 class TaskDAO:
 
@@ -366,11 +372,6 @@ class TaskDAO:
     @classmethod
     def assign_task(cls):
         """assigns task to an executor"""
-        pass
-
-    @classmethod
-    def delete_task(cls):
-        """deletes task from a team"""
         pass
 
     @classmethod

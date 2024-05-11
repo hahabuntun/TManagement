@@ -120,8 +120,6 @@ def drop_team_doc(project_id, team_id, document_id):
 @bp.route("/projects/<int:project_id>/teams/<int:team_id>/members", methods=["GET", "POST"])
 def team_members(project_id, team_id):
     if request.method == "POST":
-        args = []
-
         TeamDAO.add_team_member(team_id, request.form)
         members = TeamDAO.get_team_members(team_id)
         return render_template("team/add_member_in_team.html", members=members, project_id=project_id, team_id=team_id)
@@ -135,9 +133,10 @@ def team_members(project_id, team_id):
 
 
 # задачи команды
-@bp.route("/team_tasks/<int:team_id>", methods=["GET", "POST"])
-def team_tasks(team_id):
-    return render_template("team/team_tasks.html")
+@bp.route("/projects/<int:project_id>/teams/<int:team_id>/team_tasks", methods=["GET", "POST"])
+def team_tasks(project_id, team_id):
+    tasks = TeamDAO.get_team_tasks(team_id)
+    return render_template("team/team_tasks.html", tasks=tasks)
 
 
 @bp.route("/add_task", methods=["GET", "POST"])

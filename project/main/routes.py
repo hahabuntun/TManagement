@@ -8,8 +8,6 @@ from sqlalchemy import text
 from project.main.dao import *
 
 
-
-
 @bp.get('/projects')
 def all_projects():
     # fetches project, its manager, its status
@@ -56,11 +54,11 @@ def project_docs(project_id: int):
         return render_template("project/project_documents.html", documents=documents, project_id=project_id)
 
 
-
 @bp.get('/projects/<int:project_id>/documents/<int:document_id>')
 def download_project_doc(project_id, document_id):
     document = ProjectDAO.get_project_doc(document_id)
     return send_from_directory(os.getcwd() + "\\documents\\project_documents", document.filename, as_attachment=True)
+
 
 @bp.get('/projects/<int:project_id>/documents/<int:document_id>/drop')
 def drop_project_doc(project_id, document_id):
@@ -74,6 +72,7 @@ def project_teams(project_id: int):
     teams = TeamDAO.get_project_teams(project_id)
     return render_template("team/teams_in_project.html", teams=teams, project_id=project_id)
 
+
 @bp.post('/projects/<int:project_id>/teams')
 def add_project_team(project_id):
     name = request.form["name"]
@@ -81,12 +80,14 @@ def add_project_team(project_id):
         TeamDAO.add_team(project_id=project_id, team_name=name)
     return redirect(url_for('main.project_teams', project_id=project_id))
 
+
 # удалить команду
 @bp.get("/projects/<int:project_id>/teams/<int:team_id>/drop")
 def drop_team(project_id, team_id):
     if not TeamDAO.delete_team(team_id):
         abort(404)
     return redirect(url_for('main.project_teams', project_id=project_id))
+
 
 @bp.route('/projects/<int:project_id>/teams/<int:team_id>/documents', methods=["GET", "POST"])
 def team_docs(project_id, team_id):
@@ -102,22 +103,23 @@ def team_docs(project_id, team_id):
         documents = TeamDAO.get_team_documents(project_id, args)
         return render_template("team/team_documents.html", documents=documents, project_id=project_id, team_id=team_id)
 
+
 @bp.get('/projects/<int:project_id>/teams/<int:team_id>/documents/<int:document_id>')
 def download_team_doc(project_id, team_id, document_id):
     document = TeamDAO.get_team_document(document_id)
     return send_from_directory(os.getcwd() + "\\documents\\team_documents", document.filename, as_attachment=True)
+
 
 @bp.get('/projects/<int:project_id>/teams/<int:team_id>/documents/<int:document_id>/drop')
 def drop_team_doc(project_id, team_id, document_id):
     TeamDAO.delete_team_document(document_id=document_id)
     return redirect(url_for('main.team_docs', project_id=project_id, team_id=team_id))
 
+
 # Добавить сотрудника в команду
 @bp.route("/projects/<int:project_id>/teams/<int:team_id>/members", methods=["GET", "POST"])
 def team_members(project_id, team_id):
     if request.method == "POST":
-        args = []
-        
         TeamDAO.add_team_member(team_id, request.form)
         members = TeamDAO.get_team_members(team_id)
         return render_template("team/add_member_in_team.html", members=members, project_id=project_id, team_id=team_id)
@@ -126,12 +128,15 @@ def team_members(project_id, team_id):
         new_member = TeamDAO.get_worker(team_id, args)
         print(new_member)
         members = TeamDAO.get_team_members(team_id)
-        return render_template("team/add_member_in_team.html", members=members, project_id=project_id, team_id=team_id, new_member=new_member)
+        return render_template("team/add_member_in_team.html", members=members, project_id=project_id, team_id=team_id,
+                               new_member=new_member)
+
 
 # задачи команды
-@bp.route("/team_tasks/<int:team_id>", methods=["GET", "POST"])
-def team_tasks(team_id):
-    return render_template("team/team_tasks.html")
+@bp.route("/projects/<int:project_id>/teams/<int:team_id>/team_tasks", methods=["GET", "POST"])
+def team_tasks(project_id, team_id):
+    tasks = TeamDAO.get_team_tasks(team_id)
+    return render_template("team/team_tasks.html", tasks=tasks)
 
 
 @bp.route("/add_task", methods=["GET", "POST"])

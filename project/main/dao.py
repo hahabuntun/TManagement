@@ -6,8 +6,6 @@ from datetime import datetime, timedelta
 import pytz
 
 
-
-
 def make_project_filename(filename):
     check_existing = ProjectDocuments.query.filter_by(filename=filename).all()
     if len(check_existing) != 0:
@@ -15,6 +13,7 @@ def make_project_filename(filename):
         filename = base + "(1)" + ext
         filename = make_project_filename(filename)
     return filename
+
 
 def make_team_filename(filename):
     check_existing = TeamDocuments.query.filter_by(filename=filename).all()
@@ -33,13 +32,13 @@ class ProjectDAO:
             WorkerPosition,
             Worker.worker_position_id == WorkerPosition.id).filter(WorkerPosition.name == "Project Manager").all()
         return project_managers
-    
+
     @classmethod
     def add_project(cls, title, manager_id, status_id):
         new_project = Project(title=title, manager_id=manager_id, project_status_id=status_id)
         db.session.add(new_project)
         db.session.commit()
-    
+
     @classmethod
     def get_all_projects(cls):
         query = text("""
@@ -73,11 +72,11 @@ class ProjectDAO:
             num_teams = db.session.execute(query2, {"project_id": project.id}).fetchone()
             num_employees = db.session.execute(query3, {"project_id": project.id}).fetchone()
             data.append({"project_id": project.id, "title": project.title,
-                        "date_created": project.date_created.strftime("%Y-%m-%d"),
-                        "status": project.status, "manager": project.manager_email, "num_teams": num_teams[0],
-                        "num_employees": num_employees[0]})
+                         "date_created": project.date_created.strftime("%Y-%m-%d"),
+                         "status": project.status, "manager": project.manager_email, "num_teams": num_teams[0],
+                         "num_employees": num_employees[0]})
         return data
-    
+
     @classmethod
     def delete_project(cls, project_id):
         project = db.session.query(Project).get(project_id)
@@ -155,22 +154,20 @@ class ProjectDAO:
         query_res = db.session.execute(query).fetchall()
         documents = []
         for document in query_res:
-            documents.append({"name":document.name, "date_created": document.date_created, "id": document.id})
+            documents.append({"name": document.name, "date_created": document.date_created, "id": document.id})
         return documents
-    
+
     @classmethod
     def get_project_doc(cls, project_doc_id):
         document = ProjectDocuments.query.filter_by(id=project_doc_id).first()
         return document
-    
+
     @classmethod
     def delete_project_document(cls, document_id):
         document = db.session.query(ProjectDocuments).get(document_id)
         os.remove(os.path.join(os.getcwd() + "\\documents\\project_documents", document.filename))
         db.session.delete(document)
         db.session.commit()
-
-
 
 
 class TeamDAO:
@@ -184,7 +181,7 @@ class TeamDAO:
         new_team = Team(name=team_name, project_id=project_id)
         db.session.add(new_team)
         db.session.commit()
-    
+
     @classmethod
     def get_project_teams(cls, project_id):
         """returns all teams in project"""
@@ -221,7 +218,7 @@ class TeamDAO:
             return True
         else:
             return False
-        
+
     @classmethod
     def add_team_document(cls, team_id, file, document_name):
         """adds document to a team"""
@@ -231,8 +228,8 @@ class TeamDAO:
             filename = make_team_filename(filename)
             file.save(os.path.join(project_documents_path, filename))
             new_file = TeamDocuments(name=document_name,
-                                        filename=filename,
-                                        team_id=team_id)
+                                     filename=filename,
+                                     team_id=team_id)
             db.session.add(new_file)
             db.session.commit()
 
@@ -282,9 +279,9 @@ class TeamDAO:
         query_res = db.session.execute(query).fetchall()
         documents = []
         for document in query_res:
-            documents.append({"name":document.name, "date_created": document.date_created, "id": document.id})
+            documents.append({"name": document.name, "date_created": document.date_created, "id": document.id})
         return documents
-    
+
     @classmethod
     def get_team_document(cls, team_doc_id):
         document = TeamDocuments.query.filter_by(id=team_doc_id).first()
@@ -317,9 +314,6 @@ class TeamDAO:
             db.session.add(DirectorSubordinates(producer_id=take_task_permission, subordinate_id=worker_id))
         db.session.commit()
 
-
-        
-    
     @classmethod
     def get_team_members(cls, team_id):
         query = text("""
@@ -332,10 +326,10 @@ class TeamDAO:
         """.format(team_id))
         members = db.session.execute(query).fetchall()
         return members
-    
+
     @classmethod
     def get_worker(cls, team_id, args):
-        
+
         if len(args) == 0:
             return None
         else:
@@ -349,7 +343,7 @@ class TeamDAO:
             members = db.session.execute(query).fetchall()
             if len(members) != 0:
                 return None
-            
+
             query2 = text("""
             select workers.id as worker_id, workers.name as name,
             workers.second_name as second_name, workers.third_name as third_name,
@@ -361,11 +355,16 @@ class TeamDAO:
             worker = db.session.execute(query2).fetchone()
             return worker
 
+    @classmethod
+    def get_team_tasks(cls, team_id):
+        if team_id != 0:
+            team_tasks = db.session.query(Task).filter_by(team_id=team_id).join(TaskStatus).all()
+            return team_tasks
 
 
 class TaskDAO:
 
-    @classmethod  
+    @classmethod
     def add_task(cls):
         """adds task to a team"""
         pass
@@ -376,11 +375,6 @@ class TaskDAO:
         pass
 
     @classmethod
-    def delete_task(cls):
-        """deletes task from a team"""
-        pass
-    
-    @classmethod
     def add_task_report(cls):
         """adds a report to a task"""
         pass
@@ -389,22 +383,22 @@ class TaskDAO:
     def get_task_reports(cls):
         """returns all task reports"""
         pass
-    
+
     @classmethod
     def delete_task_report(cls):
         """deletes a report from a task"""
         pass
-    
+
     @classmethod
     def add_task_message(cls):
         """adds a message to a task"""
         pass
-    
+
     @classmethod
     def get_task_messages(cls):
         """returns all task messages"""
         pass
-    
+
     @classmethod
     def delete_task_message(cls):
         """deletes a message from a task"""
@@ -419,7 +413,7 @@ class TaskDAO:
     def get_task_documents(cls, task_id):
         """returns all task documents"""
         pass
-    
+
     @classmethod
     def delete_task_documents(cls, document_id):
         """delete task documents"""
@@ -451,11 +445,3 @@ class TaskDAO:
             return True
         else:
             return False
-
-
-
-
-
-    
-
-

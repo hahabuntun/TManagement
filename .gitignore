@@ -14,3 +14,4 @@ dist/
 htmlcov/
 .tox/
 docs/_build/
+documents

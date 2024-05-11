@@ -4,7 +4,6 @@ from flask_sqlalchemy import SQLAlchemy
 from config import Config
 from flask_migrate import Migrate
 
-
 db = SQLAlchemy()
 login_manager = LoginManager()
 migrate = Migrate()
@@ -18,7 +17,7 @@ def create_app(config_class=Config):
 
     db.init_app(app)
     migrate.init_app(app, db)
-    #login_manager.init_app(app)
+    # login_manager.init_app(app)
 
     # Загрузка blueprints
     from project.errors import bp as errors_bp

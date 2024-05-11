@@ -47,7 +47,7 @@ def build():
     fill_worker_positions()
     fill_workers(40)
     fill_projects()
-    #fill_project_documents()
+    # fill_project_documents()
     fill_teams()
     fill_team_members()
     # pass
@@ -129,7 +129,8 @@ def fill_project_documents():
         "3.pdf",
         "design.txt"
     ]
-    documents = [ProjectDocuments(name=names[i], filename=filenames[i], project_id=project.id) for i in range(4) for project
+    documents = [ProjectDocuments(name=names[i], filename=filenames[i], project_id=project.id) for i in range(4) for
+                 project
                  in projects]
     for document in documents:
         db.session.add(document)

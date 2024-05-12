@@ -1,5 +1,5 @@
 from project import db
-from sqlalchemy import text
+from sqlalchemy import text, label
 from project.models import *
 import os
 from datetime import datetime, timedelta
@@ -362,13 +362,18 @@ class TeamDAO:
                 Task.name,
                 Task.deadline,
                 Worker.name,
-                TaskStatus.name
+                TaskStatus.name,
+                Task.team_id,
+                Team.project_id,
+                Task.id
             ).filter_by(
                 team_id=team_id
             ).join(
                 TaskStatus, Task.task_status_id == TaskStatus.id
             ).join(
                 TeamMember, Task.producer_id == TeamMember.id
+            ).join(
+                Team, Task.team_id == Team.id
             ).join(
                 Worker, Worker.id == TeamMember.worker_id, isouter=False
             ).order_by(
@@ -380,6 +385,37 @@ class TeamDAO:
 
 
 class TaskDAO:
+
+    @classmethod
+    def get_task(cls, task_id):
+        task = (db.session.query(
+            Task.name,
+            Task.date_created,
+            Task.deadline,
+            Task.stauts_changed_date,
+            TaskStatus.name.label('status'),
+            Worker.name.label('producer_name'),
+            Worker.second_name.label('producer_second_name'),
+            Worker.third_name.label('producer_third_name'),
+            WorkerPosition.name.label('producer_position'),
+            Task.parent_task_id.label('task_parent_id'),
+            Task.main_executor_id.label('task_executor_id')
+        ).filter_by(
+            id=task_id
+        ).join(
+            TaskStatus, Task.task_status_id == TaskStatus.id
+        ).join(
+            TeamMember, Task.producer_id == TeamMember.id
+        ).join(
+            Worker, Worker.id == TeamMember.worker_id, isouter=False
+        ).join(
+            WorkerPosition, WorkerPosition.id == Worker.worker_position_id
+        ).first())
+        return task
+
+    @classmethod
+    def get_task_main_executor(cls, executor_id):
+        pass
 
     @classmethod
     def add_task(cls):

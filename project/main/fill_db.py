@@ -194,10 +194,11 @@ def generate_tasks(count=20):
         task = Task(
             name=fake.sentence(nb_words=3),
             date_created=fake.date_time_between(start_date="-30d", end_date="now"),
+            deadline=fake.date_time_between(start_date="now", end_date="+30d"),
             producer_id=random.choice(team_member_ids),
             stauts_changed_date=fake.date_time_between(start_date="-30d", end_date="now"),
             task_status_id=random.choice(task_status_ids),
-            parent_task_id=random.choice(tasks) if random.random() < 0.3 else None,
+            parent_task_id=random.choice(tasks) if random.random() < 0.4 else None,
             main_executor_id=random.choice(team_member_ids),
             team_id=random.choice(team_ids)
         )

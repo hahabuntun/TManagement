@@ -83,6 +83,7 @@ class Task(Base):
     __tablename__ = "tasks"
     name = db.Column(db.String(1024))
     date_created = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
+    deadline = db.Column(db.DateTime(timezone=True))
     producer_id = db.Column(db.Integer, db.ForeignKey("team_members.id"))
     stauts_changed_date = db.Column(db.DateTime(timezone=True))
     task_status_id = db.Column(db.Integer, db.ForeignKey("task_statuses.id"))

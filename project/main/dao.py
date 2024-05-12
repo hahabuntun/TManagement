@@ -358,7 +358,24 @@ class TeamDAO:
     @classmethod
     def get_team_tasks(cls, team_id):
         if team_id != 0:
-            team_tasks = db.session.query(Task).filter_by(team_id=team_id).join(TaskStatus).all()
+            team_tasks = db.session.query(
+                Task.name,
+                Task.deadline,
+                Worker.name,
+                TaskStatus.name
+            ).filter_by(
+                team_id=team_id
+            ).join(
+                TaskStatus, Task.task_status_id == TaskStatus.id
+            ).join(
+                TeamMember, Task.producer_id == TeamMember.id
+            ).join(
+                Worker, Worker.id == TeamMember.worker_id, isouter=False
+            ).order_by(
+                TaskStatus.name.desc()
+            ).all()
+            for task in team_tasks:
+                print(task)
             return team_tasks
 
 

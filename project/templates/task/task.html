@@ -1,15 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task Management System</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-</head>
-<body>
-<div class="container">
-    <h1>Task Management System</h1>
+{% extends "base.html" %}
+{% block content %}
 
+<div class="container">
     <!-- Task Details Section -->
     <div class="card">
         <div class="card-header">
@@ -17,10 +9,13 @@
         </div>
         <div class="card-body">
             <!-- Task Title -->
-            <h5 class="card-title">Task Title</h5>
+            <h5 class="card-title">{{ task[0] }}</h5>
 
             <!-- Task Description -->
-            <p class="card-text">Task Description</p>
+            <p class="card-text">{{ task[1] }}</p>
+            <p class="card-text">{{ task[2] }}</p>
+            <p class="card-text">{{ task[3] }}</p>
+            <p class="card-text">{{ task[4] }}</p>
 
             <!-- Task Assignment Section -->
             <div class="card mt-3">
@@ -29,8 +24,7 @@
                 </div>
                 <div class="card-body">
                     <p><strong>Assigned To:</strong> John Doe</p>
-                    <p><strong>Assigned By:</strong> Jane Smith</p>
-                    <p><strong>Responsible Person:</strong> Emily Johnson</p>
+                    <p><strong>Assigned By:</strong> {{ task[5], task[6], task[7], task[8] }}</p>
                 </div>
             </div>
 
@@ -100,9 +94,4 @@
     </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-</body>
-</html>
+{% endblock %}

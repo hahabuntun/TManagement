@@ -144,9 +144,12 @@ def add_task():
     return render_template("task/task.html")
 
 
-@bp.route("/task/<int:task_id>", methods=["GET", "POST"])
-def task(task_id: int):
-    return render_template("task/task.html")
+# Описание задачи
+@bp.route("/projects/<int:project_id>/teams/<int:team_id>/team_task/<int:task_id>", methods=["GET", "POST"])
+def task(project_id, team_id, task_id: int):
+    task_data = TaskDAO.get_task(task_id)
+    # task_executor = TaskDAO.get_task_executor(task_data[10])
+    return render_template("task/task.html", task=task_data)
 
 
 @bp.route("/drop_task/<int:task_id>", methods=["GET", "POST"])

@@ -1,5 +1,5 @@
 from project import create_app, db
-# from project.main.fill_db import build
+from project.main.fill_db import build
 
 app = create_app()
 

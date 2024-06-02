@@ -96,11 +96,11 @@ def team_docs(project_id, team_id):
         document_name = request.form["name"]
         TeamDAO.add_team_document(team_id, file, document_name)
         args = []
-        documents = TeamDAO.get_team_documents(project_id, args)
+        documents = TeamDAO.get_team_documents(team_id, args)
         return render_template("team/team_documents.html", documents=documents, project_id=project_id, team_id=team_id)
     else:
         args = request.args
-        documents = TeamDAO.get_team_documents(project_id, args)
+        documents = TeamDAO.get_team_documents(team_id, args)
         return render_template("team/team_documents.html", documents=documents, project_id=project_id, team_id=team_id)
 
 

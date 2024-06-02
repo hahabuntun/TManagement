@@ -236,7 +236,6 @@ class TeamDAO:
     @classmethod
     def get_team_documents(cls, team_id, query_params):
         """returns the documents of a team"""
-        print(query_params)
         utc = pytz.timezone('UTC')
         # Define the UTC+3 timezone
         utc_plus_3 = pytz.FixedOffset(180)

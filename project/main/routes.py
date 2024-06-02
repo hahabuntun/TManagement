@@ -139,9 +139,20 @@ def team_tasks(project_id, team_id):
     return render_template("team/team_tasks.html", tasks=tasks)
 
 
-@bp.route("/add_task", methods=["GET", "POST"])
-def add_task():
-    return render_template("task/task.html")
+@bp.route("/projects/<int:project_id>/teams/<int:team_id>/new_task", methods=["GET", "POST"])
+def add_task(project_id, team_id):
+    users = TeamDAO.get_team_members(team_id)
+    return render_template("task/create_task.html", users=users, project_id=project_id, team_id=team_id)
+
+
+@bp.route("/projects/<int:project_id>/teams/<int:team_id>/create_task", methods=["POST"])
+def new_task(project_id, team_id):
+    title = request.form["task-title"]
+    assigned_from = int(request.form["assigned-from"].split(" ")[0])
+    assigned_to = int(request.form["assigned-to"].split(" ")[0])
+    deadline = request.form["deadline"]
+    TaskDAO.add_task(team_id, title, assigned_from, assigned_to, deadline)
+    return redirect(url_for("main.add_task", project_id=project_id, team_id=team_id))
 
 
 # Описание задачи

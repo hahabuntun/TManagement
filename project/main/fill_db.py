@@ -38,7 +38,8 @@ it_positions = [
     "System Administrator",
     "Network Engineer",
     "Database Administrator",
-    "Technical Writer"
+    "Technical Writer",
+    "admin",
 ]
 
 def build():

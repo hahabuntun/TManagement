@@ -36,6 +36,27 @@ def token_required(func):
             return jsonify({'message': 'Token is invalid'}), 401
     return decorated
 
+def admin_token_required(func):
+    @wraps(func)
+    def decorated(*args, **kwargs):
+        token = request.cookies.get('access_token')
+        if not token:
+            return jsonify({'message': 'Token is missing'}), 401
+        try:
+            data = jwt.decode(token, "you-will-never-guess", algorithms=["HS256"])
+            user_id = data.get('user_id')  # Assuming 'user_id' is in the token payload
+            user = get_user_by_id(user_id)  # Fetch user data based on ID
+            worker_position = db.session.query(WorkerPosition).filter_by(id=user.worker_position_id).first()
+            if not user:
+                return jsonify({'message': 'User not found'}), 404
+            if worker_position.name != "admin":
+                print(worker_position.name)
+                return jsonify({'message': 'not authorized'}), 400
+            return func(user, *args, *kwargs)  # Pass the user object to the decorated function
+        except:
+            return jsonify({'message': 'Token is invalid'}), 401
+    return decorated
+
 @bp.get("/protected")
 @token_required
 def get_protected(user):
@@ -74,7 +95,8 @@ def login_page():
 
 
 @bp.get('/projects')
-def all_projects():
+@admin_token_required
+def all_projects(user):
     # fetches project, its manager, its status
     data = ProjectDAO.get_all_projects()
     statuses = ProjectStatus.query.all()
@@ -84,7 +106,8 @@ def all_projects():
 
 # Добавить проект
 @bp.post("/projects")
-def add_project():
+@admin_token_required
+def add_project(user):
     title = request.form["title"]
     manager_id = request.form["manager"]
     status_id = request.form["status"]
@@ -94,7 +117,8 @@ def add_project():
 
 # Удалить проект
 @bp.get("/projects/<int:project_id>/drop")
-def drop_project(project_id: int):
+@admin_token_required
+def drop_project(user, project_id: int):
     if not ProjectDAO.delete_project(project_id):
         abort(404)
     return redirect(url_for('main.all_projects'))
@@ -102,10 +126,23 @@ def drop_project(project_id: int):
 
 # Документы проекта
 @bp.route('/projects/<int:project_id>/documents', methods=["GET", "POST"])
-def project_docs(project_id: int):
-    # Полнотекстовый поиск документов не сделан
-    # Загрузка документов не сделана
+@token_required
+def project_docs(user, project_id: int):
+    #все в проекте
+    worker_position = db.session.query(WorkerPosition).filter_by(id=user.worker_position_id).first()
+    user_in_teams = db.session.query(TeamMember).filter_by(worker_id=user.id).all()
+    teams = []
+    for user_in_team in user_in_teams:
+        temp = db.session.query(Team).filter_by(id=user_in_team.team_id).first()
+        teams.append(temp)
+    projects = []
+    for team in teams:
+        temp = db.session.query(Project).filter_by(id=team.project_id).first()
+        projects.append(temp)
+    cond = db.session.query(Project).filter_by(manager_id=user.id, id=project_id).first()
     if request.method == 'POST':
+        if (worker_position != "admin" or not cond):
+            return jsonify({"error": "forbidden"})
         file = request.files['file']
         document_name = request.form["name"]
         ProjectDAO.add_project_document(project_id, file, document_name)
@@ -121,12 +158,14 @@ def project_docs(project_id: int):
 
 @bp.get('/projects/<int:project_id>/documents/<int:document_id>')
 def download_project_doc(project_id, document_id):
+    #все в проекте
     document = ProjectDAO.get_project_doc(document_id)
     return send_from_directory(os.getcwd() + "\\documents\\project_documents", document.filename, as_attachment=True)
 
 
 @bp.get('/projects/<int:project_id>/documents/<int:document_id>/drop')
 def drop_project_doc(project_id, document_id):
+    #менеджер и админ этого проекта
     ProjectDAO.delete_project_document(document_id=document_id)
     return redirect(url_for('main.project_docs', project_id=project_id))
 
@@ -134,12 +173,14 @@ def drop_project_doc(project_id, document_id):
 # Команды проекта
 @bp.get('/projects/<int:project_id>/teams')
 def project_teams(project_id: int):
+    #менеджер
     teams = TeamDAO.get_project_teams(project_id)
     return render_template("team/teams_in_project.html", teams=teams, project_id=project_id)
 
 
 @bp.post('/projects/<int:project_id>/teams')
 def add_project_team(project_id):
+    #менеджер
     name = request.form["name"]
     if name != "":
         TeamDAO.add_team(project_id=project_id, team_name=name)
@@ -149,6 +190,7 @@ def add_project_team(project_id):
 # удалить команду
 @bp.get("/projects/<int:project_id>/teams/<int:team_id>/drop")
 def drop_team(project_id, team_id):
+    #удаляет команду менеджер
     if not TeamDAO.delete_team(team_id):
         abort(404)
     return redirect(url_for('main.project_teams', project_id=project_id))
@@ -156,6 +198,7 @@ def drop_team(project_id, team_id):
 
 @bp.route('/projects/<int:project_id>/teams/<int:team_id>/documents', methods=["GET", "POST"])
 def team_docs(project_id, team_id):
+    #документы команды добавляют все члены команды, получают все члены команды
     if request.method == 'POST':
         file = request.files['file']
         document_name = request.form["name"]
@@ -171,12 +214,14 @@ def team_docs(project_id, team_id):
 
 @bp.get('/projects/<int:project_id>/teams/<int:team_id>/documents/<int:document_id>')
 def download_team_doc(project_id, team_id, document_id):
+    #все члены команды
     document = TeamDAO.get_team_document(document_id)
     return send_from_directory(os.getcwd() + "\\documents\\team_documents", document.filename, as_attachment=True)
 
 
 @bp.get('/projects/<int:project_id>/teams/<int:team_id>/documents/<int:document_id>/drop')
 def drop_team_doc(project_id, team_id, document_id):
+    #менеджер
     TeamDAO.delete_team_document(document_id=document_id)
     return redirect(url_for('main.team_docs', project_id=project_id, team_id=team_id))
 
@@ -184,6 +229,7 @@ def drop_team_doc(project_id, team_id, document_id):
 # Добавить сотрудника в команду
 @bp.route("/projects/<int:project_id>/teams/<int:team_id>/members", methods=["GET", "POST"])
 def team_members(project_id, team_id):
+    #менеджер
     if request.method == "POST":
         TeamDAO.add_team_member(team_id, request.form)
         members = TeamDAO.get_team_members(team_id)
@@ -200,18 +246,21 @@ def team_members(project_id, team_id):
 # задачи команды
 @bp.route("/projects/<int:project_id>/teams/<int:team_id>/team_tasks", methods=["GET", "POST"])
 def team_tasks(project_id, team_id):
+    #все члены команды
     tasks = TeamDAO.get_team_tasks(team_id)
     return render_template("team/team_tasks.html", tasks=tasks)
 
 
 @bp.route("/projects/<int:project_id>/teams/<int:team_id>/new_task", methods=["GET", "POST"])
 def add_task(project_id, team_id):
+    #все члены команды, которые могут добавлять задачу
     users = TeamDAO.get_team_members(team_id)
     return render_template("task/create_task.html", users=users, project_id=project_id, team_id=team_id)
 
 
 @bp.route("/projects/<int:project_id>/teams/<int:team_id>/create_task", methods=["POST"])
 def new_task(project_id, team_id):
+    #те кто могут создавать задачи
     title = request.form["task-title"]
     assigned_from = int(request.form["assigned-from"].split(" ")[0])
     assigned_to = int(request.form["assigned-to"].split(" ")[0])

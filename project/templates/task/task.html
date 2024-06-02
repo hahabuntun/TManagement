@@ -1,97 +1,115 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="container">
-    <!-- Task Details Section -->
-    <div class="card">
-        <div class="card-header">
-            Task Details
-        </div>
-        <div class="card-body">
-            <!-- Task Title -->
-            <h5 class="card-title">{{ task[0] }}</h5>
-
-            <!-- Task Description -->
-            <p class="card-text">{{ task[1] }}</p>
-            <p class="card-text">{{ task[2] }}</p>
-            <p class="card-text">{{ task[3] }}</p>
-            <p class="card-text">{{ task[4] }}</p>
-
-            <!-- Task Assignment Section -->
-            <div class="card mt-3">
-                <div class="card-header">
-                    Task Assignment
-                </div>
-                <div class="card-body">
-                    <p><strong>Assigned To:</strong> John Doe</p>
-                    <p><strong>Assigned By:</strong> {{ task[5], task[6], task[7], task[8] }}</p>
-                </div>
+    <div class="container">
+        <!-- Task Details Section -->
+        <div class="card">
+            <div class="card-header">
+                Task Details
             </div>
+            <div class="card-body">
+                <!-- Task Title -->
+                <h5 class="card-title">{{ task['task'].name }}</h5>
 
+                <!-- Task Description -->
+                <p class="card-text">Дата создания: {{ task['task'].date_created }}</p>
+                <p class="card-text">Дедлайн: {{ task['task'].deadline }}</p>
+                <p class="card-text">Дата последнего измененения статуса: {{ task['task'].stauts_changed_date }}</p>
+                <p class="card-text">Статус задачи: {{ task['status'].name }}</p>
 
-            <!-- Comments Section -->
-            <h6>Comments:</h6>
-            <ul class="list-group">
-                <li class="list-group-item">Comment 1</li>
-                <li class="list-group-item">Comment 2</li>
-                <!-- Add more comments dynamically using JavaScript -->
-            </ul>
-
-            <!-- Add Comment Form -->
-            <form>
-                <div class="form-group">
-                    <label for="comment">Add Comment:</label>
-                    <textarea class="form-control" id="comment" rows="3"></textarea>
+                <!-- Task Assignment Section -->
+                <div class="card mt-3">
+                    <div class="card-header">
+                        Task Assignment
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Assigned To:</strong>
+                            {{ task['main_executor'].name }}
+                            {{ task['main_executor'].second_name }}
+                            {{ task['main_executor'].third_name }}
+                        </p>
+                        <p><strong>Assigned By:</strong>
+                            {{ task['producer'].name }}
+                            {{ task['producer'].second_name }}
+                            {{ task['producer'].third_name }}
+                        </p>
+                    </div>
                 </div>
-                <button type="submit" class="btn btn-primary">Submit Comment</button>
-            </form>
-
-            <!-- Attach Files Section -->
-            <h6>Attached Files:</h6>
-            <ul class="list-group">
-                <li class="list-group-item">File 1</li>
-                <li class="list-group-item">File 2</li>
-                <!-- Add more files dynamically -->
-            </ul>
-
-            <!-- Add File Button -->
-            <button type="button" class="btn btn-secondary">Attach File</button>
-
-            <!-- Subtasks Section -->
-            <h6>Subtasks:</h6>
-            <ul class="list-group">
-                <li class="list-group-item">Subtask 1</li>
-                <li class="list-group-item">Subtask 2</li>
-                <!-- Add more subtasks dynamically -->
-            </ul>
-
-            <!-- Create Subtask Form -->
-            <form>
-                <div class="form-group">
-                    <label for="subtask">Create Subtask:</label>
-                    <input type="text" class="form-control" id="subtask">
-                </div>
-                <button type="submit" class="btn btn-primary">Create Subtask</button>
-            </form>
-
-            <!-- Report Section -->
-            <h6>Task Report:</h6>
-            <p id="task-report" class="card-text">No report added yet.</p>
-
-            <!-- Add Report Form -->
-            <form id="report-form">
-                <div class="form-group">
-                    <label for="report">Add Task Report:</label>
-                    <textarea class="form-control" id="report" rows="3"></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary">Submit Report</button>
-            </form>
 
 
-            <!-- Change Status Button -->
-            <button type="button" class="btn btn-warning">Change Status</button>
+                <!-- Comments Section -->
+                <h6>Comments:</h6>
+                <ul class="list-group">
+                    {% for item in task['messages'] %}
+                        <li class="list-group-item">{{ item.text }}</li>
+                        <li class="list-group-item">{{ item.upload_date }}</li>
+                        <li></li>
+                    {% endfor %}
+                    <!-- Add more comments dynamically using JavaScript -->
+                </ul>
+
+                <!-- Add Comment Form -->
+                <form>
+                    <div class="form-group">
+                        <label for="comment">Add Comment:</label>
+                        <textarea class="form-control" id="comment" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit Comment</button>
+                </form>
+
+                <!-- Attach Files Section -->
+                <h6>Attached Files:</h6>
+                <ul class="list-group">
+                    <li class="list-group-item">File 1</li>
+                    <li class="list-group-item">File 2</li>
+                    <!-- Add more files dynamically -->
+                </ul>
+
+                <!-- Add File Button -->
+                <button type="button" class="btn btn-secondary">Attach File</button>
+
+                <!-- Subtasks Section -->
+                <h6>Subtasks:</h6>
+                <ul class="list-group">
+                    {% for item in task['subtasks'] %}
+                        <li class="list-group-item">{{ item.name }}</li>
+                        <li></li>
+                    {% endfor %}
+
+                    <!-- Add more subtasks dynamically -->
+                </ul>
+
+                <!-- Create Subtask Form -->
+                <form>
+                    <div class="form-group">
+                        <label for="subtask">Create Subtask:</label>
+                        <input type="text" class="form-control" id="subtask">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create Subtask</button>
+                </form>
+
+                <!-- Report Section -->
+                <h6>Task Report:</h6>
+                {% for item in task['reports'] %}
+                    <li class="list-group-item">{{ item.text }}</li>
+                    <li class="list-group-item">{{ item.upload_date }}</li>
+                    <li></li>
+                {% endfor %}
+
+                <!-- Add Report Form -->
+                <form id="report-form">
+                    <div class="form-group">
+                        <label for="report">Add Task Report:</label>
+                        <textarea class="form-control" id="report" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit Report</button>
+                </form>
+
+
+                <!-- Change Status Button -->
+                <button type="button" class="btn btn-warning">Change Status</button>
+            </div>
         </div>
     </div>
-</div>
 
 {% endblock %}

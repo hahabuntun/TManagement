@@ -4,6 +4,7 @@ from project.models import *
 import os
 from datetime import datetime, timedelta
 import pytz
+from sqlalchemy.orm import joinedload
 
 
 def make_project_filename(filename):
@@ -387,30 +388,57 @@ class TaskDAO:
 
     @classmethod
     def get_task(cls, task_id):
-        task = (db.session.query(
-            Task.name,
-            Task.date_created,
-            Task.deadline,
-            Task.stauts_changed_date,
-            TaskStatus.name.label('status'),
-            Worker.name.label('producer_name'),
-            Worker.second_name.label('producer_second_name'),
-            Worker.third_name.label('producer_third_name'),
-            WorkerPosition.name.label('producer_position'),
-            Task.parent_task_id.label('task_parent_id'),
-            Task.main_executor_id.label('task_executor_id')
-        ).filter_by(
-            id=task_id
-        ).join(
-            TaskStatus, Task.task_status_id == TaskStatus.id
-        ).join(
-            TeamMember, Task.producer_id == TeamMember.id
-        ).join(
-            Worker, Worker.id == TeamMember.worker_id, isouter=False
-        ).join(
-            WorkerPosition, WorkerPosition.id == Worker.worker_position_id
-        ).first())
-        return task
+        # task = (db.session.query(
+        #     Task.name,
+        #     Task.date_created,
+        #     Task.deadline,
+        #     Task.stauts_changed_date,
+        #     TaskStatus.name.label('status'),
+        #     Worker.name.label('producer_name'),
+        #     Worker.second_name.label('producer_second_name'),
+        #     Worker.third_name.label('producer_third_name'),
+        #     WorkerPosition.name.label('producer_position'),
+        #     Task.parent_task_id.label('task_parent_id'),
+        #     Task.main_executor_id.label('task_executor_id')
+        # ).filter_by(
+        #     id=task_id
+        # ).join(
+        #     TaskStatus, Task.task_status_id == TaskStatus.id
+        # ).join(
+        #     TeamMember, Task.producer_id == TeamMember.id
+        # ).join(
+        #     Worker, Worker.id == TeamMember.worker_id, isouter=False
+        # ).join(
+        #     WorkerPosition, WorkerPosition.id == Worker.worker_position_id
+        # ).first())
+
+        task_details = db.session.query(Task).options(
+            joinedload(Task.task_status),
+            joinedload(Task.task_messages),
+            joinedload(Task.task_documents),
+            joinedload(Task.subtasks),
+            joinedload(Task.task_reports),
+            joinedload(Task.producer).joinedload(TeamMember.worker),
+            joinedload(Task.main_executor).joinedload(TeamMember.worker),
+        ).filter(Task.id == task_id).first()
+
+        if not task_details:
+            return None
+
+        result = {
+            "task": task_details,
+            "status": task_details.task_status,
+            "messages": task_details.task_messages,
+            "documents": task_details.task_documents,
+            "subtasks": task_details.subtasks,
+            "reports": task_details.task_reports,
+            "producer": task_details.producer.worker,
+            "main_executor": task_details.main_executor.worker,
+        }
+        print(result["subtasks"])
+        print(result["main_executor"].name)
+
+        return result
 
     @classmethod
     def get_task_main_executor(cls, executor_id):

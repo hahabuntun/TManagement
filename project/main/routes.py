@@ -157,3 +157,4 @@ def drop_task(task_id: int):
     if not TaskDAO.delete_task(task_id):
         abort(404)
     return redirect("/projects")
+

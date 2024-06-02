@@ -84,8 +84,10 @@ class ProjectDAO:
         teams_in_project = db.session.query(Team).filter_by(project_id=project_id).all()
         if project:
             for doc in project_docs:
-                db.session.delete(doc)
+                cls.delete_project_document(doc.id)
             for team in teams_in_project:
+                print("team_id: ")
+                print(team.id)
                 TeamDAO.delete_team(team.id)
             db.session.commit()
             db.session.delete(project)
@@ -201,20 +203,32 @@ class TeamDAO:
     @classmethod
     def delete_team(cls, team_id):
         """deletes team"""
-        team = db.session.query(Team).get(team_id)
+        print("i got to delete team method")
+        team = db.session.query(Team).filter_by(id=team_id).first()
         team_members = db.session.query(TeamMember).filter_by(team_id=team_id).all()
         tasks = db.session.query(Task).filter_by(team_id=team_id).all()
-
+        team_documents = db.session.query(TeamDocuments).filter_by(team_id=team_id).all()
+        print("dsadatihskflnjasfkas")
+        print(team)
         if team:
+            print("jerjerrerere")
             for member in team_members:
                 db.session.delete(member)
             for task in tasks:
+                print(task.id)
                 if not TaskDAO.delete_task(task.id):
-                    print(task.id)
+                    
                     return False
-            db.session.commit()
+            print("finished tasks")
+            
+                
+           
+            for document in team_documents:
+                db.session.delete(document)
+            
             db.session.delete(team)
             db.session.commit()
+            print("finished teaasadds")
             return True
         else:
             return False
@@ -289,6 +303,7 @@ class TeamDAO:
     @classmethod
     def delete_team_document(cls, document_id):
         document = db.session.query(TeamDocuments).get(document_id)
+        os.remove(os.path.join(os.getcwd() + "\\documents\\team_documents", document.filename))
         db.session.delete(document)
         db.session.commit()
 
@@ -470,6 +485,7 @@ class TaskDAO:
     def delete_task_documents(cls, document_id):
         """delete task documents"""
         document = db.session.query(TaskDocument).get(document_id)
+        os.remove(os.path.join(os.getcwd() + "\\documents\\task_documents", document.filename))
         db.session.delete(document)
         db.session.commit()
 
@@ -477,23 +493,28 @@ class TaskDAO:
     def delete_task(cls, task_id):
         """deletes a task"""
         task = db.session.query(Task).get(task_id)
-        task_docs = db.session.query(TaskDocument).filter(TaskDocument.task_id == task_id).all()
-        task_executor = db.session.query(TaskExecutor).filter(TaskExecutor.task_id == task_id).all()
-        task_messages = db.session.query(TaskMessage).filter(TaskMessage.task_id == task_id).all()
-        task_reports = db.session.query(TaskReport).filter(TaskReport.task_id == task_id).all()
-
+        
         if task:
+            
+            task_docs = db.session.query(TaskDocument).filter(TaskDocument.task_id == task_id).all()
+            task_executors = db.session.query(TaskExecutor).filter(TaskExecutor.task_id == task_id).all()
+            task_messages = db.session.query(TaskMessage).filter(TaskMessage.task_id == task_id).all()
+            task_reports = db.session.query(TaskReport).filter(TaskReport.task_id == task_id).all()
             for doc in task_docs:
                 db.session.delete(doc)
-            db.session.delete(task_executor)
+            for task_executor in task_executors:
+                db.session.delete(task_executor)
             for message in task_messages:
                 db.session.delete(message)
             for report in task_reports:
                 db.session.delete(report)
-            db.session.commit()
-
+            sub_tasks = db.session.query(Task).filter(Task.parent_task_id == task_id).all()
+            for sub_task in sub_tasks:
+                cls.delete_task(sub_task.id)
+            
             db.session.delete(task)
             db.session.commit()
+            
             return True
         else:
             return False

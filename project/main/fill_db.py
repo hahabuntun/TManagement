@@ -83,10 +83,10 @@ def fill_worker_positions():
     db.session.commit()
 
 def fill_workers(num):
-    first_names = ["Андрей", "Иван", "Мария", "Елена", "Дмитрий", "Ольга", "Алексей", "Анна"]
-    last_names = ["Иванов", "Петров", "Сидоров", "Смирнов", "Кузнецов", "Попов", "Васильев", "Соколова"]
-    third_names = ["Александрович", "Алексеевна", "Викторович", "Викторовна", "Владимирович", "Владимировна",
-                   "Сергеевич", "Сергеевна"]
+    first_names = ["Andrew", "John", "Mary", "Helen", "Dmitry", "Olga", "Alex", "Anna"]
+    last_names = ["Ivanov", "Petrov", "Sidorov", "Smirnov", "Kuznetsov", "Popov", "Vasiliev", "Sokolova"]
+    third_names = ["Alexandrovich", "Alexeevna", "Viktorovich", "Viktorovna", "Vladimirovich", "Vladimirovna",
+               "Sergeevich", "Sergeevna"]
 
     for _ in range(num):
         first_name = random.choice(first_names)
@@ -101,7 +101,7 @@ def fill_workers(num):
             second_name=last_name,
             third_name=third_name,
             email=email,
-            password_hash=generate_password_hash("password"),  # Use a more secure password in real applications
+            password_hash="password",  # Use a more secure password in real applications
             worker_position_id=position_d.id
         )
         db.session.add(new_worker)

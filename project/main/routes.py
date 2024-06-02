@@ -1,4 +1,4 @@
-from flask import render_template, abort, redirect, request, send_from_directory, url_for
+from flask import render_template, abort, redirect, request, send_from_directory, url_for, jsonify, make_response
 # from flask_login import current_user, login_required
 from werkzeug.utils import secure_filename
 from project.main import bp
@@ -6,6 +6,71 @@ from project.models import *
 from project import db
 from sqlalchemy import text
 from project.main.dao import *
+import jwt
+from functools import wraps
+import datetime
+
+
+def get_user_by_id(user_id):
+    user = db.session.query(Worker).filter_by(id=user_id).first()
+    return user
+
+def authenticate_user(email, password):
+    user = db.session.query(Worker).filter_by(email=email, password_hash=password).first()
+    return user
+
+def token_required(func):
+    @wraps(func)
+    def decorated(*args, **kwargs):
+        token = request.cookies.get('access_token')
+        if not token:
+            return jsonify({'message': 'Token is missing'}), 401
+        try:
+            data = jwt.decode(token, "you-will-never-guess", algorithms=["HS256"])
+            user_id = data.get('user_id')  # Assuming 'user_id' is in the token payload
+            user = get_user_by_id(user_id)  # Fetch user data based on ID
+            if not user:
+                return jsonify({'message': 'User not found'}), 404
+            return func(user, *args, *kwargs)  # Pass the user object to the decorated function
+        except:
+            return jsonify({'message': 'Token is invalid'}), 401
+    return decorated
+
+@bp.get("/protected")
+@token_required
+def get_protected(user):
+    name = user.name
+    return {"username": name}
+
+
+
+@bp.route('/login', methods=['POST'])
+def login():
+    auth = request.authorization
+    if not auth or not auth.username or not auth.password:
+        return "error"
+
+    user = authenticate_user(auth.username, auth.password)  # Your authentication logic here
+    if not user:
+        return "error"
+
+    token = jwt.encode(
+        {
+            'user_id': user.id,  # Replace 'id' with the correct field name
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
+        },
+        "you-will-never-guess",
+        algorithm="HS256"
+    )
+
+    resp = make_response(jsonify({'message': 'Authentication successful'}), 200)
+    resp.set_cookie('access_token', token, httponly=True)
+    return resp
+
+@bp.route('/login', methods=['get'])
+def login_page():
+    return render_template("login.html")
+
 
 
 @bp.get('/projects')

@@ -68,26 +68,48 @@ button {
     <div class="body-container">
         <div class="form-container">
             <h2>Вход в систему</h2>
-            <form id="loginForm">
+            <form id="login-form">
                 <div class="form-group">
-                    <label for="login">Логин:</label>
-                    <input type="text" id="login" name="login">
+                    <label for="email">Логин:</label>
+                    <input type="text" id="email" name="email">
                 </div>
                 <div class="form-group">
                     <label for="password">Пароль:</label>
                     <input type="password" id="password" name="password">
                 </div>
-                <div class="form-group">
-                    <label for="type">тип:</label>
-                    <select name="type" id="type">
-                        <option value="worker">Сотрудник</option>
-                        <option value="client">Клиент</option>
-                    </select>
-                </div>
                 <button type="submit">Войти</button>
             </form>
         </div>
     </div>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script>
+        const loginForm = document.getElementById('login-form');
+        loginForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const username = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Basic ' + btoa(username + ':' + password) 
+                    }
+                });
+
+                if (response.ok) {
+                    // Authentication successful
+                    console.log('Authentication successful!');
+                    // Redirect or display protected content
+                    window.location.href = '/protected'; 
+                } else {
+                    // Authentication failed
+                    console.error('Authentication failed:', response.status);
+                }
+            } catch (error) {
+                console.error('Error during login:', error);
+            }
+        });
+    </script>
 </body>
 </html>

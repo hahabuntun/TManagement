@@ -57,6 +57,8 @@ class TeamMember(Base):
     worker_id = db.Column(db.Integer, db.ForeignKey("workers.id"))
     team_id = db.Column(db.Integer, db.ForeignKey("teams.id"))
 
+    worker = db.relationship("Worker", backref="team_members")
+
 
 class TeamDocuments(Base):
     __tablename__ = "team_documents"
@@ -91,6 +93,15 @@ class Task(Base):
     main_executor_id = db.Column(db.Integer, db.ForeignKey("team_members.id"))
     team_id = db.Column(db.Integer, db.ForeignKey("teams.id"))
     id = db.Column(db.Integer, primary_key=True)
+
+    task_messages = db.relationship("TaskMessage", backref="task")
+    task_status = db.relationship("TaskStatus", backref="task")
+    task_documents = db.relationship("TaskDocument", backref="task")
+    subtasks = db.relationship("Task", backref=db.backref("parent_task", remote_side=[id]),
+                               foreign_keys=[parent_task_id])
+    task_reports = db.relationship("TaskReport", backref="task")
+    producer = db.relationship("TeamMember", foreign_keys=[producer_id])
+    main_executor = db.relationship("TeamMember", foreign_keys=[main_executor_id])
 
 
 class TaskStatus(Base):

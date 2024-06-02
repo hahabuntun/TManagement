@@ -317,7 +317,7 @@ class TeamDAO:
     def get_team_members(cls, team_id):
         query = text("""
             select team_members.id as id, workers.email as email,
-            worker_positions.name as role
+            worker_positions.name as role, workers.id as id
             from team_members
             join workers on team_members.worker_id = workers.id
             join worker_positions on workers.worker_position_id=worker_positions.id
@@ -417,9 +417,13 @@ class TaskDAO:
         pass
 
     @classmethod
-    def add_task(cls):
+    def add_task(cls, team_id, title, assigned_from, assigned_to, deadline):
         """adds task to a team"""
-        pass
+        db.session.add(Task(name=title, date_created=datetime.today(),
+                            deadline=deadline, producer_id=assigned_from,
+                            stauts_changed_date=datetime.today(), task_status_id=1,
+                            parent_task_id=None, main_executor_id=assigned_to, team_id=team_id))
+        db.session.commit()
 
     @classmethod
     def assign_task(cls):

@@ -4,27 +4,28 @@
         <br>
         <hr>
         Добавить документ
-    <div class="add-container">
-        <form id="addForm" action="{{url_for('main.team_docs', project_id=project_id, team_id=team_id)}}" method="POST" enctype="multipart/form-data">
-            <input name="name" type="text" class="dataInput" id="documentNameAdd"
-                   placeholder="Название документа">
-            <input name="file" type="file" class="dataInput" id="documentAdd"
-                   placeholder="Email создателя">
-            <button type="submit">Загрузить</button>
-        </form>
-    </div>
+        <div class="add-container">
+            <form id="addForm" action="{{ url_for('main.team_docs', project_id=project_id, team_id=team_id) }}"
+                  method="POST" enctype="multipart/form-data">
+                <input name="name" type="text" class="dataInput" id="documentNameAdd"
+                       placeholder="Название документа">
+                <input name="file" type="file" class="dataInput" id="documentAdd"
+                       placeholder="Email создателя">
+                <button type="submit">Загрузить</button>
+            </form>
+        </div>
         Найти документ
-    <div class="filter-container">
-        <form id="filterForm">
-            <input name="name" type="text" class="dataInput" id="documentSearch"
-                   placeholder="Название документа">
-            <input name="start_date" type="date" class="dataInput" id="srartDateSearch"
-                   placeholder="От какой даты">
-            <input name="end_date" type="date" class="dataInput" id="endDateSearch"
-                   placeholder="До какой даты">
-            <button type="submit" id="searchButton">Поиск</button>
-        </form>
-    </div>
+        <div class="filter-container">
+            <form id="filterForm">
+                <input name="name" type="text" class="dataInput" id="documentSearch"
+                       placeholder="Название документа">
+                <input name="start_date" type="date" class="dataInput" id="srartDateSearch"
+                       placeholder="От какой даты">
+                <input name="end_date" type="date" class="dataInput" id="endDateSearch"
+                       placeholder="До какой даты">
+                <button type="submit" id="searchButton">Поиск</button>
+            </form>
+        </div>
 
         <div class="document-list" id="documentListContainer">
             <div id="documentTableContainer">
@@ -39,22 +40,22 @@
                     </thead>
                     <tbody>
                     {% for doc in documents %}
-                    <tr>
-                        <td>{{doc.name}}</td>
-                        <td>{{doc.date_created}}</td>
-                        <td>
-                            <button class="btn btn-danger">
-                                <a href="{{ url_for('main.drop_team_doc', project_id=project_id, team_id=team_id, document_id=doc.id) }}">
-                                    Удалить
+                        <tr>
+                            <td>{{ doc.name }}</td>
+                            <td>{{ doc.date_created }}</td>
+                            <td>
+                                <button class="btn btn-danger">
+                                    <a href="{{ url_for('main.drop_team_doc', project_id=project_id, team_id=team_id, document_id=doc.id) }}">
+                                        Удалить
+                                    </a>
+                                </button>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('main.download_team_doc', project_id=project_id, team_id=team_id, document_id=doc.id) }}">
+                                    Скачатьб
                                 </a>
-                            </button>
-                        </td>
-                        <td>
-                            <a href="{{ url_for('main.download_team_doc', project_id=project_id, team_id=team_id, document_id=doc.id) }}">
-                                Скачатьб
-                            </a>
-                        </td>
-                    </tr>
+                            </td>
+                        </tr>
                     {% endfor %}
                     </tbody>
                 </table>

@@ -9,8 +9,6 @@ import os
 fake = Faker('ru_RU')
 random.seed(10)
 
-# ниче не работает
-
 it_positions = [
     "Backend-разработчик",
     "Frontend-разработчик",
@@ -43,23 +41,29 @@ it_positions = [
     "Technical Writer"
 ]
 
-
 def build():
-    fill_project_status()
-    fill_worker_positions()
-    fill_workers(40)
-    fill_projects()
-    # fill_project_documents()
-    fill_teams()
-    fill_team_members()
-    generate_task_statuses()
-    generate_tasks()
-    generate_task_executors()
-    generate_task_reports()
-    generate_task_messages()
-
-    # pass
-
+    if not db.session.query(ProjectStatus).count():
+        fill_project_status()
+    if not db.session.query(WorkerPosition).count():
+        fill_worker_positions()
+    if not db.session.query(Worker).count():
+        fill_workers(40)
+    if not db.session.query(Project).count():
+        fill_projects()
+    if not db.session.query(Team).count():
+        fill_teams()
+    if not db.session.query(TeamMember).count():
+        fill_team_members()
+    if not db.session.query(TaskStatus).count():
+        generate_task_statuses()
+    if not db.session.query(Task).count():
+        generate_tasks()
+    if not db.session.query(TaskExecutor).count():
+        generate_task_executors()
+    if not db.session.query(TaskReport).count():
+        generate_task_reports()
+    if not db.session.query(TaskMessage).count():
+        generate_task_messages()
 
 def fill_project_status():
     finished = ProjectStatus(name="завершен")
@@ -72,19 +76,17 @@ def fill_project_status():
     db.session.add(in_creation)
     db.session.commit()
 
-
 def fill_worker_positions():
     for position in it_positions:
         work_position = WorkerPosition(name=position)
         db.session.add(work_position)
     db.session.commit()
 
-
 def fill_workers(num):
-    first_names = ["Андрей", "Иван", "Мария", "Елена", "Дмитрий", "Ольга", "Алексей", "Анна"]
-    last_names = ["Иванов", "Петров", "Сидоров", "Смирнов", "Кузнецов", "Попов", "Васильев", "Соколова"]
-    third_names = ["Александрович", "Алексеевна", "Викторович", "Викторовна", "Владимирович", "Владимировна",
-                   "Сергеевич", "Сергеевна"]
+    first_names = ["Andrew", "John", "Mary", "Helen", "Dmitry", "Olga", "Alex", "Anna"]
+    last_names = ["Ivanov", "Petrov", "Sidorov", "Smirnov", "Kuznetsov", "Popov", "Vasiliev", "Sokolova"]
+    third_names = ["Alexandrovich", "Alexeevna", "Viktorovich", "Viktorovna", "Vladimirovich", "Vladimirovna",
+               "Sergeevich", "Sergeevna"]
 
     for _ in range(num):
         first_name = random.choice(first_names)
@@ -99,13 +101,12 @@ def fill_workers(num):
             second_name=last_name,
             third_name=third_name,
             email=email,
-            password_hash=generate_password_hash("password"),  # Use a more secure password in real applications
+            password_hash="password",  # Use a more secure password in real applications
             worker_position_id=position_d.id
         )
         db.session.add(new_worker)
 
     db.session.commit()
-
 
 def fill_projects():
     project_names = ["интернет магазин", "сайт визитка", "проводник", "система оплаты проезда"]
@@ -113,20 +114,17 @@ def fill_projects():
         WorkerPosition,
         Worker.worker_position_id == WorkerPosition.id).filter(WorkerPosition.name == "Project Manager").first()
     project_statuses = ProjectStatus.query.all()
-    print(random.choice(project_statuses).id, "+++", len(project_statuses))
     projects = [Project(title=project_names[i], manager_id=project_manager.id,
                         project_status_id=random.choice(project_statuses).id) for i in range(4)]
     for project in projects:
         db.session.add(project)
     db.session.commit()
 
-
 def get_absolute_path(relative_path):
     """Converts a relative path to an absolute path."""
     base_path = os.path.abspath(os.path.dirname(__file__))  # Absolute path of the current script's directory
     absolute_path = os.path.join(base_path, relative_path)
     return absolute_path
-
 
 def fill_project_documents():
     projects = Project.query.all()
@@ -144,7 +142,6 @@ def fill_project_documents():
         db.session.add(document)
     db.session.commit()
 
-
 def fill_teams():
     projects = Project.query.all()
     for project in projects:
@@ -152,7 +149,6 @@ def fill_teams():
             team = Team(name=f"team-{i}", project_id=project.id)
             db.session.add(team)
     db.session.commit()
-
 
 def fill_team_members():
     workers = db.session.query(Worker).join(
@@ -169,10 +165,8 @@ def fill_team_members():
                 db.session.add(new_member)
     db.session.commit()
 
-
 def fill_director_subordinate():
     pass
-
 
 def generate_task_statuses():
     statuses = ['Ожидают выполнения', 'Выполняются', "Завершены"]
@@ -181,8 +175,7 @@ def generate_task_statuses():
             name=st
         )
         db.session.add(status)
-        db.session.commit()
-
+    db.session.commit()
 
 def generate_tasks(count=20):
     team_member_ids = [member.id for member in db.session.query(TeamMember).all()]
@@ -205,7 +198,6 @@ def generate_tasks(count=20):
         db.session.add(task)
         db.session.commit()
 
-
 def generate_task_executors(count=30):
     task_ids = [task.id for task in db.session.query(Task).all()]
     team_member_ids = [member.id for member in db.session.query(TeamMember).all()]
@@ -218,7 +210,6 @@ def generate_task_executors(count=30):
         )
         db.session.add(executor)
         db.session.commit()
-
 
 def generate_task_reports(count=40):
     sender_ids = [member.id for member in db.session.query(TeamMember).all()]
@@ -233,7 +224,6 @@ def generate_task_reports(count=40):
         )
         db.session.add(report)
         db.session.commit()
-
 
 def generate_task_messages(count=50):
     sender_ids = [member.id for member in db.session.query(TeamMember).all()]

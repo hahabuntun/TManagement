@@ -18,7 +18,7 @@ def create_app(config_class=Config):
     db.init_app(app)
     migrate.init_app(app, db)
     # login_manager.init_app(app)
-
+    
     # Загрузка blueprints
     from project.errors import bp as errors_bp
     app.register_blueprint(errors_bp)

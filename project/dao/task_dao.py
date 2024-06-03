@@ -77,19 +77,20 @@ class TaskDAO:
         pass
 
     @classmethod
-    def add_task_report(cls):
-        """adds a report to a task"""
-        pass
+    def add_task_report(cls, sender_id, task_id, text):
+        new_report = TaskReport(sender_id=sender_id, task_id=task_id, text=text)
+        db.session.add(new_report)
+        db.session.commit()
 
     @classmethod
     def delete_task_report(cls):
-        """deletes a report from a task"""
         pass
 
     @classmethod
-    def add_task_message(cls):
-        """adds a message to a task"""
-        pass
+    def add_task_message(cls, sender_id, task_id, text):
+        new_message = TaskMessage(sender_id=sender_id, task_id=task_id, text=text)
+        db.session.add(new_message)
+        db.session.commit()
 
     @classmethod
     def delete_task_message(cls):

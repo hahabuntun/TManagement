@@ -319,12 +319,17 @@ def new_task(project_id, team_id):
     print(team_id, title, assigned_from, responsible_person, selected_users, deadline)
 
     TaskDAO.add_task(team_id, title, assigned_from.id, responsible_person, selected_users, deadline)
-    return redirect(url_for("main.add_task", project_id=project_id, team_id=team_id))
+    return redirect(url_for("main.team_tasks", project_id=project_id, team_id=team_id))
 
 
 # Описание задачи
-@bp.route("/projects/<int:project_id>/teams/<int:team_id>/team_task/<int:task_id>", methods=["GET", "POST"])
-def task(project_id, team_id, task_id: int):
+@bp.route("/teams/<int:team_id>/team_task/<int:task_id>", methods=["GET", "POST"])
+def task(team_id, task_id: int):
+    user, error, status = get_user_from_token()
+    if error:
+        return error, status
+    user_member = db.session.query(TeamMember).filter_by(worker_id=user.id, team_id=team_id).first()
+    is_allowed_to_add_data = False
     task = TaskDAO.get_task(task_id)
     task_producer = TaskDAO.get_task_producer_member(task_id)
     task_main_executor = TaskDAO.get_task_main_executor_member(task_id)
@@ -334,6 +339,9 @@ def task(project_id, team_id, task_id: int):
     task_messages = TaskDAO.get_task_messages(task_id)
     task_reports = TaskDAO.get_task_reports(task_id)
     # task_executor = TaskDAO.get_task_executor(task_data[10])
+    if user_member.id in [task for task_executors_member in task_executors] or user_member.id == task_producer.id:
+        is_allowed_to_add_data = True
+
     executors = []
     for task_executor in task_executors:
         executors.append(TeamDAO.get_worker_by_member_id(task_executor.id))
@@ -345,15 +353,29 @@ def task(project_id, team_id, task_id: int):
         "status": task_status,
         "subtasks": task_subtasks,
         "messages": task_messages,
-        "task_reports": task_reports
+        "task_reports": task_reports,
+        "team_id": team_id
     }
     print(task_data)
-    return render_template("task/task.html", task=task_data)
+    return render_template("task/task.html", task=task_data, is_allowed_to_add_data=is_allowed_to_add_data)
 
 
 @bp.route("/drop_task/<int:task_id>", methods=["GET", "POST"])
 def drop_task(task_id: int):
+    user, error, status = get_user_from_token()
+    if error:
+        return error, status
     if not TaskDAO.delete_task(task_id):
         abort(404)
     return redirect("/projects")
 
+
+@bp.route("/teams/<int:team_id>/create_task_message/<int:task_id>",  methods=["GET", "POST"])
+def create_task_message(team_id, task_id):
+    user, error, status = get_user_from_token()
+    if error:
+        return error, status
+    user_member = db.session.query(TeamMember).filter_by(worker_id=user.id, team_id=team_id).first()
+    text = request.form['message']
+    TaskDAO.add_task_message(user_member.id, task_id, text)
+    return redirect(url_for('main.task', team_id=team_id, task_id=task_id))

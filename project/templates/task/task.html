@@ -51,36 +51,25 @@
 
                 <!-- Comments Section -->
                 <h6>Сообщения задачи:</h6>
+                {% for item in task['messages'] %}
                 <ul class="list-group">
-                    {% for item in task['messages'] %}
-                        <li class="list-group-item">{{ item.text }}</li>
-                        <li class="list-group-item">{{ item.upload_date }}</li>
+                        <li class="list-group-item">Текст сообщения: {{ item.text }}</li>
+                        <li class="list-group-item">Время отправки: {{ item.upload_date.strftime('%d.%m.%Y %H:%M') }}</li>
                         <li></li>
-                    {% endfor %}
                     <!-- Add more comments dynamically using JavaScript -->
                 </ul>
-
+                {% endfor %}
                 <!-- Add Comment Form -->
-                <form>
+                <form method="POST" action="{{url_for('main.create_task_message', team_id=task.team_id, task_id=task.task.id)}}">
                     <div class="form-group">
                         <label for="comment">Добавление сообщения:</label>
-                        <textarea class="form-control" id="comment" rows="3"></textarea>
+                        <textarea class="form-control" name="message" id="message" rows="3"></textarea>
                     </div>
                     <button type="submit" class="btn btn-primary">Добавить сообщение</button>
                 </form>
-                
                 <hr>
-                <!-- Attach Files Section -->
-                <h6>Прикрепленные файлы</h6>
-                <ul class="list-group">
-                    <li class="list-group-item">File 1</li>
-                    <li class="list-group-item">File 2</li>
-                    <!-- Add more files dynamically -->
-                </ul>
-
-                <!-- Add File Button -->
-                <button type="button" class="btn btn-secondary">Прикрепить файл</button>
-
+                <h6><a href="">Файлы задачи</a></h6>
+                <hr>
                 <!-- Subtasks Section -->
                 <h6>Подзадачи:</h6>
                 <ul class="list-group">

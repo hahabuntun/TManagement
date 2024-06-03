@@ -5,6 +5,7 @@ import os
 from datetime import datetime, timedelta
 import pytz
 from sqlalchemy.orm import joinedload
+from collections import defaultdict
 
 
 def make_project_filename(filename):
@@ -357,7 +358,7 @@ class TeamDAO:
     def get_team_members(cls, team_id):
         query = text("""
             select team_members.id as id, workers.email as email,
-            worker_positions.name as role, workers.id as id
+            worker_positions.name as role
             from team_members
             join workers on team_members.worker_id = workers.id
             join worker_positions on workers.worker_position_id=worker_positions.id
@@ -418,9 +419,23 @@ class TeamDAO:
             ).order_by(
                 TaskStatus.name.desc()
             ).all()
-            for task in team_tasks:
-                print(task)
             return team_tasks
+
+    @classmethod
+    def get_superior_and_subordinates(cls):
+        subordinates = db.session.query(DirectorSubordinates).all()
+
+        # Create a defaultdict with lists to store the relationships
+        superior_subordinate_dict = defaultdict(list)
+
+        for relation in subordinates:
+            superior = relation.producer.worker
+            subordinate = relation.subordinate.worker
+            superior_subordinate_dict[superior].append(subordinate)
+
+        print(dict(superior_subordinate_dict))
+
+        return dict(superior_subordinate_dict)
 
 
 class TaskDAO:

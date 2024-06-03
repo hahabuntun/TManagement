@@ -147,7 +147,7 @@ def project_docs(project_id: int):
         if temp.id == project_id:
             is_user_in_project = True
     cond = db.session.query(Project).filter_by(manager_id=user.id, id=project_id).first()
-    
+
     if request.method == 'POST':
         if (worker_position != "admin" or not cond):
             return jsonify({"error": "forbidden"})
@@ -258,7 +258,8 @@ def team_members(project_id, team_id):
 def team_tasks(project_id, team_id):
     #все члены команды
     tasks = TeamDAO.get_team_tasks(team_id)
-    return render_template("team/team_tasks.html", tasks=tasks)
+    print(tasks)
+    return render_template("team/team_tasks.html", tasks=tasks, project_id=project_id, team_id=team_id)
 
 
 @bp.route("/projects/<int:project_id>/teams/<int:team_id>/new_task", methods=["GET", "POST"])
@@ -275,6 +276,8 @@ def new_task(project_id, team_id):
     assigned_from = int(request.form["assigned-from"].split(" ")[0])
     assigned_to = int(request.form["assigned-to"].split(" ")[0])
     deadline = request.form["deadline"]
+    print(team_id, title, assigned_from, assigned_to, deadline)
+
     TaskDAO.add_task(team_id, title, assigned_from, assigned_to, deadline)
     return redirect(url_for("main.add_task", project_id=project_id, team_id=team_id))
 

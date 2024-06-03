@@ -5,10 +5,13 @@ from project.main import bp
 from project.models import *
 from project import db
 from sqlalchemy import text
-from project.main.dao import *
+from project.dao.project_dao import ProjectDAO
+from project.dao.team_dao import TeamDAO
+from project.dao.task_dao import TaskDAO
 import jwt
 from functools import wraps
 import datetime
+import os
 
 
 def get_user_by_id(user_id):
@@ -289,29 +292,62 @@ def team_tasks(project_id, team_id):
 
 @bp.route("/projects/<int:project_id>/teams/<int:team_id>/new_task", methods=["GET", "POST"])
 def add_task(project_id, team_id):
+    user, error, status = get_user_from_token()
+    if error:
+        return error, status
+    #проверить имеет ли пользователь доступ к этой команде/иначе выкинуть его
+    #получить всех подчиненных пользователя
     #все члены команды, которые могут добавлять задачу
-    users = TeamDAO.get_team_members(team_id)
-    return render_template("task/create_task.html", users=users, project_id=project_id, team_id=team_id)
+    subordinates = TeamDAO.get_worker_subordinates_by_team_id(user.id, team_id)
+    current_team_member = db.session.query(TeamMember).filter_by(id=user.id, team_id=team_id).first()
+    print(current_team_member)
+    print("hihi")
+    return render_template("task/create_task.html", worker_data=user, subordinates=subordinates, task_producer=current_team_member, project_id=project_id, team_id=team_id)
 
 
 @bp.route("/projects/<int:project_id>/teams/<int:team_id>/create_task", methods=["POST"])
 def new_task(project_id, team_id):
     #те кто могут создавать задачи
+    user, error, status = get_user_from_token()
+    if error:
+        return error, status
+    assigned_from = db.session.query(TeamMember).filter_by(worker_id=user.id, team_id=team_id).first()
     title = request.form["task-title"]
-    assigned_from = int(request.form["assigned-from"].split(" ")[0])
-    assigned_to = int(request.form["assigned-to"].split(" ")[0])
+    responsible_person = int(request.form["responsible"])
+    selected_users = request.form.getlist("assigned-to[]")
     deadline = request.form["deadline"]
-    print(team_id, title, assigned_from, assigned_to, deadline)
+    print(team_id, title, assigned_from, responsible_person, selected_users, deadline)
 
-    TaskDAO.add_task(team_id, title, assigned_from, assigned_to, deadline)
+    TaskDAO.add_task(team_id, title, assigned_from.id, responsible_person, selected_users, deadline)
     return redirect(url_for("main.add_task", project_id=project_id, team_id=team_id))
 
 
 # Описание задачи
 @bp.route("/projects/<int:project_id>/teams/<int:team_id>/team_task/<int:task_id>", methods=["GET", "POST"])
 def task(project_id, team_id, task_id: int):
-    task_data = TaskDAO.get_task(task_id)
+    task = TaskDAO.get_task(task_id)
+    task_producer = TaskDAO.get_task_producer_member(task_id)
+    task_main_executor = TaskDAO.get_task_main_executor_member(task_id)
+    task_executors = TaskDAO.get_task_executors_members(task_id)
+    task_status = TaskDAO.get_task_status(task_id)
+    task_subtasks = TaskDAO.get_task_subtasks(task_id)
+    task_messages = TaskDAO.get_task_messages(task_id)
+    task_reports = TaskDAO.get_task_reports(task_id)
     # task_executor = TaskDAO.get_task_executor(task_data[10])
+    executors = []
+    for task_executor in task_executors:
+        executors.append(TeamDAO.get_worker_by_member_id(task_executor.id))
+    task_data = {
+        "task": task,
+        "producer": TeamDAO.get_worker_by_member_id(task_producer.id),
+        "main_executor": TeamDAO.get_worker_by_member_id(task_main_executor.id),
+        "executors": executors,
+        "status": task_status,
+        "subtasks": task_subtasks,
+        "messages": task_messages,
+        "task_reports": task_reports
+    }
+    print(task_data)
     return render_template("task/task.html", task=task_data)
 
 

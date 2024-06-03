@@ -24,9 +24,21 @@
                     </div>
                     <div class="card-body">
                         <p><strong>Кому назначено:</strong>
+                            <ul>
+                                {% for executor in task['executors'] %}
+                                <li>
+                                    {{ executor.name }}
+                                    {{ executor.second_name }}
+                                    {{ executor.third_name }}
+                                    {{ executor.email }}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            Из них ответственный:
                             {{ task['main_executor'].name }}
                             {{ task['main_executor'].second_name }}
                             {{ task['main_executor'].third_name }}
+                            {{ task['main_executor'].email }}
                         </p>
                         <p><strong>Кто назначил:</strong>
                             {{ task['producer'].name }}

@@ -15,22 +15,26 @@
                         <label for="task-title">Название задачи:</label>
                         <input type="text" class="form-control" id="task-title" name="task-title" required>
                     </div>
-
+                    <p>Назначено от: {{worker_data.email}}</p>
                     <div class="form-group">
-                        <label for="assigned-from">Назначено от:</label>
-                        <select name="assigned-from" class="assigned-from" required>
-                            {% for user in users %}
-                                <option>{{ user.id }} {{ user.email }}</option>
-                            {% endfor %}
-                        </select>
+                        <input type="hidden" name="assigned-from" class="assigned-from" value="{{task_producer.id}}">
                     </div>
 
                     <!-- Task Assignment -->
                     <div class="form-group">
                         <label for="assigned-to">Кому назначено:</label>
-                        <select name="assigned-to" class="assigned-to" required>
-                            {% for user in users %}
-                                <option>{{ user.id }} {{ user.email }}</option>
+                        <select name="assigned-to[]" class="assigned-to" multiple required>
+                            {% for subordinate in subordinates %}
+                                <option value="{{ subordinate.id }}">{{ subordinate.worker_data.email }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="responsible">Ответственный:</label>
+                        <select name="responsible" class="responsible">
+                            {% for subordinate in subordinates %}
+                                <option value="{{ subordinate.id }}">{{ subordinate.worker_data.email }}</option>
                             {% endfor %}
                         </select>
                     </div>

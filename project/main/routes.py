@@ -19,40 +19,19 @@ def authenticate_user(email, password):
     user = db.session.query(Worker).filter_by(email=email, password_hash=password).first()
     return user
 
-def token_required(func):
-    @wraps(func)
-    def decorated(*args, **kwargs):
-        token = request.cookies.get('access_token')
-        if not token:
-            return jsonify({'message': 'Token is missing'}), 401
-        try:
-            data = jwt.decode(token, "you-will-never-guess", algorithms=["HS256"])
-            user_id = data.get('user_id')  # Assuming 'user_id' is in the token payload
-            user = get_user_by_id(user_id)  # Fetch user data based on ID
-            if not user:
-                return jsonify({'message': 'User not found'}), 404
-            return func(user, *args, *kwargs)  # Pass the user object to the decorated function
-        except:
-            return jsonify({'message': 'Token is invalid'}), 401
-    return decorated
-
-
-def token_required_without_user(func):
-    @wraps(func)
-    def decorated(*args, **kwargs):
-        token = request.cookies.get('access_token')
-        if not token:
-            return jsonify({'message': 'Token is missing'}), 401
-        try:
-            data = jwt.decode(token, "you-will-never-guess", algorithms=["HS256"])
-            user_id = data.get('user_id')  # Assuming 'user_id' is in the token payload
-            user = get_user_by_id(user_id)  # Fetch user data based on ID
-            if not user:
-                return jsonify({'message': 'User not found'}), 404
-            return func(*args, *kwargs)  # Pass the user object to the decorated function
-        except:
-            return jsonify({'message': 'Token is invalid'}), 401
-    return decorated
+def get_user_from_token():
+    token = request.cookies.get('access_token')
+    if not token:
+        return None, jsonify({'message': 'Token is missing'}), 401
+    try:
+        data = jwt.decode(token, "you-will-never-guess", algorithms=["HS256"])
+        user_id = data.get('user_id')
+        user = get_user_by_id(user_id)
+        if not user:
+            return None, jsonify({'message': 'User not found'}), 404
+        return user, None, None
+    except:
+        return None, jsonify({'message': 'Token is invalid'}), 401
 
 
 def get_token_url(endpoint, **kwargs):
@@ -61,13 +40,6 @@ def get_token_url(endpoint, **kwargs):
     if token:
         kwargs['token'] = token  # Add the token to the URL parameters
     return url_for(endpoint, **kwargs)
-
-
-@bp.get("/protected")
-@token_required
-def get_protected(user):
-    name = user.name
-    return {"username": name}
 
 
 
@@ -105,35 +77,40 @@ def login_page():
     return render_template("login.html")
 
 
-@bp.route("/<int:worker_id>/admin_projects")
-@token_required
-def admin_project(user, worker_id):
-    return "admin"
+# @bp.route("/<int:worker_id>/manager_projects")
+# 
+# def manager_project(user):
+#     return "manager"
 
-@bp.route("/<int:worker_id>/manager_projects")
-@token_required
-def manager_project(user, worker_id):
-    return "manager"
-
-@bp.route("/<int:worker_id>/worker_projects")
-@token_required
-def worker_project(user, worker_id):
-    return "worker"
+# @bp.route("/<int:worker_id>/worker_projects")
+# 
+# def worker_project(user):
+#     worker_position = db.session.query(WorkerPosition).filter_by(id=user.worker_position_id).first()
+#     if worker_position.name == "Project Manager":
+#         data = db.session.query(Project).filter_by(manager_id=user.id).all()
+#         return render_template("project/manager_projects.html", context=data, user=user)
 
 @bp.get('/projects')
-@token_required
-def all_projects(user):
-    # fetches project, its manager, its status
-    data = ProjectDAO.get_all_projects()
-    statuses = ProjectStatus.query.all()
-    managers = ProjectDAO.get_available_managers()
-    return render_template("project/projects.html", context=data, statuses=statuses, managers=managers, user=user)
-
+def all_projects():
+    user, error, status = get_user_from_token()
+    if error:
+        return error, status
+    worker_position = db.session.query(WorkerPosition).filter_by(id=user.worker_position_id).first()
+    print(worker_position.name)
+    if worker_position.name == "admin":
+        data = ProjectDAO.get_all_projects()
+        statuses = ProjectStatus.query.all()
+        managers = ProjectDAO.get_available_managers()
+        return render_template("project/projects.html", context=data, statuses=statuses, managers=managers, user=user)
+    elif worker_position.name == "Project Manager":
+        data = db.session.query(Project).filter_by(manager_id=user.id).all()
+        return render_template("project/manager_projects.html", context=data, user=user)
+    else:
+        return "you have no projects"
 
 # Добавить проект
 @bp.post("/projects")
-@token_required
-def add_project(user):
+def add_project():
     title = request.form["title"]
     manager_id = request.form["manager"]
     status_id = request.form["status"]
@@ -151,9 +128,11 @@ def drop_project(project_id: int):
 
 # Документы проекта
 @bp.route('/projects/<int:project_id>/documents', methods=["GET", "POST"])
-@token_required
-def project_docs(user, project_id: int):
+def project_docs(project_id: int):
     #все в проекте
+    user, error, status = get_user_from_token()
+    if error:
+        return error, status
     worker_position = db.session.query(WorkerPosition).filter_by(id=user.worker_position_id).first()
     user_in_teams = db.session.query(TeamMember).filter_by(worker_id=user.id).all()
     teams = []

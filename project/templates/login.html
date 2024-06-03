@@ -102,7 +102,7 @@ button {
                     console.log('Authentication successful!');
                     var data = await response.json()
                     // Redirect or display protected content
-                    window.location.href = `/${data.user_id}/worker_projects`; 
+                    window.location.href = `/projects`; 
                 } else {
                     // Authentication failed
                     console.error('Authentication failed:', response.status);

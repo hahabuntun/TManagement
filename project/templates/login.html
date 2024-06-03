@@ -101,8 +101,8 @@ button {
                     // Authentication successful
                     console.log('Authentication successful!');
                     var data = await response.json()
-                    // Redirect or display protected content
-                    window.location.href = `/projects`; 
+                    redirect_url = data.redirect_url
+                    window.location.href = redirect_url; 
                 } else {
                     // Authentication failed
                     console.error('Authentication failed:', response.status);

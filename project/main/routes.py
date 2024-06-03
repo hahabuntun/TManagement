@@ -61,8 +61,13 @@ def login():
         "you-will-never-guess",
         algorithm="HS256"
     )
-
-    resp = make_response(jsonify({'message': 'Authentication successful', "user_id": user.id}), 200)
+    worker_position = db.session.query(WorkerPosition).filter_by(id=user.worker_position_id).first()
+    if worker_position.name == "admin":
+        resp = make_response(jsonify({'message': 'Authentication successful', "user_id": user.id, "redirect_url": "/projects"}), 200)
+    elif worker_position.name == "Project Manager":
+        resp = make_response(jsonify({'message': 'Authentication successful', "user_id": user.id, "redirect_url": "/projects_manager"}), 200)
+    else:
+        resp = make_response(jsonify({'message': 'Authentication successful', "user_id": user.id, "redirect_url": "/all_teams_member"}), 200)
     resp.set_cookie('access_token', token, httponly=True)
     return resp
 
@@ -102,11 +107,30 @@ def all_projects():
         statuses = ProjectStatus.query.all()
         managers = ProjectDAO.get_available_managers()
         return render_template("project/projects.html", context=data, statuses=statuses, managers=managers, user=user)
-    elif worker_position.name == "Project Manager":
-        data = db.session.query(Project).filter_by(manager_id=user.id).all()
+    else:
+        return "you are not admin"
+    
+@bp.get("/projects_manager")
+def all_projects_manager():
+    user, error, status = get_user_from_token()
+    if error:
+        return error, status
+    worker_position = db.session.query(WorkerPosition).filter_by(id=user.worker_position_id).first()
+    if worker_position.name == "Project Manager":
+        data = ProjectDAO.get_all_manager_projects(user.id)
+        print(data)
         return render_template("project/manager_projects.html", context=data, user=user)
     else:
         return "you have no projects"
+    
+@bp.get("/all_teams_member")
+def all_teams_member():
+    user, error, status = get_user_from_token()
+    if error:
+        return error, status
+    pass
+
+
 
 # Добавить проект
 @bp.post("/projects")
@@ -149,21 +173,23 @@ def project_docs(project_id: int):
     cond = db.session.query(Project).filter_by(manager_id=user.id, id=project_id).first()
 
     if request.method == 'POST':
-        if (worker_position != "admin" or not cond):
+        if (worker_position.name == "admin" or cond):
+            file = request.files['file']
+            document_name = request.form["name"]
+            ProjectDAO.add_project_document(project_id, file, document_name)
+            args = []
+            documents = ProjectDAO.get_project_docs(project_id, args)
+            return render_template("project/project_documents.html", documents=documents, project_id=project_id)
+        else:
             return jsonify({"error": "forbidden"})
-        file = request.files['file']
-        document_name = request.form["name"]
-        ProjectDAO.add_project_document(project_id, file, document_name)
-        args = []
-        documents = ProjectDAO.get_project_docs(project_id, args)
-        return render_template("project/project_documents.html", documents=documents, project_id=project_id)
     else:
-        if (worker_position != "admin" or not cond or not is_user_in_project):
-            return jsonify({"error": "forbidden"})
-        args = request.args
-        print(args)
-        documents = ProjectDAO.get_project_docs(project_id, args)
-        return render_template("project/project_documents.html", documents=documents, project_id=project_id)
+        if (worker_position.name == "admin" or cond or is_user_in_project):
+            args = request.args
+            print(args)
+            documents = ProjectDAO.get_project_docs(project_id, args)
+            return render_template("project/project_documents.html", documents=documents, project_id=project_id)
+        return jsonify({"error": "forbidden"})
+        
 
 
 @bp.get('/projects/<int:project_id>/documents/<int:document_id>')

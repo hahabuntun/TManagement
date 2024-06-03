@@ -25,8 +25,8 @@
         <div class="col-md-3 col-lg-2 bg-light d-none d-md-block sidebar">
             <div class="sidebar-sticky">
                 <ul class="nav flex-column">
-                    <li class="nav-item"><a id="admin_l" class="nav-link" href="">Админ</a></li>
-                    <li class="nav-item"><a id="manager_l" class="nav-link" href="">Менеджер</a></li>
+                    <li class="nav-item"><a id="admin_l" class="nav-link" href="{{url_for('main.all_projects')}}">Админ</a></li>
+                    <li class="nav-item"><a id="manager_l" class="nav-link" href="{{url_for('main.all_projects_manager')}}">Менеджер</a></li>
                     <li class="nav-item"><a id="worker_l" class="nav-link" href="">Сотрудник</a></li>
                     <hr>
                 </ul>

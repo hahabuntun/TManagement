@@ -12,8 +12,8 @@
                 <p>Status: {{ project.status }}</p>
                 <p>Employees: {{ project.num_employees }}</p>
                 <p>Manager: {{ project.manager }}</p>
-                <a href="{{ url_for('main.project_teams', project_id=project.id) }}" class="btn btn-primary">View Project</a>
-                <button class="btn btn-success"><a href="{{ url_for('main.project_docs', project_id=project.id) }}">Add docs</a></button>
+                <a href="{{ url_for('main.project_teams', project_id=project.project_id) }}" class="btn btn-primary">View Project</a>
+                <button class="btn btn-success"><a href="{{ url_for('main.project_docs', project_id=project.project_id) }}">Add docs</a></button>
             </div>
         {% endfor %}
 

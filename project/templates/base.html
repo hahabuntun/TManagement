@@ -16,7 +16,7 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <a class="navbar-brand" href="#">IT Project Management</a>
     <ul class="navbar-nav ml-auto">
-        <li class="nav-item"><a class="nav-link" href="#">Logout</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{url_for('main.logout')}}">Logout</a></li>
         <li class="nav-item"><a class="nav-link" href="#">Projects</a></li>
     </ul>
 </nav>
@@ -25,15 +25,10 @@
         <div class="col-md-3 col-lg-2 bg-light d-none d-md-block sidebar">
             <div class="sidebar-sticky">
                 <ul class="nav flex-column">
-                    для админа
-                    <li class="nav-item"><a class="nav-link" href="#">All Projects</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Active Projects</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Completed Projects</a></li>
+                    <li class="nav-item"><a id="admin_l" class="nav-link" href="">Админ</a></li>
+                    <li class="nav-item"><a id="manager_l" class="nav-link" href="">Менеджер</a></li>
+                    <li class="nav-item"><a id="worker_l" class="nav-link" href="">Сотрудник</a></li>
                     <hr>
-                    для работника
-                    <li class="nav-item"><a class="nav-link" href="/projects">Мои проекты</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/my_tasks">Задачи</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/my_supervised_tasks">Курируемые задачи</a></li>
                 </ul>
             </div>
         </div>

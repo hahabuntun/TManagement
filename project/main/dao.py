@@ -200,6 +200,38 @@ class TeamDAO:
     def get_team(cls):
         """returns single  team data"""
         pass
+    @classmethod
+    def delete_team_member(cls, team_member_id):
+        team_member = db.session.query(TeamMember).filter_by(id=team_member_id).first()
+        sub_dir_1 = db.session.query(DirectorSubordinates).filter_by(producer_id=team_member.id).all()
+        sub_dir_2 = db.session.query(DirectorSubordinates).filter_by(subordinate_id=team_member.id).all()
+        for sub_dir in sub_dir_1:
+            db.session.delete(sub_dir)
+        db.session.commit()
+        for sub_dir in sub_dir_2:
+            db.session.delete(sub_dir)
+        db.session.commit()
+        tasks_where_main_executor = db.session.query(Task).filter_by(main_executor_id=team_member.id).all()
+        tasks_where_producer = db.session.query(Task).filter_by(producer_id=team_member.id).all()
+        for task in tasks_where_main_executor:
+            TaskDAO.delete_task(task.id)
+        for task in tasks_where_producer:
+            TaskDAO.delete_task(task.id)
+        task_reports = db.session.query(TaskReport).filter_by(sender_id=team_member.id).all()
+        task_messages = db.session.query(TaskMessage).filter_by(sender_id=team_member.id).all()
+        task_documents = db.session.query(TaskDocument).filter_by(sender_id=team_member.id).all()
+        for report in task_reports:
+            db.session.delete(report)
+        for message in task_messages:
+            db.session.delete(message)
+        for document in task_documents:
+            db.session.delete(document)
+        task_executors = db.session.query(TaskExecutor).filter_by(executor_id=team_member.id).all()
+        for executor in task_executors:
+            db.session.delete(executor)
+        db.session.delete(team_member)
+        db.session.commit()
+
 
     @classmethod
     def delete_team(cls, team_id):
@@ -209,27 +241,19 @@ class TeamDAO:
         team_members = db.session.query(TeamMember).filter_by(team_id=team_id).all()
         tasks = db.session.query(Task).filter_by(team_id=team_id).all()
         team_documents = db.session.query(TeamDocuments).filter_by(team_id=team_id).all()
-        print("dsadatihskflnjasfkas")
+        print(team_members)
         print(team)
         if team:
-            print("jerjerrerere")
-            for member in team_members:
-                db.session.delete(member)
             for task in tasks:
                 print(task.id)
                 if not TaskDAO.delete_task(task.id):
-                    
                     return False
-            print("finished tasks")
-            
-                
-           
+            for member in team_members:
+                cls.delete_team_member(member.id)
             for document in team_documents:
                 db.session.delete(document)
-            
             db.session.delete(team)
             db.session.commit()
-            print("finished teaasadds")
             return True
         else:
             return False
@@ -324,9 +348,9 @@ class TeamDAO:
         db.session.add(new_team_member)
         db.session.commit()
         for put_task_permission in put_tasks:
-            db.session.add(DirectorSubordinates(producer_id=worker_id, subordinate_id=put_task_permission))
+            db.session.add(DirectorSubordinates(producer_id=new_team_member.id, subordinate_id=put_task_permission))
         for take_task_permission in take_tasks:
-            db.session.add(DirectorSubordinates(producer_id=take_task_permission, subordinate_id=worker_id))
+            db.session.add(DirectorSubordinates(producer_id=take_task_permission, subordinate_id=new_team_member.id))
         db.session.commit()
 
     @classmethod
@@ -527,7 +551,6 @@ class TaskDAO:
         task = db.session.query(Task).get(task_id)
         
         if task:
-            
             task_docs = db.session.query(TaskDocument).filter(TaskDocument.task_id == task_id).all()
             task_executors = db.session.query(TaskExecutor).filter(TaskExecutor.task_id == task_id).all()
             task_messages = db.session.query(TaskMessage).filter(TaskMessage.task_id == task_id).all()

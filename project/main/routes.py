@@ -36,7 +36,8 @@ def token_required(func):
             return jsonify({'message': 'Token is invalid'}), 401
     return decorated
 
-def admin_token_required(func):
+
+def token_required_without_user(func):
     @wraps(func)
     def decorated(*args, **kwargs):
         token = request.cookies.get('access_token')
@@ -46,16 +47,21 @@ def admin_token_required(func):
             data = jwt.decode(token, "you-will-never-guess", algorithms=["HS256"])
             user_id = data.get('user_id')  # Assuming 'user_id' is in the token payload
             user = get_user_by_id(user_id)  # Fetch user data based on ID
-            worker_position = db.session.query(WorkerPosition).filter_by(id=user.worker_position_id).first()
             if not user:
                 return jsonify({'message': 'User not found'}), 404
-            if worker_position.name != "admin":
-                print(worker_position.name)
-                return jsonify({'message': 'not authorized'}), 400
-            return func(user, *args, *kwargs)  # Pass the user object to the decorated function
+            return func(*args, *kwargs)  # Pass the user object to the decorated function
         except:
             return jsonify({'message': 'Token is invalid'}), 401
     return decorated
+
+
+def get_token_url(endpoint, **kwargs):
+    """Generates a URL with a token appended as a query parameter."""
+    token = request.cookies.get('access_token')  # Get the token from the cookie
+    if token:
+        kwargs['token'] = token  # Add the token to the URL parameters
+    return url_for(endpoint, **kwargs)
+
 
 @bp.get("/protected")
 @token_required
@@ -84,8 +90,14 @@ def login():
         algorithm="HS256"
     )
 
-    resp = make_response(jsonify({'message': 'Authentication successful'}), 200)
+    resp = make_response(jsonify({'message': 'Authentication successful', "user_id": user.id}), 200)
     resp.set_cookie('access_token', token, httponly=True)
+    return resp
+
+@bp.route('/logout', methods=['GET'])
+def logout():
+    resp = make_response(redirect(url_for('main.login')))  # Redirect to the desired page after logout
+    resp.delete_cookie('access_token')  # Delete the cookie
     return resp
 
 @bp.route('/login', methods=['get'])
@@ -93,20 +105,34 @@ def login_page():
     return render_template("login.html")
 
 
+@bp.route("/<int:worker_id>/admin_projects")
+@token_required
+def admin_project(user, worker_id):
+    return "admin"
+
+@bp.route("/<int:worker_id>/manager_projects")
+@token_required
+def manager_project(user, worker_id):
+    return "manager"
+
+@bp.route("/<int:worker_id>/worker_projects")
+@token_required
+def worker_project(user, worker_id):
+    return "worker"
 
 @bp.get('/projects')
-@admin_token_required
+@token_required
 def all_projects(user):
     # fetches project, its manager, its status
     data = ProjectDAO.get_all_projects()
     statuses = ProjectStatus.query.all()
     managers = ProjectDAO.get_available_managers()
-    return render_template("project/projects.html", context=data, statuses=statuses, managers=managers)
+    return render_template("project/projects.html", context=data, statuses=statuses, managers=managers, user=user)
 
 
 # Добавить проект
 @bp.post("/projects")
-@admin_token_required
+@token_required
 def add_project(user):
     title = request.form["title"]
     manager_id = request.form["manager"]
@@ -117,8 +143,7 @@ def add_project(user):
 
 # Удалить проект
 @bp.get("/projects/<int:project_id>/drop")
-@admin_token_required
-def drop_project(user, project_id: int):
+def drop_project(project_id: int):
     if not ProjectDAO.delete_project(project_id):
         abort(404)
     return redirect(url_for('main.all_projects'))
@@ -136,10 +161,14 @@ def project_docs(user, project_id: int):
         temp = db.session.query(Team).filter_by(id=user_in_team.team_id).first()
         teams.append(temp)
     projects = []
+    is_user_in_project = False
     for team in teams:
         temp = db.session.query(Project).filter_by(id=team.project_id).first()
         projects.append(temp)
+        if temp.id == project_id:
+            is_user_in_project = True
     cond = db.session.query(Project).filter_by(manager_id=user.id, id=project_id).first()
+    
     if request.method == 'POST':
         if (worker_position != "admin" or not cond):
             return jsonify({"error": "forbidden"})
@@ -150,6 +179,8 @@ def project_docs(user, project_id: int):
         documents = ProjectDAO.get_project_docs(project_id, args)
         return render_template("project/project_documents.html", documents=documents, project_id=project_id)
     else:
+        if (worker_position != "admin" or not cond or not is_user_in_project):
+            return jsonify({"error": "forbidden"})
         args = request.args
         print(args)
         documents = ProjectDAO.get_project_docs(project_id, args)

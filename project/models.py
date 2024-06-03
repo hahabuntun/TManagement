@@ -74,6 +74,9 @@ class DirectorSubordinates(Base):
     subordinate_id = db.Column(db.Integer, db.ForeignKey("team_members.id"))
     id = db.Column(db.Integer, primary_key=True)
 
+    producer = db.relationship("TeamMember", foreign_keys=[producer_id], backref="subordinates")
+    subordinate = db.relationship("TeamMember", foreign_keys=[subordinate_id], backref="superiors")
+
 
 class TeamMemberRole(Base):
     __tablename__ = "team_member_roles"

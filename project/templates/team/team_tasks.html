@@ -1,88 +1,91 @@
 {% extends "base.html" %}
 {% block content %}
 
-    <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
-        <button class="btn btn-success"><a
-                href="{{ url_for('main.add_task', project_id=tasks[0][5], team_id=tasks[0][4]) }}">Создать задачу</a>
-        </button>
-        <div class="custom-list row mt-4">
-            <div class="custom-card col-md-к">
-                <h3>Ожидают выполнения</h3>
-                <table>
-                    <thead>
-                    <tr>
-                        <th>Название</th>
-                        <th>Deadline</th>
-                        <th>Постановщик</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for task in tasks %}
-                        {% if task[3] == "Ожидают выполнения" %}
-                            <tr>
-                                <td>
-                                    <a href="{{ url_for('main.task', project_id=task[5], team_id=task[4], task_id=task[6]) }}">
-                                        {{ task[0] }}
-                                    </a>
-                                </td>
-                                <td>{{ task[1] }}</td>
-                                <td>{{ task[2] }}</td>
-                            </tr>
-                        {% endif %}
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            <div class="custom-card col-md-4">
-                <h3>Выполняются</h3>
-                <table>
-                    <thead>
-                    <tr>
-                        <th>Название</th>
-                        <th>Deadline</th>
-                        <th>Постановщик</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for task in tasks %}
-                        {% if task[3] == "Выполняются" %}
-                            <tr>
+<main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+    <button class="btn btn-success"><a
+            href="{{ url_for('main.add_task', project_id=project_id, team_id=team_id) }}">Создать задачу</a>
+    </button>
+    <div class="custom-list row mt-4">
+        <div class="custom-card col-md-к">
+            <h3>Ожидают выполнения</h3>
+            <table>
+                <thead>
+                <tr>
+                    <th>Название</th>
+                    <th>Deadline</th>
+                    <th>Постановщик</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if tasks is defined %}
+                {% for task in tasks %}
+                    {% if task[3] == "Ожидают выполнения" %}
+                        <tr>
+                            <td>
                                 <a href="{{ url_for('main.task', project_id=task[5], team_id=task[4], task_id=task[6]) }}">
                                     {{ task[0] }}
                                 </a>
-                                <td>{{ task[1] }}</td>
-                                <td>{{ task[2] }}</td>
-                            </tr>
-                        {% endif %}
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            <div class="custom-card col-md-4">
-                <h3>Завершенные</h3>
-                <table>
-                    <thead>
-                    <tr>
-                        <th>Название</th>
-                        <th>Deadline</th>
-                        <th>Постановщик</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for task in tasks %}
-                        {% if task[3] == "Завершены" %}
-                            <tr>
-                                <a href="{{ url_for('main.task', project_id=task[5], team_id=task[4], task_id=task[6]) }}">
-                                    {{ task[0] }}
-                                </a>
-                                <td>{{ task[1] }}</td>
-                                <td>{{ task[2] }}</td>
-                            </tr>
-                        {% endif %}
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                            </td>
+                            <td>{{ task[1] }}</td>
+                            <td>{{ task[2] }}</td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+                {% endif %}
+
+                </tbody>
+            </table>
         </div>
-    </main>
+        <div class="custom-card col-md-4">
+            <h3>Выполняются</h3>
+            <table>
+                <thead>
+                <tr>
+                    <th>Название</th>
+                    <th>Deadline</th>
+                    <th>Постановщик</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for task in tasks %}
+                    {% if task[3] == "Выполняются" %}
+                        <tr>
+                            <a href="{{ url_for('main.task', project_id=task[5], team_id=task[4], task_id=task[6]) }}">
+                                {{ task[0] }}
+                            </a>
+                            <td>{{ task[1] }}</td>
+                            <td>{{ task[2] }}</td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="custom-card col-md-4">
+            <h3>Завершенные</h3>
+            <table>
+                <thead>
+                <tr>
+                    <th>Название</th>
+                    <th>Deadline</th>
+                    <th>Постановщик</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for task in tasks %}
+                    {% if task[3] == "Завершены" %}
+                        <tr>
+                            <a href="{{ url_for('main.task', project_id=task[5], team_id=task[4], task_id=task[6]) }}">
+                                {{ task[0] }}
+                            </a>
+                            <td>{{ task[1] }}</td>
+                            <td>{{ task[2] }}</td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
 {% endblock %}

@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
-    <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+    <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4" style="margin: 0 auto;">
         <br>
         <hr>
-        Добавить документ
-        <div class="add-container">
+        <h2 style="margin: 0 auto;">Добавить документ</h2>
+        <div class="add-container" style="margin: 0 auto;">
             <form id="addForm" action="{{ url_for('main.team_docs', project_id=project_id, team_id=team_id) }}"
                   method="POST" enctype="multipart/form-data">
                 <input name="name" type="text" class="dataInput" id="documentNameAdd"
@@ -14,8 +14,8 @@
                 <button type="submit">Загрузить</button>
             </form>
         </div>
-        Найти документ
-        <div class="filter-container">
+        <h2>Найти документ</h2>
+        <div class="filter-container" style="margin: 0 auto;">
             <form id="filterForm">
                 <input name="name" type="text" class="dataInput" id="documentSearch"
                        placeholder="Название документа">
@@ -27,7 +27,7 @@
             </form>
         </div>
 
-        <div class="document-list" id="documentListContainer">
+        <div class="document-list" id="documentListContainer" style="margin: 0 auto;">
             <div id="documentTableContainer">
                 <table class="document-table" id="documentTable">
                     <thead>
@@ -42,7 +42,7 @@
                     {% for doc in documents %}
                         <tr>
                             <td>{{ doc.name }}</td>
-                            <td>{{ doc.date_created }}</td>
+                            <td>{{ doc.date_created.strftime('%d.%m.%Y %H:%M') }}</td>
                             <td>
                                 <button class="btn btn-danger">
                                     <a href="{{ url_for('main.drop_team_doc', project_id=project_id, team_id=team_id, document_id=doc.id) }}">
@@ -52,7 +52,7 @@
                             </td>
                             <td>
                                 <a href="{{ url_for('main.download_team_doc', project_id=project_id, team_id=team_id, document_id=doc.id) }}">
-                                    Скачатьб
+                                    Скачать
                                 </a>
                             </td>
                         </tr>

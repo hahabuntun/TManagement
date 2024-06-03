@@ -1,7 +1,8 @@
-1-project creation page(list of available managers|interface to add manager|interface to add documents|list of added documents)
-2-project page(for manager shows all teams(and link to go to this team page)|interface to create new team|interface to delete team| total number of members for each team|project name|project documents|start date|status)
-               (for admin show the same as for manager)
-               (for team member show teams he is a part of|link to this team|all team members)
-3-team page( shows all team members|interface to add team member from available members(for each new member we put tick for other team member who can get tasks from him and who can give tasks to him|
-            team documents|interface to add document|interface to create task|interface to create subtask|link to the task|list of all the tasks(should be separated by their category))
-4-task page(task chat|interface to add task files and see task files|interface to create subtask for this task and set its executors|interface to create report on the task(for main executor)| interface to change status of the task)
+1)создание проекта+
+2)удаление проекта?
+3)просмотр, добавление, удаление и скачивание документов проекта+
+4)добавление команды в проект, удаление команды из проетка+
+5)просмотр, добавление, удаление и скачивание документов команды+
+6)Добавление сотрудника в команду/поиск доступных сотрудников/удаление сотрудника из команды
+7)Создание задачи/создание подзадачи/
+создание отчета по задаче/создание сообщений по задаче/документы по задаче

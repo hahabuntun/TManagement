@@ -10,24 +10,60 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/basic_form.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/basic_list.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/tasks.css') }}">
+    <style>
+
+        .navbar-custom {
+            background-color: #343a40; /* Dark background */
+        }
+        .navbar-custom .navbar-brand, 
+        .navbar-custom .nav-link {
+            color: white; /* Light text color */
+        }
+        .navbar-custom .nav-link:hover {
+            color: #ffc107; /* Hover text color */
+        }
+        .sidebar {
+            background-color: #70a3bd;
+            color: white;
+            min-height: 100vh;
+        }
+        .sidebar .nav-link {
+            color: white;
+            padding: 10px 15px;
+            margin: 5px 0;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .sidebar .nav-link:hover {
+            background-color: #495057;
+            color: #ffffff;
+        }
+        .sidebar .nav-link.active {
+            background-color: #007bff;
+            color: #ffffff;
+        }
+        .sidebar .nav-link.active:hover {
+            background-color: #0056b3;
+            color: #ffffff;
+        }
+    </style>
 </head>
 
 <body>
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="#">IT Project Management</a>
-    <ul class="navbar-nav ml-auto">
-        <li class="nav-item"><a class="nav-link" href="{{url_for('main.logout')}}">Logout</a></li>
-        <li class="nav-item"><a class="nav-link" href="#">Projects</a></li>
-    </ul>
-</nav>
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <a class="navbar-brand" href="#">Управление задачами IT проекта</a>
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item"><a class="nav-link" href="{{url_for('main.logout')}}">Выйти</a></li>
+        </ul>
+    </nav>
 <div class="container-fluid">
     <div class="row">
-        <div class="col-md-3 col-lg-2 bg-light d-none d-md-block sidebar">
+        <div class="col-md-3 col-lg-2 d-none d-md-block bg-dark sidebar">
             <div class="sidebar-sticky">
                 <ul class="nav flex-column">
-                    <li class="nav-item"><a id="admin_l" class="nav-link" href="{{url_for('main.all_projects')}}">Админ</a></li>
-                    <li class="nav-item"><a id="manager_l" class="nav-link" href="{{url_for('main.all_projects_manager')}}">Менеджер</a></li>
-                    <li class="nav-item"><a id="worker_l" class="nav-link" href="">Сотрудник</a></li>
+                    <li class="nav-item"><a id="admin_l" class="nav-link" href="{{url_for('main.all_projects')}}"><i class="fas fa-user-shield"></i> Админ</a></li>
+                    <li class="nav-item"><a id="manager_l" class="nav-link" href="{{url_for('main.all_projects_manager')}}"><i class="fas fa-user-tie"></i> Менеджер</a></li>
+                    <li class="nav-item"><a id="worker_l" class="nav-link" href="{{url_for('main.all_teams_member')}}"><i class="fas fa-users"></i> Сотрудник</a></li>
                     <hr>
                 </ul>
             </div>

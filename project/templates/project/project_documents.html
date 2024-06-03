@@ -44,7 +44,7 @@
                 {% for doc in documents %}
                     <tr>
                         <td>{{ doc.name }}</td>
-                        <td>{{ doc.date_created }}</td>
+                        <td>{{ doc.date_created.strftime('%d.%m.%Y %H:%M') }}</td>
                         <td>
                             <button class="btn btn-danger"><a href="{{ url_for('main.drop_project_doc', project_id=project_id, document_id=doc.id) }}">Удалить</a></button>
                         </td>

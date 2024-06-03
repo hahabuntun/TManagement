@@ -5,14 +5,14 @@
         <!-- New Task Creation Form -->
         <div class="card">
             <div class="card-header">
-                Create New Task
+                <h2>Создание новой задачи</h2>
             </div>
             <div class="card-body">
                 <!-- Task Creation Form -->
                 <form id="task-form" method="post" action="{{ url_for('main.new_task', project_id=project_id, team_id=team_id) }}">
                     <!-- Task Title -->
                     <div class="form-group">
-                        <label for="task-title">Task Title:</label>
+                        <label for="task-title">Название задачи:</label>
                         <input type="text" class="form-control" id="task-title" name="task-title" required>
                     </div>
 
@@ -27,7 +27,7 @@
 
                     <!-- Task Assignment -->
                     <div class="form-group">
-                        <label for="assigned-to">Assigned To:</label>
+                        <label for="assigned-to">Кому назначено:</label>
                         <select name="assigned-to" class="assigned-to" required>
                             {% for user in users %}
                                 <option>{{ user.id }} {{ user.email }}</option>
@@ -36,14 +36,14 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="deadline">Deadline</label>
+                        <label for="deadline">Дедлайн:</label>
                         <input name="deadline" type="date" class="dataInput" id="deadline"
                                placeholder="deadline">
                     </div>
 
                     <!-- Submit Button -->
                     <button type="submit" class="btn btn-primary">
-                        Create Task
+                        Создать
                     </button>
                 </form>
             </div>

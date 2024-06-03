@@ -5,40 +5,40 @@
         <!-- Task Details Section -->
         <div class="card">
             <div class="card-header">
-                Task Details
+                Данные о задаче
             </div>
             <div class="card-body">
                 <!-- Task Title -->
-                <h5 class="card-title">{{ task['task'].name }}</h5>
+                <h5 class="card-title">Название: {{ task['task'].name }}</h5>
 
                 <!-- Task Description -->
-                <p class="card-text">Дата создания: {{ task['task'].date_created }}</p>
-                <p class="card-text">Дедлайн: {{ task['task'].deadline }}</p>
-                <p class="card-text">Дата последнего измененения статуса: {{ task['task'].stauts_changed_date }}</p>
+                <p class="card-text">Дата создания: {{ task['task'].date_created.strftime('%d.%m.%Y %H:%M') }}</p>
+                <p class="card-text">Дедлайн: {{ task['task'].deadline.strftime('%d.%m.%Y %H:%M') }}</p>
+                <p class="card-text">Дата последнего измененения статуса: {{ task['task'].stauts_changed_date.strftime('%d.%m.%Y %H:%M') }}</p>
                 <p class="card-text">Статус задачи: {{ task['status'].name }}</p>
-
+                <hr>
                 <!-- Task Assignment Section -->
                 <div class="card mt-3">
                     <div class="card-header">
-                        Task Assignment
+                        Кто и кому назначил
                     </div>
                     <div class="card-body">
-                        <p><strong>Assigned To:</strong>
+                        <p><strong>Кому назначено:</strong>
                             {{ task['main_executor'].name }}
                             {{ task['main_executor'].second_name }}
                             {{ task['main_executor'].third_name }}
                         </p>
-                        <p><strong>Assigned By:</strong>
+                        <p><strong>Кто назначил:</strong>
                             {{ task['producer'].name }}
                             {{ task['producer'].second_name }}
                             {{ task['producer'].third_name }}
                         </p>
                     </div>
                 </div>
-
+                <hr>
 
                 <!-- Comments Section -->
-                <h6>Comments:</h6>
+                <h6>Сообщения задачи:</h6>
                 <ul class="list-group">
                     {% for item in task['messages'] %}
                         <li class="list-group-item">{{ item.text }}</li>
@@ -51,14 +51,15 @@
                 <!-- Add Comment Form -->
                 <form>
                     <div class="form-group">
-                        <label for="comment">Add Comment:</label>
+                        <label for="comment">Добавление сообщения:</label>
                         <textarea class="form-control" id="comment" rows="3"></textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary">Submit Comment</button>
+                    <button type="submit" class="btn btn-primary">Добавить сообщение</button>
                 </form>
-
+                
+                <hr>
                 <!-- Attach Files Section -->
-                <h6>Attached Files:</h6>
+                <h6>Прикрепленные файлы</h6>
                 <ul class="list-group">
                     <li class="list-group-item">File 1</li>
                     <li class="list-group-item">File 2</li>
@@ -66,10 +67,10 @@
                 </ul>
 
                 <!-- Add File Button -->
-                <button type="button" class="btn btn-secondary">Attach File</button>
+                <button type="button" class="btn btn-secondary">Прикрепить файл</button>
 
                 <!-- Subtasks Section -->
-                <h6>Subtasks:</h6>
+                <h6>Подзадачи:</h6>
                 <ul class="list-group">
                     {% for item in task['subtasks'] %}
                         <li class="list-group-item">{{ item.name }}</li>
@@ -78,18 +79,19 @@
 
                     <!-- Add more subtasks dynamically -->
                 </ul>
-
+                <br>
+                <hr>
                 <!-- Create Subtask Form -->
                 <form>
                     <div class="form-group">
-                        <label for="subtask">Create Subtask:</label>
+                        <label for="subtask">Создание подзадачи:</label>
                         <input type="text" class="form-control" id="subtask">
                     </div>
-                    <button type="submit" class="btn btn-primary">Create Subtask</button>
+                    <button type="submit" class="btn btn-primary">Создать подзадачу</button>
                 </form>
 
                 <!-- Report Section -->
-                <h6>Task Report:</h6>
+                <h6>Отчет по задаче:</h6>
                 {% for item in task['reports'] %}
                     <li class="list-group-item">{{ item.text }}</li>
                     <li class="list-group-item">{{ item.upload_date }}</li>
@@ -99,15 +101,16 @@
                 <!-- Add Report Form -->
                 <form id="report-form">
                     <div class="form-group">
-                        <label for="report">Add Task Report:</label>
+                        <label for="report">Добавление отчета по задаче:</label>
                         <textarea class="form-control" id="report" rows="3"></textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary">Submit Report</button>
+                    <button type="submit" class="btn btn-primary">Отправить отчет</button>
                 </form>
 
-
+                <br>
+                <hr>
                 <!-- Change Status Button -->
-                <button type="button" class="btn btn-warning">Change Status</button>
+                <button type="button" class="btn btn-warning">Изменить статус задачи</button>
             </div>
         </div>
     </div>

@@ -116,19 +116,18 @@ def all_projects_manager():
     if error:
         return error, status
     worker_position = db.session.query(WorkerPosition).filter_by(id=user.worker_position_id).first()
-    if worker_position.name == "Project Manager":
-        data = ProjectDAO.get_all_manager_projects(user.id)
-        print(data)
-        return render_template("project/manager_projects.html", context=data, user=user)
-    else:
-        return "you have no projects"
+    data = ProjectDAO.get_all_manager_projects(user.id)
+    print(data)
+    return render_template("project/manager_projects.html", context=data, user=user)
     
 @bp.get("/all_teams_member")
 def all_teams_member():
     user, error, status = get_user_from_token()
     if error:
         return error, status
-    pass
+    teams = TeamDAO.get_user_teams(user.id)
+    print(teams)
+    return render_template("worker_main.html", teams=teams)
 
 
 

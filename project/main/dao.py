@@ -300,6 +300,23 @@ class TeamDAO:
         else:
             return False
 
+
+    @classmethod
+    def get_user_teams(cls, user_id):
+        user = db.session.query(Worker).filter_by(id=user_id).first()
+        user_in_teams = db.session.query(TeamMember).filter_by(worker_id=user.id).all()
+        teams = []
+        for user_in_team in user_in_teams:
+            temp = db.session.query(Team).filter_by(id=user_in_team.team_id).first()
+            teams.append(temp)
+        res_teams = []
+        for team in teams:
+            team_project = db.session.query(Project).filter_by(id=team.project_id).first()
+            team.project = team_project
+            res_teams.append(team)
+        return res_teams
+        
+
     @classmethod
     def add_team_document(cls, team_id, file, document_name):
         """adds document to a team"""

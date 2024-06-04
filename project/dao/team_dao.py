@@ -318,3 +318,17 @@ class TeamDAO:
                 subordinate.worker_data = worker
                 subordinates.append(subordinate)
         return subordinates
+    @classmethod
+    def get_worker_directors_by_team_id(cls, worker_id, team_id):
+        user = db.session.query(Worker).filter_by(id=worker_id).first()
+        team = db.session.query(Team).filter_by(id=team_id).first()
+        user_in_teams = db.session.query(TeamMember).filter_by(worker_id=user.id, team_id=team.id).first()
+        directors = []
+        if user_in_teams:
+            sub_dirs = db.session.query(DirectorSubordinates).filter_by(subordinate_id=user_in_teams.id).all()
+            for sub_dir in sub_dirs:
+                director = db.session.query(TeamMember).filter_by(id=sub_dir.producer_id).first()
+                worker = db.session.query(Worker).filter_by(id=director.worker_id).first()
+                director.worker_data = worker
+                directors.append(director)
+        return directors

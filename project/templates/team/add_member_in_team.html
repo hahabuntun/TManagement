@@ -20,7 +20,7 @@
                 </ul>
                 {% endif %}
                 <form method="POST" action="{{url_for('main.team_members', project_id=project_id, team_id=team_id)}}">
-                    Разрешения сотрудника
+                    Разрешения нового сотрудника
                     {% if new_member %}
                     <input type="hidden" name="worker_id" value="{{ new_member.worker_id }}">
                     {% endif %}
@@ -53,7 +53,87 @@
 
         <br>
         <hr>
-        
+        <input type="hidden" value="{{team_id}}" id="team_id">
+        <div class="filter-container">
+            <form id="searchPermissions">
+                <select id="user_email" name="email">
+                    {% for member in members %}
+                        <option value="{{member.id}}">{{member.email}}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit">Поиск</button>
+            </form>
+        </div>
+        <div id="searchResults" class="row mt-4">
+            <div class="col-md-6">
+                <h5>Подчиненные</h5>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Email</th>
+                        </tr>
+                    </thead>
+                    <tbody id="subordinatesTableBody">
+                        <!-- Subordinates data will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <h5>Постановщики задач</h5>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Email</th>
+                        </tr>
+                    </thead>
+                    <tbody id="assignersTableBody">
+                        <!-- Assigners data will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </main>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+    $(document).ready(function() {
+    $('#searchPermissions').on('submit', function(event) {
+        event.preventDefault();
+        id_by_email = $(this).find('#user_email').val();
+        const team_id = $("#team_id").val();
+        
+        $.ajax({
+            url: `/teams/${team_id}/connections?team_member_id=${id_by_email}`,
+            method: 'get',
+            success: function(response) {
+                // Clear previous results
+                $('#subordinatesTableBody').empty();
+                $('#assignersTableBody').empty();
+                console.log(response)
+                response.subordinates.forEach(function(subordinate) {
+                    $('#subordinatesTableBody').append(
+                        `<tr>
+                            <td>${subordinate.email}</td>
+                        </tr>`
+                    );
+                });
+                response.directors.forEach(function(director) {
+                    $('#assignersTableBody').append(
+                        `<tr>
+                            <td>${director.email}</td>
+                        </tr>`
+                    );
+                });
+            },
+            error: function() {
+                alert('Error fetching data');
+            }
+        });
+    });
+});
+</script>
 
 {% endblock %}

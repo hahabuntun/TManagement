@@ -343,6 +343,28 @@ def team_members(project_id, team_id):
                                 new_member=new_member)
     abort(413, "Только администратор и менеджер имеют доступ к этой странице")
 
+@bp.route("/teams/<int:team_id>/connections", methods=["GET"])
+def team_member_connections(team_id):
+    team_member_id = int(request.args.get('team_member_id'))
+    team_member = db.session.query(TeamMember).filter_by(id=team_member_id).first()
+    subordinates = TeamDAO.get_worker_subordinates_by_team_id(team_member.worker_id, team_id)
+    directors = TeamDAO.get_worker_directors_by_team_id(team_member.worker_id, team_id)
+    subs = []
+    dirs = []
+    for subordinate in subordinates:
+        worker = subordinate.worker_data
+        sub = {"email": worker.email}
+        subs.append(sub)
+    for director in directors:
+        worker = director.worker_data
+        dir = {"email": worker.email}
+        dirs.append(dir)
+    data = {
+        "subordinates": subs,
+        "directors": dirs
+    }
+    return data
+        
 # задачи команды
 @bp.route("/projects/<int:project_id>/teams/<int:team_id>/team_tasks", methods=["GET", "POST"])
 def team_tasks(project_id, team_id):

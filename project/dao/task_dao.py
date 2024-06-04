@@ -72,6 +72,10 @@ class TaskDAO:
     def get_task_reports(cls, task_id):
         task = db.session.query(Task).filter_by(id=task_id).first()
         task_reports = db.session.query(TaskReport).filter_by(task_id=task.id).all()
+        for report in task_reports:
+            message_creator = db.session.query(TeamMember).filter_by(id=report.sender_id).first()
+            worker = db.session.query(Worker).filter_by(id=message_creator.worker_id).first()
+            report.worker = worker
         return task_reports
 
     @classmethod

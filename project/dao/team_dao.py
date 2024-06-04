@@ -1,5 +1,5 @@
 from project import db
-from sqlalchemy import text, label
+from sqlalchemy import text
 from project.models import *
 import os
 from datetime import datetime

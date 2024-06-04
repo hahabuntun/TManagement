@@ -94,10 +94,9 @@ class TaskDAO:
 
     @classmethod
     def add_subtask(cls, team_id, parent_task_id, title, assigned_from, responsible_person, selected_users, deadline):
-        parent_task = db.session.query(Task).filter_by(id=parent_task_id).first()
         new_task = Task(name=title, date_created=datetime.today(),
                             deadline=deadline, producer_id=assigned_from,
-                            stauts_changed_date=datetime.today(), task_status_id=parent_task.task_status_id,
+                            stauts_changed_date=datetime.today(), task_status_id=1,
                             parent_task_id=parent_task_id, main_executor_id=responsible_person, team_id=team_id)
         db.session.add(new_task)
         db.session.commit()

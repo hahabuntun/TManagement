@@ -290,8 +290,8 @@ def team_tasks(project_id, team_id):
     return render_template("team/team_tasks.html", tasks=tasks, project_id=project_id, team_id=team_id)
 
 
-@bp.route("/projects/<int:project_id>/teams/<int:team_id>/new_task", methods=["GET", "POST"])
-def add_task(project_id, team_id):
+@bp.route("/teams/<int:team_id>/new_task", methods=["GET", "POST"])
+def add_task(team_id):
     user, error, status = get_user_from_token()
     if error:
         return error, status
@@ -301,11 +301,12 @@ def add_task(project_id, team_id):
     subordinates = TeamDAO.get_worker_subordinates_by_team_id(user.id, team_id)
     current_team_member = db.session.query(TeamMember).filter_by(worker_id=user.id, team_id=team_id).first()
     print(current_team_member)
-    return render_template("task/create_task.html", worker_data=user, subordinates=subordinates, task_producer=current_team_member, project_id=project_id, team_id=team_id)
+    return render_template("task/create_task.html", worker_data=user, subordinates=subordinates, task_producer=current_team_member, team_id=team_id)
 
 
-@bp.route("/projects/<int:project_id>/teams/<int:team_id>/create_task", methods=["POST"])
-def new_task(project_id, team_id):
+
+@bp.route("/teams/<int:team_id>/create_task", methods=["POST"])
+def new_task(team_id):
     #те кто могут создавать задачи
     user, error, status = get_user_from_token()
     if error:
@@ -318,7 +319,35 @@ def new_task(project_id, team_id):
     print(team_id, title, assigned_from, responsible_person, selected_users, deadline)
 
     TaskDAO.add_task(team_id, title, assigned_from.id, responsible_person, selected_users, deadline)
-    return redirect(url_for("main.team_tasks", project_id=project_id, team_id=team_id))
+    return redirect(url_for("main.team_tasks", team_id=team_id))
+
+
+
+
+@bp.route("/teams/<int:team_id>/tasks/<int:task_id>/new_task", methods=["GET", "POST"])
+def add_subtask(team_id, task_id):
+    user, error, status = get_user_from_token()
+    if error:
+        return error, status
+    current_task = db.session.query(Task).filter_by(id=task_id).first()
+    subordinates = TeamDAO.get_worker_subordinates_by_team_id(user.id, team_id)
+    current_team_member = db.session.query(TeamMember).filter_by(worker_id=user.id, team_id=team_id).first()
+    return render_template("task/create_subtask.html", worker_data=user, subordinates=subordinates, task_producer=current_team_member, team_id=team_id, task=current_task)
+
+
+@bp.route("/teams/<int:team_id>/tasks/<int:task_id>/create_task", methods=["POST"])
+def new_subtask(team_id, task_id):
+    #те кто могут создавать задачи
+    user, error, status = get_user_from_token()
+    if error:
+        return error, status
+    assigned_from = db.session.query(TeamMember).filter_by(worker_id=user.id, team_id=team_id).first()
+    title = request.form["task-title"]
+    responsible_person = int(request.form["responsible"])
+    selected_users = request.form.getlist("assigned-to[]")
+    deadline = request.form["deadline"]
+    TaskDAO.add_subtask(team_id, task_id, title, assigned_from.id, responsible_person, selected_users, deadline)
+    return redirect(url_for("main.task", team_id=team_id, task_id=task_id))
 
 
 # Описание задачи
@@ -329,7 +358,7 @@ def task(team_id, task_id: int):
         return error, status
     user_member = db.session.query(TeamMember).filter_by(worker_id=user.id, team_id=team_id).first()
     is_allowed_to_add_data = False
-    task = TaskDAO.get_task(task_id)
+    current_task = TaskDAO.get_task(task_id)
     task_producer = TaskDAO.get_task_producer_member(task_id)
     task_main_executor = TaskDAO.get_task_main_executor_member(task_id)
     task_executors = TaskDAO.get_task_executors_members(task_id)
@@ -344,7 +373,7 @@ def task(team_id, task_id: int):
     for task_executor in task_executors:
         executors.append(TeamDAO.get_worker_by_member_id(task_executor.id))
     task_data = {
-        "task": task,
+        "task": current_task,
         "producer": TeamDAO.get_worker_by_member_id(task_producer.id),
         "main_executor": TeamDAO.get_worker_by_member_id(task_main_executor.id),
         "executors": executors,
@@ -373,8 +402,8 @@ def create_task_message(team_id, task_id):
     if error:
         return error, status
     user_member = db.session.query(TeamMember).filter_by(worker_id=user.id, team_id=team_id).first()
-    text = request.form['message']
-    TaskDAO.add_task_message(user_member.id, task_id, text)
+    message_text = request.form['message']
+    TaskDAO.add_task_message(user_member.id, task_id, message_text)
     return redirect(url_for('main.task', team_id=team_id, task_id=task_id))
 
 
@@ -385,12 +414,11 @@ def create_task_report(team_id, task_id):
     if error:
         return error, status
     user_member = db.session.query(TeamMember).filter_by(worker_id=user.id, team_id=team_id).first()
-    is_task_executor = db.session.query(TaskExecutor).filter_by(task_id=task_id, executor_id=user_member.id).first()
-    task = db.session.query(Task).filter_by(id=task_id).first()
-    task_producer = db.session.query(TeamMember).filter_by(id=task.producer_id).first()
-    text = request.form['message']
-    if is_task_executor or task_producer.id == user_member.id:
-        TaskDAO.add_task_report(user_member.id, task_id, text)
+    is_task_main_executor = db.session.query(Task).filter_by(id=task_id, main_executor_id=user_member.id).first()
+    message_text = request.form['message']
+    if not is_task_main_executor:
+        return "Вы не имеете права создавать отчет по задаче. На это имеет право только главный исполнитель задачи"
+    TaskDAO.add_task_report(user_member.id, task_id, message_text)
     return redirect(url_for('main.task', team_id=team_id, task_id=task_id))
 
 @bp.route('/teams/<int:team_id>/tasks/<int:task_id>/documents', methods=["GET", "POST"])

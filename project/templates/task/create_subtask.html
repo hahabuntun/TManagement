@@ -5,11 +5,12 @@
         <!-- New Task Creation Form -->
         <div class="card">
             <div class="card-header">
-                <h2>Создание новой задачи</h2>
+                <h2>Создание подзадачи</h2>
             </div>
             <div class="card-body">
                 <!-- Task Creation Form -->
-                <form id="task-form" method="post" action="{{ url_for('main.new_task', team_id=team_id) }}">
+                <p>Задача верхнего уровня: {{task.name}}</p>
+                <form id="task-form" method="post" action="{{ url_for('main.new_subtask', team_id=team_id, task_id=task.id) }}">
                     <!-- Task Title -->
                     <div class="form-group">
                         <label for="task-title">Название задачи:</label>

@@ -75,8 +75,7 @@
                 <h6>Подзадачи:</h6>
                 <ul class="list-group">
                     {% for item in task['subtasks'] %}
-                        <li class="list-group-item">{{ item.name }}</li>
-                        <li></li>
+                        <li class="list-group-item"><a href="{{url_for('main.task', team_id=item.team_id, task_id=item.id)}}">{{ item.name }}</a></li>
                     {% endfor %}
 
                     <!-- Add more subtasks dynamically -->
@@ -84,13 +83,7 @@
                 <br>
                 <hr>
                 <!-- Create Subtask Form -->
-                <form>
-                    <div class="form-group">
-                        <label for="subtask">Создание подзадачи:</label>
-                        <input type="text" class="form-control" id="subtask">
-                    </div>
-                    <button type="submit" class="btn btn-primary">Создать подзадачу</button>
-                </form>
+                <a href="{{url_for('main.add_subtask', team_id=task.team_id, task_id=task.task.id)}}">Создать подзадачу</a>
 
                 <!-- Report Section -->
                 <h6>Отчет по задаче:</h6>

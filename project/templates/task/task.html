@@ -13,7 +13,7 @@
                 <h5 class="card-title">Название: {{ task['task'].name }}</h5>
                 <!-- Task Description -->
                 {% if task.parent_task %}
-                <p>Задача верхнего уровня: <a href="{{url_for('main.task', team_id=task.team_id, task_id=task.parent_task.id)}}">task.parent_task.name</a></p>
+                <p>Задача верхнего уровня: <a href="{{url_for('main.task', team_id=task.team_id, task_id=task.parent_task.id)}}">{{task.parent_task.name}}</a></p>
                 {%  endif %}
                 <p class="card-text">Дата создания: {{ task['task'].date_created.strftime('%d.%m.%Y %H:%M') }}</p>
                 <p class="card-text">Дедлайн: {{ task['task'].deadline.strftime('%d.%m.%Y %H:%M') }}</p>

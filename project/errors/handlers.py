@@ -8,6 +8,10 @@ def not_found_error(error):
     return render_template('errors/404.html'), 404
 
 
+@bp.app_errorhandler(413)
+def custom_error(error):
+    return render_template("errors/413.html", message=error.description), 413
+
 @bp.app_errorhandler(500)
 def internal_error(error):
     db.session.rollback()

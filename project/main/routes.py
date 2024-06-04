@@ -72,12 +72,14 @@ def login():
     else:
         resp = make_response(jsonify({'message': 'Authentication successful', "user_id": user.id, "redirect_url": "/all_teams_member"}), 200)
     resp.set_cookie('access_token', token, httponly=True)
+    resp.set_cookie("user_email", user.email)
     return resp
 
 @bp.route('/logout', methods=['GET'])
 def logout():
     resp = make_response(redirect(url_for('main.login')))  # Redirect to the desired page after logout
     resp.delete_cookie('access_token')  # Delete the cookie
+    resp.delete_cookie('user_email')
     return resp
 
 @bp.route('/login', methods=['get'])
@@ -111,7 +113,7 @@ def all_projects():
         managers = ProjectDAO.get_available_managers()
         return render_template("project/projects.html", context=data, statuses=statuses, managers=managers, user=user)
     else:
-        return "you are not admin"
+        abort(413, "Вы не являетесь администратором в проектах")
     
 @bp.get("/projects_manager")
 def all_projects_manager():
@@ -137,6 +139,12 @@ def all_teams_member():
 # Добавить проект
 @bp.post("/projects")
 def add_project():
+    user, error, status = get_user_from_token()
+    if error:
+        return error, status
+    worker_position = db.session.query(WorkerPosition).filter_by(id=user.worker_position_id).first()
+    if (worker_position.name != "admin"):
+        abort(413, "Вы не можете удалять проекты")
     title = request.form["title"]
     manager_id = request.form["manager"]
     status_id = request.form["status"]
@@ -147,6 +155,12 @@ def add_project():
 # Удалить проект
 @bp.get("/projects/<int:project_id>/drop")
 def drop_project(project_id: int):
+    user, error, status = get_user_from_token()
+    if error:
+        return error, status
+    worker_position = db.session.query(WorkerPosition).filter_by(id=user.worker_position_id).first()
+    if (worker_position.name != "admin"):
+        abort(413, "Вы не можете удалять проекты")
     if not ProjectDAO.delete_project(project_id):
         abort(404)
     return redirect(url_for('main.all_projects'))
@@ -183,14 +197,14 @@ def project_docs(project_id: int):
             documents = ProjectDAO.get_project_docs(project_id, args)
             return render_template("project/project_documents.html", documents=documents, project_id=project_id)
         else:
-            return jsonify({"error": "forbidden"})
+            abort(413, "У вас нет досутпа к этой функции. Он есть только у менеджера и у админа")
     else:
         if (worker_position.name == "admin" or cond or is_user_in_project):
             args = request.args
             print(args)
             documents = ProjectDAO.get_project_docs(project_id, args)
             return render_template("project/project_documents.html", documents=documents, project_id=project_id)
-        return jsonify({"error": "forbidden"})
+        abort(413, "У вас нет досутпа к этой странице")
         
 
 
@@ -204,39 +218,72 @@ def download_project_doc(project_id, document_id):
 @bp.get('/projects/<int:project_id>/documents/<int:document_id>/drop')
 def drop_project_doc(project_id, document_id):
     #менеджер и админ этого проекта
-    ProjectDAO.delete_project_document(document_id=document_id)
-    return redirect(url_for('main.project_docs', project_id=project_id))
+    user, error, status = get_user_from_token()
+    if error:
+        return error, status
+    worker_position = db.session.query(WorkerPosition).filter_by(id=user.worker_position_id).first()
+    cond = db.session.query(Project).filter_by(manager_id=user.id, id=project_id).first()
+    if (worker_position.name == "admin" or cond):
+        ProjectDAO.delete_project_document(document_id=document_id)
+        return redirect(url_for('main.project_docs', project_id=project_id))
+    abort(413, "У вас нет права на удаление документов проекта")
+    
 
 
 # Команды проекта
 @bp.get('/projects/<int:project_id>/teams')
 def project_teams(project_id: int):
     #менеджер
-    teams = TeamDAO.get_project_teams(project_id)
-    return render_template("team/teams_in_project.html", teams=teams, project_id=project_id)
+    user, error, status = get_user_from_token()
+    if error:
+        return error, status
+    worker_position = db.session.query(WorkerPosition).filter_by(id=user.worker_position_id).first()
+    cond = db.session.query(Project).filter_by(manager_id=user.id, id=project_id).first()
+    if (worker_position.name == "admin" or cond):
+        teams = TeamDAO.get_project_teams(project_id)
+        return render_template("team/teams_in_project.html", teams=teams, project_id=project_id)
+    abort(413, "У вас нет права на просмотр этой страницы. Он есть только у администратора и у менеджера проекта")
+    
 
 
 @bp.post('/projects/<int:project_id>/teams')
 def add_project_team(project_id):
     #менеджер
-    name = request.form["name"]
-    if name != "":
-        TeamDAO.add_team(project_id=project_id, team_name=name)
-    return redirect(url_for('main.project_teams', project_id=project_id))
+    user, error, status = get_user_from_token()
+    if error:
+        return error, status
+    worker_position = db.session.query(WorkerPosition).filter_by(id=user.worker_position_id).first()
+    cond = db.session.query(Project).filter_by(manager_id=user.id, id=project_id).first()
+    if (worker_position.name == "admin" or cond):
+        name = request.form["name"]
+        if name != "":
+            TeamDAO.add_team(project_id=project_id, team_name=name)
+        return redirect(url_for('main.project_teams', project_id=project_id))
+    abort(413, "Вы не можете добавлять команды в проект, это могут делать только администратор и менеджер проекта")
 
 
 # удалить команду
 @bp.get("/projects/<int:project_id>/teams/<int:team_id>/drop")
 def drop_team(project_id, team_id):
     #удаляет команду менеджер
-    if not TeamDAO.delete_team(team_id):
-        abort(404)
-    return redirect(url_for('main.project_teams', project_id=project_id))
+    user, error, status = get_user_from_token()
+    if error:
+        return error, status
+    worker_position = db.session.query(WorkerPosition).filter_by(id=user.worker_position_id).first()
+    cond = db.session.query(Project).filter_by(manager_id=user.id, id=project_id).first()
+    if (worker_position.name == "admin" or cond):
+        if not TeamDAO.delete_team(team_id):
+            abort(404)
+        return redirect(url_for('main.project_teams', project_id=project_id))
+    abort(413, "Только менеджер и администратор могут удалять команды")
 
 
 @bp.route('/projects/<int:project_id>/teams/<int:team_id>/documents', methods=["GET", "POST"])
 def team_docs(project_id, team_id):
     #документы команды добавляют все члены команды, получают все члены команды
+    user, error, status = get_user_from_token()
+    if error:
+        return error, status
     if request.method == 'POST':
         file = request.files['file']
         document_name = request.form["name"]
@@ -253,6 +300,9 @@ def team_docs(project_id, team_id):
 @bp.get('/projects/<int:project_id>/teams/<int:team_id>/documents/<int:document_id>')
 def download_team_doc(project_id, team_id, document_id):
     #все члены команды
+    user, error, status = get_user_from_token()
+    if error:
+        return error, status
     document = TeamDAO.get_team_document(document_id)
     return send_from_directory(os.getcwd() + "\\documents\\team_documents", document.filename, as_attachment=True)
 
@@ -260,34 +310,54 @@ def download_team_doc(project_id, team_id, document_id):
 @bp.get('/projects/<int:project_id>/teams/<int:team_id>/documents/<int:document_id>/drop')
 def drop_team_doc(project_id, team_id, document_id):
     #менеджер
-    TeamDAO.delete_team_document(document_id=document_id)
-    return redirect(url_for('main.team_docs', project_id=project_id, team_id=team_id))
-
+    user, error, status = get_user_from_token()
+    if error:
+        return error, status
+    worker_position = db.session.query(WorkerPosition).filter_by(id=user.worker_position_id).first()
+    cond = db.session.query(Project).filter_by(manager_id=user.id, id=project_id).first()
+    if (worker_position.name == "admin" or cond):
+        TeamDAO.delete_team_document(document_id=document_id)
+        return redirect(url_for('main.team_docs', project_id=project_id, team_id=team_id))
+    abort("Только менеджер может удалять документы команды")
 
 # Добавить сотрудника в команду
 @bp.route("/projects/<int:project_id>/teams/<int:team_id>/members", methods=["GET", "POST"])
 def team_members(project_id, team_id):
     #менеджер
-    if request.method == "POST":
-        TeamDAO.add_team_member(team_id, request.form)
-        members = TeamDAO.get_team_members(team_id)
-        return render_template("team/add_member_in_team.html", members=members, project_id=project_id, team_id=team_id)
-    else:
-        args = request.args
-        new_member = TeamDAO.get_worker(team_id, args)
-        print(new_member)
-        members = TeamDAO.get_team_members(team_id)
-        return render_template("team/add_member_in_team.html", members=members, project_id=project_id, team_id=team_id,
-                               new_member=new_member)
-
+    user, error, status = get_user_from_token()
+    if error:
+        return error, status
+    worker_position = db.session.query(WorkerPosition).filter_by(id=user.worker_position_id).first()
+    cond = db.session.query(Project).filter_by(manager_id=user.id, id=project_id).first()
+    if (worker_position.name == "admin" or cond):
+        if request.method == "POST":
+            TeamDAO.add_team_member(team_id, request.form)
+            members = TeamDAO.get_team_members(team_id)
+            return render_template("team/add_member_in_team.html", members=members, project_id=project_id, team_id=team_id)
+        else:
+            args = request.args
+            new_member = TeamDAO.get_worker(team_id, args)
+            print(new_member)
+            members = TeamDAO.get_team_members(team_id)
+            return render_template("team/add_member_in_team.html", members=members, project_id=project_id, team_id=team_id,
+                                new_member=new_member)
+    abort(413, "Только администратор и менеджер имеют доступ к этой странице")
 
 # задачи команды
 @bp.route("/projects/<int:project_id>/teams/<int:team_id>/team_tasks", methods=["GET", "POST"])
 def team_tasks(project_id, team_id):
     #все члены команды
-    tasks = TeamDAO.get_team_tasks(team_id)
-    print(tasks)
-    return render_template("team/team_tasks.html", tasks=tasks, project_id=project_id, team_id=team_id)
+    user, error, status = get_user_from_token()
+    if error:
+        return error, status
+    worker_position = db.session.query(WorkerPosition).filter_by(id=user.worker_position_id).first()
+    cond = db.session.query(Project).filter_by(manager_id=user.id, id=project_id).first()
+    team_member = db.session.query(TeamMember).filter_by(worker_id=user.id, team_id=team_id).first()
+    if cond or worker_position.name == "admin" or team_member:
+        tasks = TeamDAO.get_team_tasks(team_id)
+        print(tasks)
+        return render_template("team/team_tasks.html", tasks=tasks, project_id=project_id, team_id=team_id)
+    abort("Вы не член команды, не администратор и не менеджер")
 
 
 @bp.route("/teams/<int:team_id>/new_task", methods=["GET", "POST"])
@@ -404,7 +474,7 @@ def change_task_status(team_id, task_id):
     if TaskDAO.change_task_status(task_id, new_status_id):
         return redirect(url_for('main.task', team_id=team_id, task_id=task_id))
     else:
-        return "Вы не можете изменить статус задачи пока вы не измените статус всех подзадач"
+        abort(413, "Вы не можете изменить статус задачи пока вы не измените статус всех подзадач")
 @bp.route("/drop_task/<int:task_id>", methods=["GET", "POST"])
 def drop_task(task_id: int):
     user, error, status = get_user_from_token()
@@ -429,7 +499,7 @@ def create_task_message(team_id, task_id):
         message_text = request.form['message']
         TaskDAO.add_task_message(user_member.id, task_id, message_text)
         return redirect(url_for('main.task', team_id=team_id, task_id=task_id))
-    return "Вы не имеете доступа к отправке сообщений задачи"
+    abort(413, "Вы не имеете доступа к отправке сообщений задачи")
 
 
 @bp.route("/teams/<int:team_id>/create_task_report/<int:task_id>",  methods=["GET", "POST"])
@@ -442,7 +512,7 @@ def create_task_report(team_id, task_id):
     is_task_main_executor = db.session.query(Task).filter_by(id=task_id, main_executor_id=user_member.id).first()
     message_text = request.form['message']
     if not is_task_main_executor:
-        return "Вы не имеете права создавать отчет по задаче. На это имеет право только главный исполнитель задачи"
+        abort(413, "Вы не имеете права создавать отчет по задаче. На это имеет право только главный исполнитель задачи")
     TaskDAO.add_task_report(user_member.id, task_id, message_text)
     return redirect(url_for('main.task', team_id=team_id, task_id=task_id))
 

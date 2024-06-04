@@ -80,6 +80,7 @@ class TeamDAO:
     @classmethod
     def delete_team(cls, team_id):
         """deletes team"""
+        print(f"deleting team with id {team_id}")
         print("i got to delete team method")
         team = db.session.query(Team).filter_by(id=team_id).first()
         team_members = db.session.query(TeamMember).filter_by(team_id=team_id).all()

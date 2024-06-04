@@ -68,6 +68,7 @@ class TaskDAO:
         subtasks = db.session.query(Task).filter_by(parent_task_id=task.id).all()
         return subtasks
     
+    
     @classmethod
     def get_task_reports(cls, task_id):
         task = db.session.query(Task).filter_by(id=task_id).first()
@@ -90,6 +91,28 @@ class TaskDAO:
         for selected_team_member_id in selected_users:
             db.session.add(TaskExecutor(task_id=new_task.id, executor_id=int(selected_team_member_id)))
         db.session.commit()
+
+    @classmethod
+    def add_subtask(cls, team_id, parent_task_id, title, assigned_from, responsible_person, selected_users, deadline):
+        parent_task = db.session.query(Task).filter_by(id=parent_task_id).first()
+        new_task = Task(name=title, date_created=datetime.today(),
+                            deadline=deadline, producer_id=assigned_from,
+                            stauts_changed_date=datetime.today(), task_status_id=parent_task.task_status_id,
+                            parent_task_id=parent_task_id, main_executor_id=responsible_person, team_id=team_id)
+        db.session.add(new_task)
+        db.session.commit()
+        for selected_team_member_id in selected_users:
+            db.session.add(TaskExecutor(task_id=new_task.id, executor_id=int(selected_team_member_id)))
+        db.session.commit()
+
+    @classmethod
+    def change_task_status(cls, task_id, new_status_id):
+        task = db.session.query(Task).filter_by(id=task_id).first()
+        if not task:
+            pass
+        task.task_status_id = new_status_id
+        db.session.commit()
+        subtasks = db.session.query(Task).filter_by()
 
     @classmethod
     def assign_task(cls):

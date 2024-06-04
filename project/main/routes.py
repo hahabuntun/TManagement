@@ -354,8 +354,6 @@ def task(team_id, task_id: int):
         "reports": task_reports,
         "team_id": team_id
     }
-    print("hehehe")
-    print(task_data)
     return render_template("task/task.html", task=task_data)
 
 
@@ -425,3 +423,4 @@ def download_task_doc(team_id, task_id, document_id):
 def drop_task_doc(team_id, task_id, document_id):
     TaskDAO.delete_task_document(document_id=document_id)
     return redirect(url_for('main.task_docs', team_id=team_id, task_id=task_id))
+

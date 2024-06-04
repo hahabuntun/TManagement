@@ -82,6 +82,7 @@ def logout():
     resp.delete_cookie('user_email')
     return resp
 
+@bp.route('/', methods=['get'])
 @bp.route('/login', methods=['get'])
 def login_page():
     return render_template("login.html")

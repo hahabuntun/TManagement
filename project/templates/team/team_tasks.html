@@ -22,7 +22,7 @@
                     {% if task[3] == "Ожидают выполнения" %}
                         <tr>
                             <td>
-                                <a href="{{ url_for('main.task', project_id=task[5], team_id=task[4], task_id=task[6]) }}">
+                                <a href="{{ url_for('main.task', team_id=task[4], task_id=task[6]) }}">
                                     {{ task[0] }}
                                 </a>
                             </td>
@@ -51,7 +51,7 @@
                     {% if task[3] == "Выполняются" %}
                         <tr>
                             <td>
-                                <a href="{{ url_for('main.task', project_id=task[5], team_id=task[4], task_id=task[6]) }}">
+                                <a href="{{ url_for('main.task', team_id=task[4], task_id=task[6]) }}">
                                     {{ task[0] }}
                                 </a>
                             </td>
@@ -78,7 +78,7 @@
                     {% if task[3] == "Завершены" %}
                         <tr>
                             <td>
-                                <a href="{{ url_for('main.task', project_id=task[5], team_id=task[4], task_id=task[6]) }}">
+                                <a href="{{ url_for('main.task', team_id=task[4], task_id=task[6]) }}">
                                     {{ task[0] }}
                                 </a>
                             </td>

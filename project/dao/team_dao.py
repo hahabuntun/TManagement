@@ -308,11 +308,12 @@ class TeamDAO:
         user = db.session.query(Worker).filter_by(id=worker_id).first()
         team = db.session.query(Team).filter_by(id=team_id).first()
         user_in_teams = db.session.query(TeamMember).filter_by(worker_id=user.id, team_id=team.id).first()
-        sub_dirs = db.session.query(DirectorSubordinates).filter_by(producer_id=user_in_teams.id).all()
         subordinates = []
-        for sub_dir in sub_dirs:
-            subordinate = db.session.query(TeamMember).filter_by(id=sub_dir.subordinate_id).first()
-            worker = db.session.query(Worker).filter_by(id=subordinate.worker_id).first()
-            subordinate.worker_data = worker
-            subordinates.append(subordinate)
+        if user_in_teams:
+            sub_dirs = db.session.query(DirectorSubordinates).filter_by(producer_id=user_in_teams.id).all()
+            for sub_dir in sub_dirs:
+                subordinate = db.session.query(TeamMember).filter_by(id=sub_dir.subordinate_id).first()
+                worker = db.session.query(Worker).filter_by(id=subordinate.worker_id).first()
+                subordinate.worker_data = worker
+                subordinates.append(subordinate)
         return subordinates

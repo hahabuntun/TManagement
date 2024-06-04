@@ -55,7 +55,7 @@
                 <ul class="list-group">
                         <li class="list-group-item">Текст сообщения: {{ item.text }}</li>
                         <li class="list-group-item">Время отправки: {{ item.upload_date.strftime('%d.%m.%Y %H:%M') }}</li>
-                        <li></li>
+                        <li class="list-group-item">Отправитель: {{item.worker.email}}</li>
                     <!-- Add more comments dynamically using JavaScript -->
                 </ul>
                 {% endfor %}
@@ -68,7 +68,7 @@
                     <button type="submit" class="btn btn-primary">Добавить сообщение</button>
                 </form>
                 <hr>
-                <h6><a href="">Файлы задачи</a></h6>
+                <h6><a href="{{url_for('main.task_docs', team_id=task.team_id, task_id=task.task.id)}}">Файлы задачи</a></h6>
                 <hr>
                 <!-- Subtasks Section -->
                 <h6>Подзадачи:</h6>

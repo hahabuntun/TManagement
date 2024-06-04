@@ -2,8 +2,18 @@ from project import db
 from project.models import *
 import os
 from datetime import datetime
+from sqlalchemy import text, label
+import pytz
 from sqlalchemy.orm import joinedload
 
+
+def make_task_filename(filename):
+    check_existing = TaskDocument.query.filter_by(filename=filename).all()
+    if len(check_existing) != 0:
+        base, ext = os.path.splitext(filename)
+        filename = base + "(1)" + ext
+        filename = make_task_filename(filename)
+    return filename
 
 class TaskDAO:
 
@@ -44,6 +54,12 @@ class TaskDAO:
     def get_task_messages(cls, task_id):
         task = db.session.query(Task).filter_by(id=task_id).first()
         task_messages = db.session.query(TaskMessage).filter_by(task_id=task.id).all()
+        for message in task_messages:
+            message_creator = db.session.query(TeamMember).filter_by(id=message.sender_id).first()
+            worker = db.session.query(Worker).filter_by(id=message_creator.worker_id).first()
+            message.worker = worker
+
+        
         return task_messages
     
     @classmethod
@@ -98,16 +114,6 @@ class TaskDAO:
         pass
 
     @classmethod
-    def add_task_document(cls, task_id):
-        """adds document to a task"""
-        pass
-
-    @classmethod
-    def get_task_documents(cls, task_id):
-        """returns all task documents"""
-        pass
-
-    @classmethod
     def delete_task_documents(cls, document_id):
         """delete task documents"""
         document = db.session.query(TaskDocument).get(document_id)
@@ -143,3 +149,81 @@ class TaskDAO:
             return True
         else:
             return False
+
+
+
+    @classmethod
+    def add_task_document(cls, task_id, sender_id, file, document_name):
+        """adds document to a team"""
+        if file:
+            filename = file.filename
+            project_documents_path = os.getcwd() + "\\documents\\task_documents"
+            filename = make_task_filename(filename)
+            file.save(os.path.join(project_documents_path, filename))
+            new_file = TaskDocument(name=document_name,
+                                        filename=filename,
+                                        task_id=task_id,
+                                        sender_id=sender_id
+                                        )
+            db.session.add(new_file)
+            db.session.commit()
+
+    @classmethod
+    def get_task_documents(cls, task_id, query_params):
+        """returns the documents of a team"""
+        utc = pytz.timezone('UTC')
+        # Define the UTC+3 timezone
+        utc_plus_3 = pytz.FixedOffset(180)
+        if len(query_params) != 0:
+            if query_params["start_date"] != "":
+                s_date = query_params["start_date"].split("-")
+                date_start_utc = utc.localize(datetime(int(s_date[0]), int(s_date[1]), int(s_date[2])))
+            else:
+                date_start_utc = utc.localize(datetime(2023, 1, 1))
+            if query_params["end_date"] != "":
+                e_date = query_params["end_date"].split("-")
+                date_end_utc = utc.localize(datetime(int(e_date[0]), int(e_date[1]), int(e_date[2])))
+            else:
+                date_end_utc = utc.localize(datetime(3000, 1, 1))
+            date_start = date_start_utc.astimezone(utc_plus_3)
+            date_end = date_end_utc.astimezone(utc_plus_3)
+        if len(query_params) == 0:
+            query = text("""
+                    select * 
+                    from task_documents
+                    where task_id = {}
+                """.format(task_id))
+        elif query_params["name"] == "":
+            query = text("""
+                    select * 
+                    from task_documents
+                    where task_id = {0}
+                    and date_created >= '{1}'
+                    and date_created <= '{2}'
+                """.format(task_id, date_start, date_end))
+        elif query_params["name"] != "":
+            query = text("""
+                    select * 
+                    from task_documents
+                    where task_id = {0}
+                    and name = '{1}'
+                    and date_created >= '{2}'
+                    and date_created <= '{3}'
+                """.format(task_id, query_params["name"], date_start, date_end))
+        query_res = db.session.execute(query).fetchall()
+        documents = []
+        for document in query_res:
+            documents.append({"name": document.name, "date_created": document.date_created, "id": document.id})
+        return documents
+
+    @classmethod
+    def get_task_document(cls, task_doc_id):
+        document = TaskDocument.query.filter_by(id=task_doc_id).first()
+        return document
+
+    @classmethod
+    def delete_task_document(cls, document_id):
+        document = db.session.query(TaskDocument).get(document_id)
+        os.remove(os.path.join(os.getcwd() + "\\documents\\task_documents", document.filename))
+        db.session.delete(document)
+        db.session.commit()

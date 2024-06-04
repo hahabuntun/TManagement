@@ -124,8 +124,8 @@ class TaskExecutor(Base):
 class TaskDocument(Base):
     __tablename__ = "task_documents"
     name = db.Column(db.String(50))
-    upload_date = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
-    filepath = db.Column(db.String(300))
+    date_created = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
+    filename = db.Column(db.String(300))
     task_id = db.Column(db.Integer, db.ForeignKey("tasks.id"))
     sender_id = db.Column(db.Integer, db.ForeignKey("team_members.id"))
     id = db.Column(db.Integer, primary_key=True)

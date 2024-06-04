@@ -299,9 +299,8 @@ def add_task(project_id, team_id):
     #получить всех подчиненных пользователя
     #все члены команды, которые могут добавлять задачу
     subordinates = TeamDAO.get_worker_subordinates_by_team_id(user.id, team_id)
-    current_team_member = db.session.query(TeamMember).filter_by(id=user.id, team_id=team_id).first()
+    current_team_member = db.session.query(TeamMember).filter_by(worker_id=user.id, team_id=team_id).first()
     print(current_team_member)
-    print("hihi")
     return render_template("task/create_task.html", worker_data=user, subordinates=subordinates, task_producer=current_team_member, project_id=project_id, team_id=team_id)
 
 
@@ -339,8 +338,7 @@ def task(team_id, task_id: int):
     task_messages = TaskDAO.get_task_messages(task_id)
     task_reports = TaskDAO.get_task_reports(task_id)
     # task_executor = TaskDAO.get_task_executor(task_data[10])
-    if user_member.id in [task for task_executors_member in task_executors] or user_member.id == task_producer.id:
-        is_allowed_to_add_data = True
+    
 
     executors = []
     for task_executor in task_executors:
@@ -356,8 +354,9 @@ def task(team_id, task_id: int):
         "task_reports": task_reports,
         "team_id": team_id
     }
+    print("hehehe")
     print(task_data)
-    return render_template("task/task.html", task=task_data, is_allowed_to_add_data=is_allowed_to_add_data)
+    return render_template("task/task.html", task=task_data)
 
 
 @bp.route("/drop_task/<int:task_id>", methods=["GET", "POST"])
@@ -379,3 +378,35 @@ def create_task_message(team_id, task_id):
     text = request.form['message']
     TaskDAO.add_task_message(user_member.id, task_id, text)
     return redirect(url_for('main.task', team_id=team_id, task_id=task_id))
+
+
+@bp.route('/teams/<int:team_id>/tasks/<int:task_id>/documents', methods=["GET", "POST"])
+def task_docs(team_id, task_id):
+    user, error, status = get_user_from_token()
+    if error:
+        return error, status
+    if request.method == 'POST':
+        file = request.files['file']
+        document_name = request.form["name"]
+        sender = db.session.query(TeamMember).filter_by(worker_id=user.id, team_id=team_id).first()
+        TaskDAO.add_task_document(task_id, sender.id, file, document_name)
+        args = []
+        documents = TaskDAO.get_task_documents(task_id, args)
+        return render_template("task/task_documents.html", team_id=team_id, task_id=task_id, documents=documents)
+    else:
+        args = request.args
+        documents = TaskDAO.get_task_documents(task_id, args)
+        return render_template("task/task_documents.html", team_id=team_id, task_id=task_id, documents=documents)
+
+
+@bp.get('/teams/<int:team_id>/tasks/<int:task_id>/documents/<int:document_id>')
+def download_task_doc(team_id, task_id, document_id):
+    #все члены команды
+    document = TaskDAO.get_task_document(document_id)
+    return send_from_directory(os.getcwd() + "\\documents\\task_documents", document.filename, as_attachment=True)
+
+
+@bp.get('/teams/<int:team_id>/tasks/<int:task_id>/documents/<int:document_id>/drop')
+def drop_task_doc(team_id, task_id, document_id):
+    TaskDAO.delete_task_document(document_id=document_id)
+    return redirect(url_for('main.task_docs', team_id=team_id, task_id=task_id))

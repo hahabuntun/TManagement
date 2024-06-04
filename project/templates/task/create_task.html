@@ -16,9 +16,11 @@
                         <input type="text" class="form-control" id="task-title" name="task-title" required>
                     </div>
                     <p>Назначено от: {{worker_data.email}}</p>
+                    {% if task_producer %}
                     <div class="form-group">
                         <input type="hidden" name="assigned-from" class="assigned-from" value="{{task_producer.id}}">
                     </div>
+                    {% endif %}
 
                     <!-- Task Assignment -->
                     <div class="form-group">
@@ -44,11 +46,12 @@
                         <input name="deadline" type="date" class="dataInput" id="deadline"
                                placeholder="deadline">
                     </div>
-
+                    {% if task_producer %}
                     <!-- Submit Button -->
                     <button type="submit" class="btn btn-primary">
                         Создать
                     </button>
+                    {% endif%}
                 </form>
             </div>
         </div>

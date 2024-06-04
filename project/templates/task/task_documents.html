@@ -1,142 +1,65 @@
 {% extends "base.html" %}
 {% block content %}
-
-    <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+    <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4" style="margin: 0 auto;">
         <br>
         <hr>
-        Добавить документ
-        <div class="add-container">
-            <form id="addForm">
+        <h2 style="margin: 0 auto;">Добавить документ</h2>
+        <div class="add-container" style="margin: 0 auto;">
+            <form id="addForm" action="{{ url_for('main.task_docs', team_id=team_id, task_id=task_id) }}"
+                  method="POST" enctype="multipart/form-data">
                 <input name="name" type="text" class="dataInput" id="documentNameAdd"
                        placeholder="Название документа">
                 <input name="file" type="file" class="dataInput" id="documentAdd"
-                       placeholder="Email создателя">
+                       placeholder="Файл">
                 <button type="submit">Загрузить</button>
             </form>
         </div>
-
-        Найти документ
-        <div class="filter-container">
+        <h2>Найти документ</h2>
+        <div class="filter-container" style="margin: 0 auto;">
             <form id="filterForm">
                 <input name="name" type="text" class="dataInput" id="documentSearch"
                        placeholder="Название документа">
-                <input name="email" type="text" class="dataInput" id="emailSearch"
-                       placeholder="Email создателя">
-                <input name="start_date" type="text" class="dataInput" id="srartDateSearch"
+                <input name="start_date" type="date" class="dataInput" id="srartDateSearch"
                        placeholder="От какой даты">
-                <input name="start_date" type="text" class="dataInput" id="srartDateSearch"
+                <input name="end_date" type="date" class="dataInput" id="endDateSearch"
                        placeholder="До какой даты">
                 <button type="submit" id="searchButton">Поиск</button>
             </form>
         </div>
 
-        <div class="document-list" id="documentListContainer">
+        <div class="document-list" id="documentListContainer" style="margin: 0 auto;">
             <div id="documentTableContainer">
                 <table class="document-table" id="documentTable">
                     <thead>
                     <tr>
                         <th>Название</th>
-                        <th>Загрузчик</th>
                         <th>Дата загрузки</th>
                         <th>Удалить</th>
                         <th>Скачать</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr>
-                        <td>постановка задачи</td>
-                        <td>Александр</td>
-                        <td>24 12 2009</td>
-                        <td>
-                            <button class="btn btn-danger">Удалить</button>
-                        </td>
-                        <td><a href="">Скачать</a></td>
-                    </tr>
-                    <tr>
-                        <td>постановка задачи</td>
-                        <td>Александр</td>
-                        <td>24 12 2009</td>
-                        <td>
-                            <button class="btn btn-danger">Удалить</button>
-                        </td>
-                        <td><a href="">Скачать</a></td>
-                    </tr>
-                    <tr>
-                        <td>постановка задачи</td>
-                        <td>Александр</td>
-                        <td>24 12 2009</td>
-                        <td>
-                            <button class="btn btn-danger">Удалить</button>
-                        </td>
-                        <td><a href="">Скачать</a></td>
-                    </tr>
-                    <tr>
-                        <td>постановка задачи</td>
-                        <td>Александр</td>
-                        <td>24 12 2009</td>
-                        <td>
-                            <button class="btn btn-danger">Удалить</button>
-                        </td>
-                        <td><a href="">Скачать</a></td>
-                    </tr>
-                    <tr>
-                        <td>постановка задачи</td>
-                        <td>Александр</td>
-                        <td>24 12 2009</td>
-                        <td>
-                            <button class="btn btn-danger">Удалить</button>
-                        </td>
-                        <td><a href="">Скачать</a></td>
-                    </tr>
-                    <tr>
-                        <td>постановка задачи</td>
-                        <td>Александр</td>
-                        <td>24 12 2009</td>
-                        <td>
-                            <button class="btn btn-danger">Удалить</button>
-                        </td>
-                        <td><a href="">Скачать</a></td>
-                    </tr>
-                    <tr>
-                        <td>постановка задачи</td>
-                        <td>Александр</td>
-                        <td>24 12 2009</td>
-                        <td>
-                            <button class="btn btn-danger">Удалить</button>
-                        </td>
-                        <td><a href="">Скачать</a></td>
-                    </tr>
-                    <tr>
-                        <td>постановка задачи</td>
-                        <td>Александр</td>
-                        <td>24 12 2009</td>
-                        <td>
-                            <button class="btn btn-danger">Удалить</button>
-                        </td>
-                        <td><a href="">Скачать</a></td>
-                    </tr>
-                    <tr>
-                        <td>постановка задачи</td>
-                        <td>Александр</td>
-                        <td>24 12 2009</td>
-                        <td>
-                            <button class="btn btn-danger">Удалить</button>
-                        </td>
-                        <td><a href="">Скачать</a></td>
-                    </tr>
-                    <tr>
-                        <td>постановка задачи</td>
-                        <td>Александр</td>
-                        <td>24 12 2009</td>
-                        <td>
-                            <button class="btn btn-danger">Удалить</button>
-                        </td>
-                        <td><a href="">Скачать</a></td>
-                    </tr>
+                    {% for doc in documents %}
+                        <tr>
+                            <td>{{ doc.name }}</td>
+                            <td>{{ doc.date_created.strftime('%d.%m.%Y %H:%M') }}</td>
+                            <td>
+                                <button class="btn btn-danger">
+                                    <a href="{{ url_for('main.drop_task_doc', team_id=team_id, task_id=task_id, document_id=doc.id) }}">
+                                        Удалить
+                                    </a>
+                                </button>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('main.download_task_doc', team_id=team_id, task_id=task_id, document_id=doc.id) }}">
+                                    Скачать
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
                     </tbody>
                 </table>
             </div>
         </div>
     </main>
-
 {% endblock %}

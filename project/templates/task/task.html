@@ -8,10 +8,13 @@
                 Данные о задаче
             </div>
             <div class="card-body">
+
                 <!-- Task Title -->
                 <h5 class="card-title">Название: {{ task['task'].name }}</h5>
-
                 <!-- Task Description -->
+                {% if task.parent_task %}
+                <p>Задача верхнего уровня: <a href="{{url_for('main.task', team_id=task.team_id, task_id=task.parent_task.id)}}">task.parent_task.name</a></p>
+                {%  endif %}
                 <p class="card-text">Дата создания: {{ task['task'].date_created.strftime('%d.%m.%Y %H:%M') }}</p>
                 <p class="card-text">Дедлайн: {{ task['task'].deadline.strftime('%d.%m.%Y %H:%M') }}</p>
                 <p class="card-text">Дата последнего измененения статуса: {{ task['task'].stauts_changed_date.strftime('%d.%m.%Y %H:%M') }}</p>
@@ -44,6 +47,7 @@
                             {{ task['producer'].name }}
                             {{ task['producer'].second_name }}
                             {{ task['producer'].third_name }}
+                            {{ task['producer'].email }}
                         </p>
                     </div>
                 </div>
@@ -60,6 +64,7 @@
                 </ul>
                 <br>
                 {% endfor %}
+                {% if task['status'].name == 'Выполняются' %}
                 <!-- Add Comment Form -->
                 <form method="POST" action="{{url_for('main.create_task_message', team_id=task.team_id, task_id=task.task.id)}}">
                     <div class="form-group">
@@ -68,6 +73,7 @@
                     </div>
                     <button type="submit" class="btn btn-primary">Добавить сообщение</button>
                 </form>
+                {% endif %}
                 <hr>
                 <h6><a href="{{url_for('main.task_docs', team_id=task.team_id, task_id=task.task.id)}}">Файлы задачи</a></h6>
                 <hr>
@@ -82,9 +88,10 @@
                 </ul>
                 <br>
                 <hr>
+                {% if task['status'].name == 'Выполняются' %}
                 <!-- Create Subtask Form -->
                 <a href="{{url_for('main.add_subtask', team_id=task.team_id, task_id=task.task.id)}}">Создать подзадачу</a>
-
+                {% endif %}
                 <!-- Report Section -->
                 <h6>Отчет по задаче:</h6>
                 {% for item in task['reports'] %}
@@ -95,7 +102,7 @@
                 </ul>
                 <br>
                 {% endfor %}
-
+                {% if task['status'].name == 'Выполняются' %}
                 <!-- Add Report Form -->
                 <form id="report-form" method="POST" action="{{url_for('main.create_task_report', team_id=task.team_id, task_id=task.task.id)}}">
                     <div class="form-group">
@@ -104,11 +111,21 @@
                     </div>
                     <button type="submit" class="btn btn-primary">Отправить отчет</button>
                 </form>
-
+                {% endif %}
                 <br>
                 <hr>
                 <!-- Change Status Button -->
-                <button type="button" class="btn btn-warning">Изменить статус задачи</button>
+                <form method="POST" action="{{url_for('main.change_task_status', team_id=task.team_id, task_id=task.task.id)}}">
+                    <div class="form-group">
+                        <label for="task_status">Выберите статус задачи</label>
+                        <select name="task_status" id="task_status">
+                            <option value="1">Ожидает выполнения</option>
+                            <option value="2">Выполняется</option>
+                            <option value="3">Завершена</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-warning">Изменить статус задачи</button>
+                </form>
             </div>
         </div>
     </div>

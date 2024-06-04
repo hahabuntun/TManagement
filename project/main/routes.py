@@ -317,9 +317,10 @@ def new_task(team_id):
     selected_users = request.form.getlist("assigned-to[]")
     deadline = request.form["deadline"]
     print(team_id, title, assigned_from, responsible_person, selected_users, deadline)
-
     TaskDAO.add_task(team_id, title, assigned_from.id, responsible_person, selected_users, deadline)
-    return redirect(url_for("main.team_tasks", team_id=team_id))
+    team = db.session.query(Team).filter_by(id=team_id).first()
+    project = db.session.query(Project).filter_by(id=team.project_id).first()
+    return redirect(url_for("main.team_tasks", project_id=project.id, team_id=team_id))
 
 
 
@@ -366,6 +367,7 @@ def task(team_id, task_id: int):
     task_subtasks = TaskDAO.get_task_subtasks(task_id)
     task_messages = TaskDAO.get_task_messages(task_id)
     task_reports = TaskDAO.get_task_reports(task_id)
+    parent_task = TaskDAO.get_parent_task(task_id)
     # task_executor = TaskDAO.get_task_executor(task_data[10])
     
 
@@ -381,11 +383,28 @@ def task(team_id, task_id: int):
         "subtasks": task_subtasks,
         "messages": task_messages,
         "reports": task_reports,
-        "team_id": team_id
+        "team_id": team_id,
+        "parent_task": parent_task
     }
     return render_template("task/task.html", task=task_data)
 
 
+
+@bp.route("/teams/<int:team_id>/team_task/<int:task_id>/change_status", methods=["POST"])
+def change_task_status(team_id, task_id):
+    user, error, status = get_user_from_token()
+    if error:
+        return error, status
+    user_member = db.session.query(TeamMember).filter_by(worker_id=user.id, team_id=team_id).first()
+    current_task = db.session.query(Task).filter_by(id=task_id).first()
+    task_producer = db.session.query(TeamMember).filter_by(id=current_task.producer_id).first()
+    if user_member.id != task_producer.id:
+        return "Вы не имеете права менять статус задачи, это может делать только ее постановщик"
+    new_status_id = int(request.form.get('task_status'))
+    if TaskDAO.change_task_status(task_id, new_status_id):
+        return redirect(url_for('main.task', team_id=team_id, task_id=task_id))
+    else:
+        return "Вы не можете изменить статус задачи пока вы не измените статус всех подзадач"
 @bp.route("/drop_task/<int:task_id>", methods=["GET", "POST"])
 def drop_task(task_id: int):
     user, error, status = get_user_from_token()
@@ -402,9 +421,15 @@ def create_task_message(team_id, task_id):
     if error:
         return error, status
     user_member = db.session.query(TeamMember).filter_by(worker_id=user.id, team_id=team_id).first()
-    message_text = request.form['message']
-    TaskDAO.add_task_message(user_member.id, task_id, message_text)
-    return redirect(url_for('main.task', team_id=team_id, task_id=task_id))
+    current_task = db.session.query(Task).filter_by(id=task_id).first()
+    task_executors = db.session.query(TaskExecutor).filter_by(task_id=task_id).all()
+    task_executors_ids = [task_executor.executor_id for task_executor in task_executors]
+    task_producer = db.session.query(TeamMember).filter_by(id=current_task.producer_id).first()
+    if user_member.id in task_executors_ids or user_member.id == task_producer.id:
+        message_text = request.form['message']
+        TaskDAO.add_task_message(user_member.id, task_id, message_text)
+        return redirect(url_for('main.task', team_id=team_id, task_id=task_id))
+    return "Вы не имеете доступа к отправке сообщений задачи"
 
 
 @bp.route("/teams/<int:team_id>/create_task_report/<int:task_id>",  methods=["GET", "POST"])

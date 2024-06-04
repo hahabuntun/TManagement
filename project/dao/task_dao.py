@@ -68,6 +68,11 @@ class TaskDAO:
         subtasks = db.session.query(Task).filter_by(parent_task_id=task.id).all()
         return subtasks
     
+    @classmethod
+    def get_parent_task(cls, task_id):
+        task = db.session.query(Task).filter_by(id=task_id).first()
+        parent_task = db.session.query(Task).filter_by(id=task.parent_task_id).first()
+        return parent_task
     
     @classmethod
     def get_task_reports(cls, task_id):
@@ -107,11 +112,24 @@ class TaskDAO:
     @classmethod
     def change_task_status(cls, task_id, new_status_id):
         task = db.session.query(Task).filter_by(id=task_id).first()
-        if not task:
-            pass
+        subtasks = db.session.query(Task).filter_by(parent_task_id=task.id).all()
+        for subtask in subtasks:
+            if not cls.check_can_change_task_status(subtask.id, new_status_id):
+                return False
         task.task_status_id = new_status_id
         db.session.commit()
-        subtasks = db.session.query(Task).filter_by()
+        return True
+    
+    @classmethod
+    def check_can_change_task_status(cls, task_id, new_status_id):
+        task = db.session.query(Task).filter_by(id=task_id).first()
+        if task.task_status_id != new_status_id:
+            return False
+        subtasks = db.session.query(Task).filter_by(parent_task_id=task.id).all()
+        for subtask in subtasks:
+            if not cls.check_can_change_task_status(subtask.id, new_status_id):
+                return False
+        return True
 
     @classmethod
     def assign_task(cls):

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 
-    <div class="container">
+    <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4" style="margin: 0 auto;">
         <!-- Task Details Section -->
         <div class="card">
             <div class="card-header">
@@ -55,25 +55,33 @@
 
                 <!-- Comments Section -->
                 <h6>Сообщения задачи:</h6>
-                {% for item in task['messages'] %}
-                <ul class="list-group">
-                        <li class="list-group-item">Текст сообщения: {{ item.text }}</li>
-                        <li class="list-group-item">Время отправки: {{ item.upload_date.strftime('%d.%m.%Y %H:%M') }}</li>
-                        <li class="list-group-item">Отправитель: {{item.worker.email}}</li>
-                    <!-- Add more comments dynamically using JavaScript -->
-                </ul>
-                <br>
-                {% endfor %}
-                {% if task['status'].name == 'Выполняются' %}
-                <!-- Add Comment Form -->
-                <form method="POST" action="{{url_for('main.create_task_message', team_id=task.team_id, task_id=task.task.id)}}">
-                    <div class="form-group">
-                        <label for="comment">Добавление сообщения:</label>
-                        <textarea class="form-control" name="message" id="message" rows="3"></textarea>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="chat-box">
+                            {% for item in task['messages'] %}
+                            <div class="chat-message">
+                                <div class="chat-message-header">
+                                    <span class="chat-sender">{{ item.worker.email }}</span>
+                                    <span class="chat-timestamp">{{ item.upload_date.strftime('%d.%m.%Y %H:%M') }}</span>
+                                </div>
+                                <div class="chat-message-body">
+                                    {{ item.text }}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
                     </div>
-                    <button type="submit" class="btn btn-primary">Добавить сообщение</button>
-                </form>
-                {% endif %}
+                    {% if task['status'].name == 'Выполняются' %}
+                    <!-- Add Comment Form -->
+                    <div class="card-footer">
+                        <form method="POST" action="{{ url_for('main.create_task_message', team_id=task.team_id, task_id=task.task.id) }}" class="d-flex">
+                            <textarea class="form-control mr-2" name="message" id="message" rows="1" placeholder="Напишите сообщение..."></textarea>
+                            <button type="submit" class="btn btn-primary">Отправить</button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+                
                 <hr>
                 <h6><a href="{{url_for('main.task_docs', team_id=task.team_id, task_id=task.task.id)}}">Файлы задачи</a></h6>
                 <hr>
@@ -128,6 +136,6 @@
                 </form>
             </div>
         </div>
-    </div>
+    </main>
 
 {% endblock %}

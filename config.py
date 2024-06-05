@@ -10,5 +10,5 @@ class Config(object):
     ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
     UPLOAD_FOLDER = os.environ.get('UPLOAD_FOLDER') or "project/static/img/"
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess'
-    SQLALCHEMY_DATABASE_URI = "postgresql://postgres:7NoTaizai@localhost:5432/my_db"
+    SQLALCHEMY_DATABASE_URI = "postgresql://postgres:root@localhost:5432/my_db"
     SQLALCHEMY_TRACK_MODIFICATIONS = False

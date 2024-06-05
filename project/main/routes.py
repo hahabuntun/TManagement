@@ -492,7 +492,7 @@ def change_task_status(team_id, task_id):
     current_task = db.session.query(Task).filter_by(id=task_id).first()
     task_producer = db.session.query(TeamMember).filter_by(id=current_task.producer_id).first()
     if user_member.id != task_producer.id:
-        return "Вы не имеете права менять статус задачи, это может делать только ее постановщик"
+        abort(413, "Вы не имеете права менять статус задачи, это может делать только ее постановщик")
     new_status_id = int(request.form.get('task_status'))
     if TaskDAO.change_task_status(task_id, new_status_id):
         return redirect(url_for('main.task', team_id=team_id, task_id=task_id))

@@ -170,7 +170,7 @@ def fill_director_subordinate():
     pass
 
 def generate_task_statuses():
-    statuses = ['Ожидают выполнения', 'Выполняются', "Завершены"]
+    statuses = ['Ожидают выполнения', 'Выполняются', 'На проверке', "Завершены"]
     for st in statuses:
         status = TaskStatus(
             name=st

@@ -269,7 +269,7 @@ class TeamDAO:
             SELECT 
                 t.name AS task_name,
                 t.deadline,
-                w.name AS worker_name,
+                w.email AS email,
                 ts.name AS task_status_name,
                 t.team_id,
                 te.project_id,

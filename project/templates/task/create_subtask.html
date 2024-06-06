@@ -35,6 +35,8 @@
 
                     <div class="form-group">
                         <label for="responsible">Ответственный:</label>
+                        <select name="responsible" class="responsible">
+
                         </select>
                     </div>
 
@@ -60,20 +62,20 @@
 
 {% block scripts %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  const assignedToSelect = document.querySelector('.assigned-to');
-  const responsibleSelect = document.querySelector('.responsible');
-
-  assignedToSelect.addEventListener('change', function() {
-    responsibleSelect.innerHTML = '';
-    const selectedOptions = Array.from(this.selectedOptions);
-    selectedOptions.forEach(option => {
-      const newOption = document.createElement('option');
-      newOption.value = option.value;
-      newOption.text = option.text;
-      responsibleSelect.appendChild(newOption);
+    document.addEventListener('DOMContentLoaded', function() {
+      const assignedToSelect = document.querySelector('.assigned-to');
+      const responsibleSelect = document.querySelector('.responsible');
+    
+      assignedToSelect.addEventListener('change', function() {
+        responsibleSelect.innerHTML = '';
+        const selectedOptions = Array.from(this.selectedOptions);
+        selectedOptions.forEach(option => {
+          const newOption = document.createElement('option');
+          newOption.value = option.value;
+          newOption.text = option.text;
+          responsibleSelect.appendChild(newOption);
+        });
+      });
     });
-  });
-});
-</script>
+    </script>
 {% endblock %}

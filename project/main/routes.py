@@ -438,8 +438,6 @@ def new_task(team_id):
     except Exception:
         pass
     selected_users = request.form.getlist("assigned-to[]")
-    print(selected_users)
-    print(responsible_person)
     deadline = request.form["deadline"]
     TaskDAO.add_task(team_id, title, assigned_from.id, responsible_person, selected_users, deadline)
     team = db.session.query(Team).filter_by(id=team_id).first()
@@ -455,6 +453,11 @@ def add_subtask(team_id, task_id):
     if error:
         return error, status
     current_task = db.session.query(Task).filter_by(id=task_id).first()
+    task_status = db.session.query(TaskStatus).filter_by(id=current_task.task_status_id).first()
+    if (task_status.name == "На проверке"):
+        abort(413, "Вы не можете создать подзадачу для задачи, которая в статусе проверки")
+    elif (task_status.name == "На проверке"):
+        abort(413, "Вы не можете создать подзадачу для задачи, которая завершена")
     subordinates = TeamDAO.get_worker_subordinates_by_team_id(user.id, team_id)
     current_team_member = db.session.query(TeamMember).filter_by(worker_id=user.id, team_id=team_id).first()
     return render_template("task/create_subtask.html", worker_data=user, subordinates=subordinates, task_producer=current_team_member, team_id=team_id, task=current_task)
@@ -468,7 +471,11 @@ def new_subtask(team_id, task_id):
         return error, status
     assigned_from = db.session.query(TeamMember).filter_by(worker_id=user.id, team_id=team_id).first()
     title = request.form["task-title"]
-    responsible_person = int(request.form["responsible"])
+    responsible_person = None
+    try:
+        responsible_person = int(request.form["responsible"])
+    except Exception:
+        pass
     selected_users = request.form.getlist("assigned-to[]")
     deadline = request.form["deadline"]
     TaskDAO.add_subtask(team_id, task_id, title, assigned_from.id, responsible_person, selected_users, deadline)

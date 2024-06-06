@@ -11,25 +11,22 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/basic_list.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/tasks.css') }}">
     <style>
-
         .navbar-custom {
-            background-color: #343a40; /* Dark background */
+            background-color: #343a40;
         }
         .navbar-custom .navbar-brand, 
         .navbar-custom .nav-link {
-            color: white; /* Light text color */
+            color: white;
         }
         .navbar-nav {
-        display: flex; /* Enable Flexbox */
-        align-items: center; /* Vertically center items */
+            display: flex;
+            align-items: center;
         }
-
         .nav-item {
-        margin-left: 15px; /* Add spacing between items */
+            margin-left: 15px;
         }
-
         .navbar-custom .nav-link:hover {
-            color: #ffc107; /* Hover text color */
+            color: #ffc107;
         }
         .sidebar {
             background-color: #70a3bd;
@@ -55,46 +52,32 @@
             background-color: #0056b3;
             color: #ffffff;
         }
-        #user_email{
+        #user_email {
             margin-top: 0;
         }
-
-        .chat-box {
-        max-height: 300px;
-        overflow-y: auto;
-        margin-bottom: 15px;
-        border: 1px solid #dee2e6;
-        padding: 10px;
-        border-radius: 5px;
-        background-color: #ffffff;
-    }
-    .chat-message {
-        margin-bottom: 15px;
-    }
-    .chat-message-header {
-        display: flex;
-        justify-content: space-between;
-        font-size: 0.9em;
-        color: #888;
-    }
-    .chat-sender {
-        font-weight: bold;
-    }
-    .chat-message-body {
-        background-color: #f8f9fa;
-        padding: 10px;
-        border-radius: 5px;
-        margin-top: 5px;
-    }
-    .card-footer {
-        padding: 10px;
-        border-top: 1px solid #dee2e6;
-        background-color: #f8f9fa;
-    }
-    .form-control {
-        flex-grow: 1;
-    }
-</style>
+        .sublist {
+            margin-left: 20px;
+            padding-left: 10px;
+            list-style-type: none;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .sublist-item {
+            background-color: #70a3bd;
+            color: white;
+            padding: 10px 15px;
+            margin: 5px 0;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .sublist-item:hover {
+            background-color: #495057;
+            color: #ffffff;
+        }
+        .nav-item:hover .sublist {
+            max-height: 500px; /* A value large enough to show the sublist content */
+        }
     </style>
 </head>
 
@@ -103,29 +86,83 @@
         <a class="navbar-brand" href="#">Управление задачами IT проекта</a>
         <ul class="navbar-nav ml-auto">
             <li class="nav-item" id="user_email"></li>
-            <li class="nav-item"><a class="nav-link" href="{{url_for('main.logout')}}">Выйти</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('main.logout') }}">Выйти</a></li>
         </ul>
     </nav>
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-md-3 col-lg-2 d-none d-md-block bg-dark sidebar">
-            <div class="sidebar-sticky">
-                <ul class="nav flex-column">
-                    <li class="nav-item"><a id="admin_l" class="nav-link" href="{{url_for('main.all_projects')}}"><i class="fas fa-user-shield"></i> Админ</a></li>
-                    <li class="nav-item"><a id="manager_l" class="nav-link" href="{{url_for('main.all_projects_manager')}}"><i class="fas fa-user-tie"></i> Менеджер</a></li>
-                    <li class="nav-item"><a id="worker_l" class="nav-link" href="{{url_for('main.all_teams_member')}}"><i class="fas fa-users"></i> Сотрудник</a></li>
-                    <hr>
-                </ul>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-3 col-lg-2 d-none d-md-block bg-dark sidebar">
+                <div class="sidebar-sticky">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a id="admin_l" class="nav-link" href="{{ url_for('main.all_projects') }}">
+                                <i class="fas fa-user-shield"></i> Админ
+                            </a>
+                            <ul id="admin_sublist" class="sublist">
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a id="manager_l" class="nav-link" href="{{ url_for('main.all_projects_manager') }}">
+                                <i class="fas fa-user-tie"></i> Менеджер
+                            </a>
+                            <ul id="manager_sublist" class="sublist">
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a id="worker_l" class="nav-link" href="{{ url_for('main.all_teams_member') }}">
+                                <i class="fas fa-users"></i> Ваши команды
+                            </a>
+                            <ul id="worker_sublist" class="sublist">
+                            </ul>
+                        </li>
+                        <hr>
+                    </ul>
+                </div>
             </div>
+            {% block content %}{% endblock %}
         </div>
-        {% block content %}{% endblock %}
     </div>
-</div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script> 
 <script>
+
+
+const endpoints = {
+    admin: '/administrated_projects',
+    manager: '/managed_teams',
+    worker: '/worker_teams'
+    };
+const populateSublist = async (endpoint, sublistId) => {
+    try {
+        const response = await fetch(endpoint);
+        const data = await response.json();
+        const sublist = document.getElementById(sublistId);
+
+        data.forEach(item => {
+            const li = document.createElement('li');
+            li.classList.add('sublist-item');
+            var url = ""
+            if(sublistId == "worker_sublist"){
+                url = `/projects/${item.project_id}/teams/${item.id}/team_tasks`;
+            }
+            else if(sublistId == "manager_sublist"){
+                url = `/projects/${item.project_id}/teams`;
+            }
+            else if(sublistId == "admin_sublist"){
+                url = `/projects/${item.project_id}/teams`;
+            }
+            li.innerHTML = `<a class="text-white" href="${url}">${item.title}</a>`;
+            sublist.appendChild(li);
+        });
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+};
+
+
+
 function getCookie(name) {
   var cookies = document.cookie.split(';');
   for (var i = 0; i < cookies.length; i++) {
@@ -148,6 +185,10 @@ if (userEmail) {
   // Set the text content of the li element to the user email
   userLi.textContent = userEmail;
 }
+
+populateSublist(endpoints.admin, 'admin_sublist');
+populateSublist(endpoints.manager, 'manager_sublist');
+populateSublist(endpoints.worker, 'worker_sublist');
 </script>
 {% block scripts %}{% endblock %}
 </body>

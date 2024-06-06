@@ -101,6 +101,45 @@ def login_page():
 #         data = db.session.query(Project).filter_by(manager_id=user.id).all()
 #         return render_template("project/manager_projects.html", context=data, user=user)
 
+
+
+
+@bp.get("/administrated_projects")
+def get_administrated_projects():
+    user, error, status = get_user_from_token()
+    if error:
+        return error, 
+    worker_position = db.session.query(WorkerPosition).filter_by(id=user.worker_position_id).first()
+    data = []
+    if worker_position.name == "admin":
+        data = ProjectDAO.get_all_projects()
+    print(data)
+    return data
+
+@bp.get("/managed_teams")
+def get_managed_projects():
+    user, error, status = get_user_from_token()
+    if error:
+        return error, status
+    data = ProjectDAO.get_all_manager_projects(user.id)
+    print(data)
+    return data
+    
+@bp.get("/worker_teams")
+def get_worker_teams():
+    user, error, status = get_user_from_token()
+    if error:
+        return error, status
+    teams = TeamDAO.get_user_teams(user.id)
+    data = []
+    for team in teams:
+        temp = {"title": team.name,
+                "project_id": team.project.id,
+                "id": team.id
+                }
+        data.append(temp)
+    return data
+
 @bp.get('/projects')
 def all_projects():
     user, error, status = get_user_from_token()

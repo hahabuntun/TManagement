@@ -2,7 +2,7 @@ from project import db
 from sqlalchemy import text
 from project.models import *
 import os
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 import pytz
 from collections import defaultdict
 from project.dao.task_dao import TaskDAO
@@ -265,30 +265,71 @@ class TeamDAO:
 
     @classmethod
     def get_team_tasks(cls, team_id):
-        if team_id != 0:
-            team_tasks = db.session.query(
-                Task.name,
-                Task.deadline,
-                Worker.name,
-                TaskStatus.name,
-                Task.team_id,
-                Team.project_id,
-                Task.id
-            ).filter_by(
-                team_id=team_id
-            ).join(
-                TaskStatus, Task.task_status_id == TaskStatus.id
-            ).join(
-                TeamMember, Task.producer_id == TeamMember.id
-            ).join(
-                Team, Task.team_id == Team.id
-            ).join(
-                Worker, Worker.id == TeamMember.worker_id, isouter=False
-            ).order_by(
-                TaskStatus.name.desc()
-            ).all()
-            return team_tasks
+        team_tasks = db.session.execute(text("""
+            SELECT 
+                t.name AS task_name,
+                t.deadline,
+                w.name AS worker_name,
+                ts.name AS task_status_name,
+                t.team_id,
+                te.project_id,
+                t.id AS task_id,
+                ts.id AS task_status_id
+            FROM tasks AS t
+            JOIN task_statuses AS ts ON t.task_status_id = ts.id
+            JOIN team_members AS tm ON t.producer_id = tm.id
+            JOIN teams AS te ON t.team_id = te.id
+            JOIN workers AS w ON tm.worker_id = w.id
+            WHERE t.team_id = :team_id
+            ORDER BY ts.id ASC
+        """), {'team_id': team_id}).fetchall()
+        return team_tasks
 
+    @classmethod
+    def group_tasks_by_status(cls, tasks):
+        statuses = db.session.query(TaskStatus).all()
+        result = []
+        for status in statuses:
+            temp = []
+            for task in tasks:
+                if task.task_status_id == status.id:
+                    temp.append(task)
+            status.tasks = temp
+            result.append(status)
+        return result
+    
+    @classmethod
+    def group_tasks_by_deadline(cls, tasks):
+        today = datetime.now().replace(tzinfo=None)  # Make `today` naive
+        print(today)
+        next_week = (today + timedelta(days=7)).replace(tzinfo=None)  # Make `next_week` naive
+        print(next_week)
+        result = []
+        deadline_expired = {'name': 'Дедлайн уже прошел', 'tasks': []}
+        deadline_in_one_week = {'name': 'Дедлайн в течение недели', 'tasks': []}
+        deadline_more_than_one_week = {'name': 'Дедлайн больше чем через неделю', 'tasks': []}
+
+        for task in tasks:
+            deadline = task.deadline.replace(tzinfo=None)  # Make `deadline` naive
+            print(deadline)
+
+            if deadline < today:
+                deadline_expired['tasks'].append(task)
+            elif today <= deadline < next_week:
+                deadline_in_one_week['tasks'].append(task)
+            else:
+                deadline_more_than_one_week['tasks'].append(task)
+                
+        result.append(deadline_expired)
+        result.append(deadline_in_one_week)
+        result.append(deadline_more_than_one_week)
+        
+        return result
+    
+    @classmethod
+    def group_tasks_by_importance(tasks):
+        pass
+    
     @classmethod
     def get_superior_and_subordinates(cls):
         subordinates = db.session.query(DirectorSubordinates).all()

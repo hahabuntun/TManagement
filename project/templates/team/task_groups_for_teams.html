@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+<main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+    <button class="btn btn-success"><a class="text-white"
+        href="{{ url_for('main.add_task', team_id=team_id) }}">Создать задачу</a>
+    </button>
+    <hr>
+    <form action="{{ url_for('main.team_tasks', project_id=project_id, team_id=team_id) }}">
+        <label for="grouping-condition">Условие группировки:</label>
+        <select name="grouping-condition" id="grouping-condition">
+            <option value="status">Статус</option>
+            <option value="deadline">Дедлайн</option>
+        </select>
+        <button type="submit" class="btn btn-primary">Группировать</button>
+    </form>
+    <div class="custom-list row mt-4">
+        {% for task_group in task_groups %}
+            <div class="custom-card col-md-4">
+                <h3>{{task_group.name}}</h3>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Название</th>
+                        <th>Deadline</th>
+                        <th>Постановщик</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for task in task_group.tasks %}
+                            <tr>
+                                <td>
+                                    <a href="{{ url_for('main.task', team_id=task.team_id, task_id=task.task_id) }}">
+                                        {{ task.task_name }}
+                                    </a>
+                                </td>
+                                <td>{{ task.deadline.strftime('%d.%m.%Y %H:%M') }}</td>
+                                <td>{{ task.worker_name }}</td>
+                            </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endfor %}
+    </div>
+</main>
+{% endblock %}

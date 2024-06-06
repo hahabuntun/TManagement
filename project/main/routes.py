@@ -88,22 +88,6 @@ def login_page():
     return render_template("login.html")
 
 
-# @bp.route("/<int:worker_id>/manager_projects")
-# 
-# def manager_project(user):
-#     return "manager"
-
-# @bp.route("/<int:worker_id>/worker_projects")
-# 
-# def worker_project(user):
-#     worker_position = db.session.query(WorkerPosition).filter_by(id=user.worker_position_id).first()
-#     if worker_position.name == "Project Manager":
-#         data = db.session.query(Project).filter_by(manager_id=user.id).all()
-#         return render_template("project/manager_projects.html", context=data, user=user)
-
-
-
-
 @bp.get("/administrated_projects")
 def get_administrated_projects():
     user, error, status = get_user_from_token()
@@ -113,7 +97,6 @@ def get_administrated_projects():
     data = []
     if worker_position.name == "admin":
         data = ProjectDAO.get_all_projects()
-    print(data)
     return data
 
 @bp.get("/managed_teams")
@@ -122,7 +105,6 @@ def get_managed_projects():
     if error:
         return error, status
     data = ProjectDAO.get_all_manager_projects(user.id)
-    print(data)
     return data
     
 @bp.get("/worker_teams")
@@ -417,8 +399,13 @@ def team_tasks(project_id, team_id):
     team_member = db.session.query(TeamMember).filter_by(worker_id=user.id, team_id=team_id).first()
     if cond or worker_position.name == "admin" or team_member:
         tasks = TeamDAO.get_team_tasks(team_id)
-        print(tasks)
-        return render_template("team/team_tasks.html", tasks=tasks, project_id=project_id, team_id=team_id)
+        grouping_condition = request.args.get('grouping-condition')
+        task_groups = []
+        if not grouping_condition or grouping_condition == "status":
+            task_groups = TeamDAO.group_tasks_by_status(tasks)
+        elif grouping_condition == "deadline":
+            task_groups = TeamDAO.group_tasks_by_deadline(tasks)
+        return render_template("team/task_groups_for_teams.html", task_groups=task_groups, project_id=project_id, team_id=team_id, grouping_condition=grouping_condition)
     abort("Вы не член команды, не администратор и не менеджер")
 
 
@@ -502,6 +489,7 @@ def task(team_id, task_id: int):
     parent_task = TaskDAO.get_parent_task(task_id)
     # task_executor = TaskDAO.get_task_executor(task_data[10])
     
+    statuses = db.session.query(TaskStatus).all()
 
     executors = []
     for task_executor in task_executors:
@@ -518,7 +506,7 @@ def task(team_id, task_id: int):
         "team_id": team_id,
         "parent_task": parent_task
     }
-    return render_template("task/task.html", task=task_data)
+    return render_template("task/task.html", task=task_data, statuses=statuses)
 
 
 

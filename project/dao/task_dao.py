@@ -58,8 +58,6 @@ class TaskDAO:
             message_creator = db.session.query(TeamMember).filter_by(id=message.sender_id).first()
             worker = db.session.query(Worker).filter_by(id=message_creator.worker_id).first()
             message.worker = worker
-
-        
         return task_messages
     
     @classmethod

@@ -71,7 +71,6 @@
                             {% endfor %}
                         </div>
                     </div>
-                    {% if task['status'].name == 'Выполняются' %}
                     <!-- Add Comment Form -->
                     <div class="card-footer">
                         <form method="POST" action="{{ url_for('main.create_task_message', team_id=task.team_id, task_id=task.task.id) }}" class="d-flex">
@@ -79,7 +78,6 @@
                             <button type="submit" class="btn btn-primary">Отправить</button>
                         </form>
                     </div>
-                    {% endif %}
                 </div>
 
                 <hr>
@@ -96,10 +94,8 @@
                 </ul>
                 <br>
                 <hr>
-                {% if task['status'].name == 'Выполняются' %}
                 <!-- Create Subtask Form -->
                 <a href="{{url_for('main.add_subtask', team_id=task.team_id, task_id=task.task.id)}}">Создать подзадачу</a>
-                {% endif %}
                 <!-- Report Section -->
                 <h6>Отчет по задаче:</h6>
                 {% for item in task['reports'] %}
@@ -110,7 +106,6 @@
                 </ul>
                 <br>
                 {% endfor %}
-                {% if task['status'].name == 'Выполняются' %}
                 <!-- Add Report Form -->
                 <form id="report-form" method="POST" action="{{url_for('main.create_task_report', team_id=task.team_id, task_id=task.task.id)}}">
                     <div class="form-group">
@@ -119,7 +114,6 @@
                     </div>
                     <button type="submit" class="btn btn-primary">Отправить отчет</button>
                 </form>
-                {% endif %}
                 <br>
                 <hr>
                 <!-- Change Status Button -->
@@ -127,9 +121,9 @@
                     <div class="form-group">
                         <label for="task_status">Выберите статус задачи</label>
                         <select name="task_status" id="task_status">
-                            <option value="1">Ожидает выполнения</option>
-                            <option value="2">Выполняется</option>
-                            <option value="3">Завершена</option>
+                            {% for status in statuses %}
+                                <option value="{{status.id}}">{{status.name}}</option>
+                            {% endfor %}
                         </select>
                     </div>
                     <button type="submit" class="btn btn-warning">Изменить статус задачи</button>

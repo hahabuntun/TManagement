@@ -38,10 +38,12 @@
                                 {% endfor %}
                             </ul>
                             Из них ответственный:
-                            {{ task['main_executor'].name }}
-                            {{ task['main_executor'].second_name }}
-                            {{ task['main_executor'].third_name }}
-                            {{ task['main_executor'].email }}
+                            {% if task['main_executor'] %}
+                                {{ task['main_executor'].name }}
+                                {{ task['main_executor'].second_name }}
+                                {{ task['main_executor'].third_name }}
+                                {{ task['main_executor'].email }}
+                            {% endif %}
                         </p>
                         <p><strong>Кто назначил:</strong>
                             {{ task['producer'].name }}

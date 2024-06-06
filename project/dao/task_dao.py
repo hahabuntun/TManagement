@@ -85,9 +85,16 @@ class TaskDAO:
     @classmethod
     def add_task(cls, team_id, title, assigned_from, responsible_person, selected_users, deadline):
         """adds task to a team"""
+        task_status = db.session.query(TaskStatus).filter_by(name="Ожидают выполнения").first()
+        
+        if selected_users:
+            task_status = db.session.query(TaskStatus).filter_by(name="Выполняются").first()
+        else:
+            responsible_person = None
+        task_status_id = task_status.id
         new_task = Task(name=title, date_created=datetime.today(),
                             deadline=deadline, producer_id=assigned_from,
-                            stauts_changed_date=datetime.today(), task_status_id=1,
+                            stauts_changed_date=datetime.today(), task_status_id=task_status_id,
                             parent_task_id=None, main_executor_id=responsible_person, team_id=team_id)
         db.session.add(new_task)
         db.session.commit()
@@ -97,9 +104,15 @@ class TaskDAO:
 
     @classmethod
     def add_subtask(cls, team_id, parent_task_id, title, assigned_from, responsible_person, selected_users, deadline):
+        task_status = db.session.query(TaskStatus).filter_by(name="Ожидают выполнения").first()
+        task_status_id = task_status.id
+        if selected_users:
+            task_status_id = db.session.query(TaskStatus).filter_by(name="Выполняются").first()
+        else:
+            responsible_person = None
         new_task = Task(name=title, date_created=datetime.today(),
                             deadline=deadline, producer_id=assigned_from,
-                            stauts_changed_date=datetime.today(), task_status_id=1,
+                            stauts_changed_date=datetime.today(), task_status_id=task_status_id,
                             parent_task_id=parent_task_id, main_executor_id=responsible_person, team_id=team_id)
         db.session.add(new_task)
         db.session.commit()

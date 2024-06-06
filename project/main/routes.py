@@ -432,10 +432,15 @@ def new_task(team_id):
         return error, status
     assigned_from = db.session.query(TeamMember).filter_by(worker_id=user.id, team_id=team_id).first()
     title = request.form["task-title"]
-    responsible_person = int(request.form["responsible"])
+    responsible_person = None
+    try:
+        responsible_person = int(request.form["responsible"])
+    except Exception:
+        pass
     selected_users = request.form.getlist("assigned-to[]")
+    print(selected_users)
+    print(responsible_person)
     deadline = request.form["deadline"]
-    print(team_id, title, assigned_from, responsible_person, selected_users, deadline)
     TaskDAO.add_task(team_id, title, assigned_from.id, responsible_person, selected_users, deadline)
     team = db.session.query(Team).filter_by(id=team_id).first()
     project = db.session.query(Project).filter_by(id=team.project_id).first()
@@ -494,10 +499,14 @@ def task(team_id, task_id: int):
     executors = []
     for task_executor in task_executors:
         executors.append(TeamDAO.get_worker_by_member_id(task_executor.id))
+
+    worker = None
+    if task_main_executor:
+        worker = TeamDAO.get_worker_by_member_id(task_main_executor.id)
     task_data = {
         "task": current_task,
         "producer": TeamDAO.get_worker_by_member_id(task_producer.id),
-        "main_executor": TeamDAO.get_worker_by_member_id(task_main_executor.id),
+        "main_executor": worker,
         "executors": executors,
         "status": task_status,
         "subtasks": task_subtasks,
@@ -563,6 +572,17 @@ def create_task_report(team_id, task_id):
     message_text = request.form['message']
     if not is_task_main_executor:
         abort(413, "Вы не имеете права создавать отчет по задаче. На это имеет право только главный исполнитель задачи")
+    task = db.session.query(Task).filter_by(id=task_id).first()
+    finish_task_status = db.session.query(TaskStatus).filter_by(name="Завершены").first()
+    check_status = db.session.query(TaskStatus).filter_by(name="На проверке").first()
+    if task.task_status_id == finish_task_status.id:
+        abort(413, "Вы не можете создать отчет по задаче, задача завершена")
+    elif task.task_status_id == check_status.id:
+        abort(413, "Вы не имеете можете создать отчет по задаче, пока задача находится на проверке")
+    
+    changed = TaskDAO.change_task_status(task.id, check_status.id)
+    if not changed:
+        abort(413, "Отправьте подзадачи на проверку. Потом можно будет отправить главную задачу")
     TaskDAO.add_task_report(user_member.id, task_id, message_text)
     return redirect(url_for('main.task', team_id=team_id, task_id=task_id))
 

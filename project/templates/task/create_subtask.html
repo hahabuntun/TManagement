@@ -26,7 +26,7 @@
                     <!-- Task Assignment -->
                     <div class="form-group">
                         <label for="assigned-to">Кому назначено:</label>
-                        <select name="assigned-to[]" class="assigned-to" multiple required>
+                        <select name="assigned-to[]" class="assigned-to" multiple>
                             {% for subordinate in subordinates %}
                                 <option value="{{ subordinate.id }}">{{ subordinate.worker_data.email }}</option>
                             {% endfor %}
@@ -35,17 +35,13 @@
 
                     <div class="form-group">
                         <label for="responsible">Ответственный:</label>
-                        <select name="responsible" class="responsible">
-                            {% for subordinate in subordinates %}
-                                <option value="{{ subordinate.id }}">{{ subordinate.worker_data.email }}</option>
-                            {% endfor %}
                         </select>
                     </div>
 
                     <div class="form-group">
                         <label for="deadline">Дедлайн:</label>
                         <input name="deadline" type="date" class="dataInput" id="deadline"
-                               placeholder="deadline">
+                               placeholder="deadline" required>
                     </div>
                     {% if task_producer %}
                     <!-- Submit Button -->
@@ -58,4 +54,26 @@
         </div>
     </main>
 
+{% endblock %}
+
+
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const assignedToSelect = document.querySelector('.assigned-to');
+  const responsibleSelect = document.querySelector('.responsible');
+
+  assignedToSelect.addEventListener('change', function() {
+    responsibleSelect.innerHTML = '';
+    const selectedOptions = Array.from(this.selectedOptions);
+    selectedOptions.forEach(option => {
+      const newOption = document.createElement('option');
+      newOption.value = option.value;
+      newOption.text = option.text;
+      responsibleSelect.appendChild(newOption);
+    });
+  });
+});
+</script>
 {% endblock %}

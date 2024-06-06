@@ -214,6 +214,7 @@ class TeamDAO:
             db.session.add(DirectorSubordinates(producer_id=new_team_member.id, subordinate_id=put_task_permission))
         for take_task_permission in take_tasks:
             db.session.add(DirectorSubordinates(producer_id=take_task_permission, subordinate_id=new_team_member.id))
+        db.session.add(DirectorSubordinates(producer_id=new_team_member.id, subordinate_id=new_team_member.id))
         db.session.commit()
 
     @classmethod

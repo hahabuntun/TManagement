@@ -52,6 +52,28 @@
                             {{ task['producer'].email }}
                         </p>
                     </div>
+                    {% if is_task_producer %}
+                        <h4>Изменить исполнителей задачи: </h4>
+                        <form id="executors-form" method="POST" action="{{url_for('main.change_task_executors', team_id=task.team_id, task_id=task.task.id)}}">
+                            <div class="form-group">
+                                <label for="new-assigned-to">Кому назначено:</label>
+                                <select name="new-assigned-to[]" class="new-assigned-to" multiple>
+                                    {% for subordinate in subordinates %}
+                                        <option value="{{ subordinate.id }}">{{ subordinate.worker_data.email }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="new-responsible">Ответственный:</label>
+                                <select name="new-responsible" class="new-responsible">
+
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                Изменить
+                            </button>
+                        </form>
+                    {% endif %}
                 </div>
                 <hr>
 
@@ -118,6 +140,7 @@
                 </form>
                 <br>
                 <hr>
+                {% if is_task_producer %}
                 <!-- Change Status Button -->
                 <form method="POST" action="{{url_for('main.change_task_status', team_id=task.team_id, task_id=task.task.id)}}">
                     <div class="form-group">
@@ -130,8 +153,34 @@
                     </div>
                     <button type="submit" class="btn btn-warning">Изменить статус задачи</button>
                 </form>
+                <hr>
+                <form method="POST" action="{{url_for('main.drop_task', team_id=task.team_id, task_id=task.task.id)}}">
+                    <button type="submit" class="btn btn-danger">Удалить задачу</button>
+                </form>
+                {% endif %}
             </div>
         </div>
     </main>
 
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const assignedToSelect = document.querySelector('.new-assigned-to');
+      const responsibleSelect = document.querySelector('.new-responsible');
+    
+      assignedToSelect.addEventListener('change', function() {
+        responsibleSelect.innerHTML = '';
+        const selectedOptions = Array.from(this.selectedOptions);
+        selectedOptions.forEach(option => {
+          const newOption = document.createElement('option');
+          newOption.value = option.value;
+          newOption.text = option.text;
+          responsibleSelect.appendChild(newOption);
+        });
+      });
+    });
+    </script>
 {% endblock %}

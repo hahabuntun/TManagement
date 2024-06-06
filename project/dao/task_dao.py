@@ -122,6 +122,28 @@ class TaskDAO:
         db.session.commit()
 
     @classmethod
+    def change_task_executors(cls, task_id, responsible_person, selected_users):
+        task = db.session.query(Task).filter_by(id=task_id).first()
+        if not selected_users:
+            task_status = db.session.query(TaskStatus).filter_by(name="Ожидают выполнения").first()
+            task.task_status_id = task_status.id
+            responsible_person = None
+        task.main_executor_id = responsible_person
+        db.session.commit()
+        task_executors = db.session.query(TaskExecutor).filter_by(task_id=task_id).all()
+        selected_users = [int(selected_user_id) for selected_user_id in selected_users]
+        for task_executor in task_executors:
+            if task_executor.executor_id not in selected_users:
+                db.session.delete(task_executor)
+        db.session.commit()
+        for selected_team_member_id in selected_users:
+            executor = db.session.query(TaskExecutor).filter_by(task_id=task_id, executor_id=selected_team_member_id).first()
+            if not executor:
+                db.session.add(TaskExecutor(task_id=task_id, executor_id=int(selected_team_member_id)))
+        db.session.commit()
+
+
+    @classmethod
     def change_task_status(cls, task_id, new_status_id):
         task = db.session.query(Task).filter_by(id=task_id).first()
         subtasks = db.session.query(Task).filter_by(parent_task_id=task.id).all()

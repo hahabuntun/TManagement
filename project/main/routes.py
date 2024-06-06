@@ -482,14 +482,27 @@ def new_subtask(team_id, task_id):
     return redirect(url_for("main.task", team_id=team_id, task_id=task_id))
 
 
+@bp.route("/teams/<int:team_id>/team_task/<int:task_id>/change_executors", methods=["POST"])
+def change_task_executors(team_id, task_id):
+    user, error, status = get_user_from_token()
+    if error:
+        return error, status
+    current_user = db.session.query(TeamMember).filter_by(worker_id=user.id, team_id=team_id).first()
+    responsible_person = None
+    try:
+        responsible_person = int(request.form["new-responsible"])
+    except Exception:
+        pass
+    selected_users = request.form.getlist("new-assigned-to[]")
+    TaskDAO.change_task_executors(task_id, responsible_person, selected_users)
+    return redirect(url_for("main.task", team_id=team_id, task_id=task_id))
+
 # Описание задачи
 @bp.route("/teams/<int:team_id>/team_task/<int:task_id>", methods=["GET", "POST"])
 def task(team_id, task_id: int):
     user, error, status = get_user_from_token()
     if error:
         return error, status
-    user_member = db.session.query(TeamMember).filter_by(worker_id=user.id, team_id=team_id).first()
-    is_allowed_to_add_data = False
     current_task = TaskDAO.get_task(task_id)
     task_producer = TaskDAO.get_task_producer_member(task_id)
     task_main_executor = TaskDAO.get_task_main_executor_member(task_id)
@@ -499,8 +512,13 @@ def task(team_id, task_id: int):
     task_messages = TaskDAO.get_task_messages(task_id)
     task_reports = TaskDAO.get_task_reports(task_id)
     parent_task = TaskDAO.get_parent_task(task_id)
-    # task_executor = TaskDAO.get_task_executor(task_data[10])
-    
+
+    is_task_producer = True
+    user_member = db.session.query(TeamMember).filter_by(worker_id=user.id, team_id=team_id).first()
+    current_task = db.session.query(Task).filter_by(id=task_id).first()
+    task_producer = db.session.query(TeamMember).filter_by(id=current_task.producer_id).first()
+    if task_producer.id != user_member.id:
+        is_task_producer = False
     statuses = db.session.query(TaskStatus).all()
 
     executors = []
@@ -522,7 +540,8 @@ def task(team_id, task_id: int):
         "team_id": team_id,
         "parent_task": parent_task
     }
-    return render_template("task/task.html", task=task_data, statuses=statuses)
+    subordinates = TeamDAO.get_worker_subordinates_by_team_id(user.id, team_id)
+    return render_template("task/task.html", task=task_data, statuses=statuses, is_task_producer=is_task_producer, subordinates=subordinates)
 
 
 
@@ -541,14 +560,21 @@ def change_task_status(team_id, task_id):
         return redirect(url_for('main.task', team_id=team_id, task_id=task_id))
     else:
         abort(413, "Вы не можете изменить статус задачи пока вы не измените статус всех подзадач")
-@bp.route("/drop_task/<int:task_id>", methods=["GET", "POST"])
-def drop_task(task_id: int):
+@bp.route("/teams/<int:team_id>/drop_task/<int:task_id>", methods=["GET", "POST"])
+def drop_task(team_id, task_id: int):
     user, error, status = get_user_from_token()
     if error:
         return error, status
+    user_member = db.session.query(TeamMember).filter_by(worker_id=user.id, team_id=team_id).first()
+    current_task = db.session.query(Task).filter_by(id=task_id).first()
+    task_producer = db.session.query(TeamMember).filter_by(id=current_task.producer_id).first()
+    team = db.session.query(Team).filter_by(id=team_id).first()
+    project_id = team.project_id
+    if user_member.id != task_producer.id:
+        abort(413, "Вы не имеете права удалять задачу, это может делать только ее постановщик")
     if not TaskDAO.delete_task(task_id):
         abort(404)
-    return redirect("/projects")
+    return redirect(url_for('main.team_tasks', project_id=project_id, team_id=team_id))
 
 
 @bp.route("/teams/<int:team_id>/create_task_message/<int:task_id>",  methods=["GET", "POST"])

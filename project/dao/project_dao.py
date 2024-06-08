@@ -57,6 +57,7 @@ class ProjectDAO:
         join team_members on team_members.team_id = teams.id
         where projects.id = :project_id
         """)
+        
 
         projects = db.session.execute(query).fetchall()
         data = []
@@ -64,7 +65,7 @@ class ProjectDAO:
             num_teams = db.session.execute(query2, {"project_id": project.id}).fetchone()
             num_employees = db.session.execute(query3, {"project_id": project.id}).fetchone()
             data.append({"project_id": project.id, "title": project.title,
-                         "date_created": project.date_created.strftime("%Y-%m-%d"),
+                         "date_created": project.date_created,
                          "status": project.status, "manager": project.manager_email, "num_teams": num_teams[0],
                          "num_employees": num_employees[0]})
         return data

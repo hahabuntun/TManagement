@@ -44,9 +44,9 @@
                 {% for doc in documents %}
                     <tr>
                         <td>{{ doc.name }}</td>
-                        <td>{{ doc.date_created.strftime('%d.%m.%Y %H:%M') }}</td>
+                        <td>{{ moment(doc.date_created).format('DD.MM.YYYY HH:mm') }}</td>
                         <td>
-                            <button class="btn btn-danger"><a href="{{ url_for('main.drop_project_doc', project_id=project_id, document_id=doc.id) }}">Удалить</a></button>
+                            <button class="btn btn-danger"><a class="text-white" href="{{ url_for('main.drop_project_doc', project_id=project_id, document_id=doc.id) }}">Удалить</a></button>
                         </td>
                         <td><a href="{{ url_for('main.download_project_doc', project_id=project_id, document_id=doc.id) }}">Скачать</a></td>
                     </tr>

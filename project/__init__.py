@@ -3,11 +3,12 @@ from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from config import Config
 from flask_migrate import Migrate
+from flask_moment import Moment
 
 db = SQLAlchemy()
 login_manager = LoginManager()
 migrate = Migrate()
-
+moment = Moment()
 
 # Функция создания приложения
 def create_app(config_class=Config):
@@ -18,6 +19,7 @@ def create_app(config_class=Config):
     db.init_app(app)
     migrate.init_app(app, db)
     # login_manager.init_app(app)
+    moment.init_app(app)
     
     # Загрузка blueprints
     from project.errors import bp as errors_bp

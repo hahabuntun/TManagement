@@ -92,10 +92,10 @@ class TaskDAO:
         else:
             responsible_person = None
         task_status_id = task_status.id
-        new_task = Task(name=title, date_created=datetime.today(),
-                            deadline=deadline, producer_id=assigned_from,
-                            stauts_changed_date=datetime.today(), task_status_id=task_status_id,
-                            parent_task_id=None, main_executor_id=responsible_person, team_id=team_id)
+        new_task = Task(name=title,
+                        deadline=deadline, producer_id=assigned_from,
+                        stauts_changed_date=datetime.utcnow(), task_status_id=task_status_id,
+                        parent_task_id=None, main_executor_id=responsible_person, team_id=team_id)
         db.session.add(new_task)
         db.session.commit()
         for selected_team_member_id in selected_users:
@@ -111,10 +111,10 @@ class TaskDAO:
         else:
             responsible_person = None
         task_status_id = task_status.id
-        new_task = Task(name=title, date_created=datetime.today(),
-                            deadline=deadline, producer_id=assigned_from,
-                            stauts_changed_date=datetime.today(), task_status_id=task_status_id,
-                            parent_task_id=parent_task_id, main_executor_id=responsible_person, team_id=team_id)
+        new_task = Task(name=title,
+                        deadline=deadline, producer_id=assigned_from,
+                        stauts_changed_date=datetime.utcnow(), task_status_id=task_status_id,
+                        parent_task_id=parent_task_id, main_executor_id=responsible_person, team_id=team_id)
         db.session.add(new_task)
         db.session.commit()
         for selected_team_member_id in selected_users:
@@ -151,6 +151,7 @@ class TaskDAO:
             if not cls.check_can_change_task_status(subtask.id, new_status_id):
                 return False
         task.task_status_id = new_status_id
+        task.stauts_changed_date = datetime.utcnow()
         db.session.commit()
         return True
     

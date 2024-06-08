@@ -15,9 +15,9 @@
                 {% if task.parent_task %}
                 <p>Задача верхнего уровня: <a href="{{url_for('main.task', team_id=task.team_id, task_id=task.parent_task.id)}}">{{task.parent_task.name}}</a></p>
                 {%  endif %}
-                <p class="card-text">Дата создания: {{ task['task'].date_created.strftime('%d.%m.%Y %H:%M') }}</p>
-                <p class="card-text">Дедлайн: {{ task['task'].deadline.strftime('%d.%m.%Y %H:%M') }}</p>
-                <p class="card-text">Дата последнего измененения статуса: {{ task['task'].stauts_changed_date.strftime('%d.%m.%Y %H:%M') }}</p>
+                <p class="card-text">Дата создания: {{ moment(task['task'].date_created).format('DD.MM.YYYY HH:mm') }}</p>
+                <p class="card-text">Дедлайн: {{ moment(task['task'].deadline).format('DD.MM.YYYY') }}</p>
+                <p class="card-text">Дата последнего измененения статуса: {{ moment(task['task'].stauts_changed_date).format('DD.MM.YYYY HH:mm') }}</p>
                 <p class="card-text">Статус задачи: {{ task['status'].name }}</p>
                 <hr>
                 <!-- Task Assignment Section -->
@@ -37,7 +37,7 @@
                                 </li>
                                 {% endfor %}
                             </ul>
-                            Из них ответственный:
+                            <strong>Из них ответственный:</strong>
                             {% if task['main_executor'] %}
                                 {{ task['main_executor'].name }}
                                 {{ task['main_executor'].second_name }}
@@ -86,7 +86,7 @@
                             <div class="chat-message">
                                 <div class="chat-message-header">
                                     <span class="chat-sender">{{ item.worker.email }}</span>
-                                    <span class="chat-timestamp">{{ item.upload_date.strftime('%d.%m.%Y %H:%M') }}</span>
+                                    <span class="chat-timestamp">{{ moment(item.upload_date).format('DD.MM.YYYY HH:mm') }}</span>
                                 </div>
                                 <div class="chat-message-body">
                                     {{ item.text }}
@@ -116,17 +116,17 @@
 
                     <!-- Add more subtasks dynamically -->
                 </ul>
-                <br>
-                <hr>
                 <!-- Create Subtask Form -->
                 <a href="{{url_for('main.add_subtask', team_id=task.team_id, task_id=task.task.id)}}">Создать подзадачу</a>
-                <!-- Report Section -->
+                <br>
+                <hr>
                 <h6>Отчет по задаче:</h6>
                 {% for item in task['reports'] %}
                 <ul>
-                    <li class="list-group-item">{{ item.text }}</li>
-                    <li class="list-group-item">{{ item.upload_date.strftime('%d.%m.%Y %H:%M') }}</li>
                     <li class="list-group-item">Отправитель: {{item.worker.email}}</li>
+                    <li class="list-group-item">{{ moment(item.upload_date).format('DD.MM.YYYY HH:mm') }}</li>
+    
+                    <li class="list-group-item">{{ item.text }}</li>
                 </ul>
                 <br>
                 {% endfor %}

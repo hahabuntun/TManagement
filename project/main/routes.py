@@ -136,16 +136,35 @@ def all_projects():
         return render_template("project/projects.html", context=data, statuses=statuses, managers=managers, user=user)
     else:
         abort(413, "Вы не являетесь администратором в проектах")
-    
+
+@bp.post("/update_project_status/<int:project_id>")
+def update_project_status(project_id):
+    user, error, status = get_user_from_token()
+    if error:
+        return error, status
+    worker_position = db.session.query(WorkerPosition).filter_by(id=user.worker_position_id).first()
+    cond = db.session.query(Project).filter_by(manager_id=user.id, id=project_id).first()
+    if worker_position.name == "admin" or cond:
+        new_status_id = request.form.get('status')
+        project = db.session.query(Project).filter_by(id=project_id).first()
+        project.project_status_id = new_status_id
+        db.session.commit()
+        if cond:
+            return redirect(url_for('main.all_projects_manager'))
+        else:
+            return redirect(url_for('main.all_projects'))
+    else:
+        abort(413, "Вы не являетесь администратором в проектах")
+
 @bp.get("/projects_manager")
 def all_projects_manager():
     user, error, status = get_user_from_token()
     if error:
         return error, status
-    worker_position = db.session.query(WorkerPosition).filter_by(id=user.worker_position_id).first()
+    statuses = ProjectStatus.query.all()
     data = ProjectDAO.get_all_manager_projects(user.id)
     print(data)
-    return render_template("project/manager_projects.html", context=data, user=user)
+    return render_template("project/manager_projects.html", context=data, user=user, statuses=statuses)
     
 @bp.get("/all_teams_member")
 def all_teams_member():
